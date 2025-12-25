@@ -1,0 +1,12 @@
+class: Order
+table: orders
+fields:
+  userId: int
+  status: OrderStatus
+  type: OrderType
+  pickupTime: DateTime?
+  queueNumber: String?
+  replyMessage: String?
+  totalOrderPrice: double
+  orderDate: DateTime
+  createdAt: DateTime?

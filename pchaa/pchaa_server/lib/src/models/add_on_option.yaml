@@ -1,0 +1,5 @@
+class: AddOnOption
+fields:
+  name: String
+  price: double
+  isAvailable: bool

@@ -1,0 +1,10 @@
+class: OrderItem
+table: order_items
+fields:
+  orderId: int
+  menuItemId: int?
+  itemName: String
+  selectedOptions: List<SelectedOption>
+  additionalMessage: String?
+  quantity: int
+  finalPrice: double

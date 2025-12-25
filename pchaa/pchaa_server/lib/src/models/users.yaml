@@ -1,0 +1,8 @@
+class: User
+table: users
+fields:
+  username: String
+  passwordHash: String
+  phoneNumber: String?
+  role: UserRole
+  createdAt: DateTime?

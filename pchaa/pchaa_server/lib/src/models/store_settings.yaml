@@ -1,0 +1,8 @@
+class: StoreSettings
+table: store_settings
+fields:
+  isOpen: bool
+  openTime: String # Store as "HH:mm:ss"
+  closeTime: String
+  autoOpenClose: bool
+  s3Key: String?

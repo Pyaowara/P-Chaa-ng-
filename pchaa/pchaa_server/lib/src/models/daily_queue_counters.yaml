@@ -1,0 +1,6 @@
+class: DailyQueueCounter
+table: daily_queue_counters
+fields:
+  queueDate: DateTime # Primary Key handled by Serverpod
+  iCount: int
+  sCount: int

@@ -1,0 +1,10 @@
+class: MenuItem
+table: menu_items
+fields:
+  name: String
+  basePrice: double
+  timeToPrepare: int
+  customization: List<CustomizationGroup>
+  s3Key: String?
+  isAvailable: bool
+  createdAt: DateTime?

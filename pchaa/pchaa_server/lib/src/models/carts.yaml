@@ -1,0 +1,11 @@
+class: Cart
+table: carts
+fields:
+  userId: int
+  menuItemId: int
+  selectedOptions: List<SelectedOption>
+  additionalMessage: String?
+  quantity: int
+  unitPrice: double
+  totalPrice: double
+  createdAt: DateTime?

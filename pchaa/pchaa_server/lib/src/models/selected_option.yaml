@@ -1,0 +1,5 @@
+class: SelectedOption
+fields:
+  groupTitle: String
+  name: String
+  price: double
