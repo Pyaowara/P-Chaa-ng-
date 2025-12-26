@@ -1,8 +1,9 @@
 class: User
 table: users
 fields:
-  username: String
-  passwordHash: String
+  email: String
+  fullName: String
+  picture: String?
   phoneNumber: String?
   role: UserRole
   createdAt: DateTime?

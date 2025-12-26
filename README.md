@@ -13,7 +13,7 @@ Solves the complexity of variable food customizations and daily queue management
 * **Frontend:** Flutter (Mobile & Maybe Web)
 * **Database:** PostgreSQL (Relational data + JSONB for flexible add-ons)
 * **Storage:** MinIO (Food & Profile images)
-* **Backend:** Still deciding
+* **Backend:** Severpod
 
 ## 🏗 System Architecture
 

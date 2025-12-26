@@ -16,8 +16,9 @@ import 'user_role.dart' as _i2;
 abstract class User implements _i1.SerializableModel {
   User._({
     this.id,
-    required this.username,
-    required this.passwordHash,
+    required this.email,
+    required this.fullName,
+    this.picture,
     this.phoneNumber,
     required this.role,
     this.createdAt,
@@ -25,8 +26,9 @@ abstract class User implements _i1.SerializableModel {
 
   factory User({
     int? id,
-    required String username,
-    required String passwordHash,
+    required String email,
+    required String fullName,
+    String? picture,
     String? phoneNumber,
     required _i2.UserRole role,
     DateTime? createdAt,
@@ -35,8 +37,9 @@ abstract class User implements _i1.SerializableModel {
   factory User.fromJson(Map<String, dynamic> jsonSerialization) {
     return User(
       id: jsonSerialization['id'] as int?,
-      username: jsonSerialization['username'] as String,
-      passwordHash: jsonSerialization['passwordHash'] as String,
+      email: jsonSerialization['email'] as String,
+      fullName: jsonSerialization['fullName'] as String,
+      picture: jsonSerialization['picture'] as String?,
       phoneNumber: jsonSerialization['phoneNumber'] as String?,
       role: _i2.UserRole.fromJson((jsonSerialization['role'] as String)),
       createdAt: jsonSerialization['createdAt'] == null
@@ -50,9 +53,11 @@ abstract class User implements _i1.SerializableModel {
   /// the id will be null.
   int? id;
 
-  String username;
+  String email;
 
-  String passwordHash;
+  String fullName;
+
+  String? picture;
 
   String? phoneNumber;
 
@@ -65,8 +70,9 @@ abstract class User implements _i1.SerializableModel {
   @_i1.useResult
   User copyWith({
     int? id,
-    String? username,
-    String? passwordHash,
+    String? email,
+    String? fullName,
+    String? picture,
     String? phoneNumber,
     _i2.UserRole? role,
     DateTime? createdAt,
@@ -76,8 +82,9 @@ abstract class User implements _i1.SerializableModel {
     return {
       '__className__': 'User',
       if (id != null) 'id': id,
-      'username': username,
-      'passwordHash': passwordHash,
+      'email': email,
+      'fullName': fullName,
+      if (picture != null) 'picture': picture,
       if (phoneNumber != null) 'phoneNumber': phoneNumber,
       'role': role.toJson(),
       if (createdAt != null) 'createdAt': createdAt?.toJson(),
@@ -95,15 +102,17 @@ class _Undefined {}
 class _UserImpl extends User {
   _UserImpl({
     int? id,
-    required String username,
-    required String passwordHash,
+    required String email,
+    required String fullName,
+    String? picture,
     String? phoneNumber,
     required _i2.UserRole role,
     DateTime? createdAt,
   }) : super._(
          id: id,
-         username: username,
-         passwordHash: passwordHash,
+         email: email,
+         fullName: fullName,
+         picture: picture,
          phoneNumber: phoneNumber,
          role: role,
          createdAt: createdAt,
@@ -115,16 +124,18 @@ class _UserImpl extends User {
   @override
   User copyWith({
     Object? id = _Undefined,
-    String? username,
-    String? passwordHash,
+    String? email,
+    String? fullName,
+    Object? picture = _Undefined,
     Object? phoneNumber = _Undefined,
     _i2.UserRole? role,
     Object? createdAt = _Undefined,
   }) {
     return User(
       id: id is int? ? id : this.id,
-      username: username ?? this.username,
-      passwordHash: passwordHash ?? this.passwordHash,
+      email: email ?? this.email,
+      fullName: fullName ?? this.fullName,
+      picture: picture is String? ? picture : this.picture,
       phoneNumber: phoneNumber is String? ? phoneNumber : this.phoneNumber,
       role: role ?? this.role,
       createdAt: createdAt is DateTime? ? createdAt : this.createdAt,

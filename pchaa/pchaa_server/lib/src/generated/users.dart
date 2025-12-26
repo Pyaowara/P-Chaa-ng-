@@ -16,8 +16,9 @@ import 'user_role.dart' as _i2;
 abstract class User implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   User._({
     this.id,
-    required this.username,
-    required this.passwordHash,
+    required this.email,
+    required this.fullName,
+    this.picture,
     this.phoneNumber,
     required this.role,
     this.createdAt,
@@ -25,8 +26,9 @@ abstract class User implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
 
   factory User({
     int? id,
-    required String username,
-    required String passwordHash,
+    required String email,
+    required String fullName,
+    String? picture,
     String? phoneNumber,
     required _i2.UserRole role,
     DateTime? createdAt,
@@ -35,8 +37,9 @@ abstract class User implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   factory User.fromJson(Map<String, dynamic> jsonSerialization) {
     return User(
       id: jsonSerialization['id'] as int?,
-      username: jsonSerialization['username'] as String,
-      passwordHash: jsonSerialization['passwordHash'] as String,
+      email: jsonSerialization['email'] as String,
+      fullName: jsonSerialization['fullName'] as String,
+      picture: jsonSerialization['picture'] as String?,
       phoneNumber: jsonSerialization['phoneNumber'] as String?,
       role: _i2.UserRole.fromJson((jsonSerialization['role'] as String)),
       createdAt: jsonSerialization['createdAt'] == null
@@ -52,9 +55,11 @@ abstract class User implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   @override
   int? id;
 
-  String username;
+  String email;
 
-  String passwordHash;
+  String fullName;
+
+  String? picture;
 
   String? phoneNumber;
 
@@ -70,8 +75,9 @@ abstract class User implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   @_i1.useResult
   User copyWith({
     int? id,
-    String? username,
-    String? passwordHash,
+    String? email,
+    String? fullName,
+    String? picture,
     String? phoneNumber,
     _i2.UserRole? role,
     DateTime? createdAt,
@@ -81,8 +87,9 @@ abstract class User implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     return {
       '__className__': 'User',
       if (id != null) 'id': id,
-      'username': username,
-      'passwordHash': passwordHash,
+      'email': email,
+      'fullName': fullName,
+      if (picture != null) 'picture': picture,
       if (phoneNumber != null) 'phoneNumber': phoneNumber,
       'role': role.toJson(),
       if (createdAt != null) 'createdAt': createdAt?.toJson(),
@@ -94,8 +101,9 @@ abstract class User implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     return {
       '__className__': 'User',
       if (id != null) 'id': id,
-      'username': username,
-      'passwordHash': passwordHash,
+      'email': email,
+      'fullName': fullName,
+      if (picture != null) 'picture': picture,
       if (phoneNumber != null) 'phoneNumber': phoneNumber,
       'role': role.toJson(),
       if (createdAt != null) 'createdAt': createdAt?.toJson(),
@@ -137,15 +145,17 @@ class _Undefined {}
 class _UserImpl extends User {
   _UserImpl({
     int? id,
-    required String username,
-    required String passwordHash,
+    required String email,
+    required String fullName,
+    String? picture,
     String? phoneNumber,
     required _i2.UserRole role,
     DateTime? createdAt,
   }) : super._(
          id: id,
-         username: username,
-         passwordHash: passwordHash,
+         email: email,
+         fullName: fullName,
+         picture: picture,
          phoneNumber: phoneNumber,
          role: role,
          createdAt: createdAt,
@@ -157,16 +167,18 @@ class _UserImpl extends User {
   @override
   User copyWith({
     Object? id = _Undefined,
-    String? username,
-    String? passwordHash,
+    String? email,
+    String? fullName,
+    Object? picture = _Undefined,
     Object? phoneNumber = _Undefined,
     _i2.UserRole? role,
     Object? createdAt = _Undefined,
   }) {
     return User(
       id: id is int? ? id : this.id,
-      username: username ?? this.username,
-      passwordHash: passwordHash ?? this.passwordHash,
+      email: email ?? this.email,
+      fullName: fullName ?? this.fullName,
+      picture: picture is String? ? picture : this.picture,
       phoneNumber: phoneNumber is String? ? phoneNumber : this.phoneNumber,
       role: role ?? this.role,
       createdAt: createdAt is DateTime? ? createdAt : this.createdAt,
@@ -177,13 +189,18 @@ class _UserImpl extends User {
 class UserUpdateTable extends _i1.UpdateTable<UserTable> {
   UserUpdateTable(super.table);
 
-  _i1.ColumnValue<String, String> username(String value) => _i1.ColumnValue(
-    table.username,
+  _i1.ColumnValue<String, String> email(String value) => _i1.ColumnValue(
+    table.email,
     value,
   );
 
-  _i1.ColumnValue<String, String> passwordHash(String value) => _i1.ColumnValue(
-    table.passwordHash,
+  _i1.ColumnValue<String, String> fullName(String value) => _i1.ColumnValue(
+    table.fullName,
+    value,
+  );
+
+  _i1.ColumnValue<String, String> picture(String? value) => _i1.ColumnValue(
+    table.picture,
     value,
   );
 
@@ -208,12 +225,16 @@ class UserUpdateTable extends _i1.UpdateTable<UserTable> {
 class UserTable extends _i1.Table<int?> {
   UserTable({super.tableRelation}) : super(tableName: 'users') {
     updateTable = UserUpdateTable(this);
-    username = _i1.ColumnString(
-      'username',
+    email = _i1.ColumnString(
+      'email',
       this,
     );
-    passwordHash = _i1.ColumnString(
-      'passwordHash',
+    fullName = _i1.ColumnString(
+      'fullName',
+      this,
+    );
+    picture = _i1.ColumnString(
+      'picture',
       this,
     );
     phoneNumber = _i1.ColumnString(
@@ -233,9 +254,11 @@ class UserTable extends _i1.Table<int?> {
 
   late final UserUpdateTable updateTable;
 
-  late final _i1.ColumnString username;
+  late final _i1.ColumnString email;
 
-  late final _i1.ColumnString passwordHash;
+  late final _i1.ColumnString fullName;
+
+  late final _i1.ColumnString picture;
 
   late final _i1.ColumnString phoneNumber;
 
@@ -246,8 +269,9 @@ class UserTable extends _i1.Table<int?> {
   @override
   List<_i1.Column> get columns => [
     id,
-    username,
-    passwordHash,
+    email,
+    fullName,
+    picture,
     phoneNumber,
     role,
     createdAt,

@@ -1,105 +1,168 @@
 import 'package:flutter/material.dart';
+import 'package:serverpod_auth_shared_flutter/serverpod_auth_shared_flutter.dart';
+import 'package:pchaa_client/pchaa_client.dart';
 
 import '../main.dart';
 
 class GreetingsScreen extends StatefulWidget {
-  final Future<void> Function()? onSignOut;
-  const GreetingsScreen({super.key, this.onSignOut});
+  const GreetingsScreen({super.key});
 
   @override
   State<GreetingsScreen> createState() => _GreetingsScreenState();
 }
 
 class _GreetingsScreenState extends State<GreetingsScreen> {
-  /// Holds the last result or null if no result exists yet.
-  String? _resultMessage;
-
-  /// Holds the last error message that we've received from the server or null
-  /// if no error exists yet.
+  User? _user;
+  bool _isLoading = true;
   String? _errorMessage;
 
-  final _textEditingController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    _loadUserProfile();
+  }
 
-  /// Calls the `hello` method of the `greeting` endpoint. Will set either the
-  /// `_resultMessage` or `_errorMessage` field, depending on if the call
-  /// is successful.
-  void _callHello() async {
+  Future<void> _loadUserProfile() async {
     try {
-      final result = await client.greeting.hello(_textEditingController.text);
+      final user = await client.user.getCurrentUser();
       setState(() {
-        _errorMessage = null;
-        _resultMessage = result.message;
+        _user = user;
+        _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _errorMessage = '$e';
+        _errorMessage = e.toString();
+        _isLoading = false;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          if (widget.onSignOut != null) ...[
-            const Text('You are connected'),
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 48, color: Colors.red),
+            const SizedBox(height: 16),
+            Text('Error: $_errorMessage'),
+            const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: widget.onSignOut,
-              child: const Text('Sign out'),
+              onPressed: _loadUserProfile,
+              child: const Text('Retry'),
             ),
           ],
+        ),
+      );
+    }
+
+    if (_user == null) {
+      return const Center(child: Text('No user data found'));
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SizedBox(height: 24),
+          CircularUserImage(
+            userInfo:
+                sessionManager.signedInUser != null && _user!.picture != null
+                ? sessionManager.signedInUser!.copyWith(
+                    imageUrl: _user!.picture,
+                  )
+                : sessionManager.signedInUser,
+            size: 100,
+          ),
+          const SizedBox(height: 24),
+          Text(
+            _user!.fullName,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _user!.email,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: Colors.grey[600],
+            ),
+          ),
           const SizedBox(height: 32),
-          TextField(
-            controller: _textEditingController,
-            decoration: const InputDecoration(hintText: 'Enter your name'),
+          _buildInfoCard(
+            context,
+            icon: Icons.badge,
+            title: 'Role',
+            value: _user!.role.name.toUpperCase(),
           ),
           const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: _callHello,
-            child: const Text('Send to Server'),
-          ),
+          if (_user!.phoneNumber != null)
+            _buildInfoCard(
+              context,
+              icon: Icons.phone,
+              title: 'Phone Number',
+              value: _user!.phoneNumber!,
+            ),
           const SizedBox(height: 16),
-          ResultDisplay(
-            resultMessage: _resultMessage,
-            errorMessage: _errorMessage,
+          _buildInfoCard(
+            context,
+            icon: Icons.calendar_today,
+            title: 'Member Since',
+            value: _formatDate(_user!.createdAt),
           ),
         ],
       ),
     );
   }
-}
 
-/// ResultDisplays shows the result of the call. Either the returned result
-/// from the `example.greeting` endpoint method or an error message.
-class ResultDisplay extends StatelessWidget {
-  final String? resultMessage;
-  final String? errorMessage;
-
-  const ResultDisplay({super.key, this.resultMessage, this.errorMessage});
-
-  @override
-  Widget build(BuildContext context) {
-    String text;
-    Color backgroundColor;
-    if (errorMessage != null) {
-      backgroundColor = Colors.red[300]!;
-      text = errorMessage!;
-    } else if (resultMessage != null) {
-      backgroundColor = Colors.green[300]!;
-      text = resultMessage!;
-    } else {
-      backgroundColor = Colors.grey[300]!;
-      text = 'No server response yet.';
-    }
-
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 50),
-      child: Container(
-        color: backgroundColor,
-        child: Center(child: Text(text)),
+  Widget _buildInfoCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String value,
+  }) {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Icon(icon, color: Theme.of(context).primaryColor),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    value,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return 'Unknown';
+    return '${date.day}/${date.month}/${date.year}';
   }
 }

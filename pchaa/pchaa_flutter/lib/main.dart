@@ -1,85 +1,205 @@
 import 'package:pchaa_client/pchaa_client.dart';
 import 'package:flutter/material.dart';
 import 'package:serverpod_flutter/serverpod_flutter.dart';
-import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
+import 'package:serverpod_auth_google_flutter/serverpod_auth_google_flutter.dart';
+import 'package:serverpod_auth_shared_flutter/serverpod_auth_shared_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import 'config/app_config.dart';
 import 'screens/greetings_screen.dart';
 
-/// Sets up a global client object that can be used to talk to the server from
-/// anywhere in our app. The client is generated from your server code
-/// and is set up to connect to a Serverpod running on a local server on
-/// the default port. You will need to modify this to connect to staging or
-/// production servers.
-/// In a larger app, you may want to use the dependency injection of your choice
-/// instead of using a global client object. This is just a simple example.
 late final Client client;
-
-late String serverUrl;
+late SessionManager sessionManager;
+late final FlutterAuthenticationKeyManager keyManager;
+String? googleProfilePictureUrl;
+late final GoogleSignIn googleSignIn;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // When you are running the app on a physical device, you need to set the
-  // server URL to the IP address of your computer. You can find the IP
-  // address by running `ipconfig` on Windows or `ifconfig` on Mac/Linux.
-  // You can set the variable when running or building your app like this:
-  // E.g. `flutter run --dart-define=SERVER_URL=https://api.example.com/`
-  const serverUrlFromEnv = String.fromEnvironment('SERVER_URL');
-  // AppConfig loads the API server URL from the assets/config.json file.
-  // When the app runs in a browser, this file is fetched from the server,
-  // allowing the server to change the API URL at runtime.
-  // This ensures the app always uses the correct API URL,
-  // no matter which environment it is running in.
-  final config = await AppConfig.loadConfig();
-  final serverUrl = serverUrlFromEnv.isEmpty
-      ? config.apiUrl ?? 'http://$localhost:8080/'
-      : serverUrlFromEnv;
+  await dotenv.load(fileName: ".env");
 
-  client = Client(serverUrl)
-    ..connectivityMonitor = FlutterConnectivityMonitor()
-    ..authSessionManager = FlutterAuthSessionManager();
+  googleSignIn = GoogleSignIn(
+    scopes: ['email', 'profile'],
+    serverClientId: dotenv.env['GOOGLE_CLIENT_ID']!,
+  );
 
-  client.auth.initialize();
+  keyManager = FlutterAuthenticationKeyManager(
+    runMode: 'development',
+  );
+
+  client = Client(
+    dotenv.env['SERVER_URL']!,
+    authenticationKeyManager: keyManager,
+  )..connectivityMonitor = FlutterConnectivityMonitor();
+
+  sessionManager = SessionManager(
+    caller: client.modules.auth,
+  );
+  await sessionManager.initialize();
 
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    sessionManager.addListener(_onSessionChanged);
+  }
+
+  @override
+  void dispose() {
+    sessionManager.removeListener(_onSessionChanged);
+    super.dispose();
+  }
+
+  void _onSessionChanged() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Serverpod Demo',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const MyHomePage(title: 'Serverpod Example'),
+      title: 'P-Chaa-ng App',
+      theme: ThemeData(
+        useMaterial3: true,
+        primarySwatch: Colors.blue,
+      ),
+      home: sessionManager.signedInUser != null
+          ? const MyHomePage(title: 'P-Chaa-ng Food Order')
+          : const SignInPage(),
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key, required this.title});
+class SignInPage extends StatefulWidget {
+  const SignInPage({super.key});
 
-  final String title;
+  @override
+  State<SignInPage> createState() => _SignInPageState();
+}
+
+class _SignInPageState extends State<SignInPage> {
+  Future<void> _handleGoogleSignIn() async {
+    try {
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser == null) return;
+
+      googleProfilePictureUrl = googleUser.photoUrl;
+
+      final serverAuthCode = googleUser.serverAuthCode;
+      if (serverAuthCode == null) return;
+
+      final authResponse = await client.modules.auth.google
+          .authenticateWithServerAuthCode(
+            serverAuthCode,
+            'http://localhost:8082/googlesignin',
+          );
+
+      if (!authResponse.success ||
+          authResponse.keyId == null ||
+          authResponse.key == null) {
+        return;
+      }
+
+      await keyManager.put('${authResponse.keyId}:${authResponse.key}');
+      await sessionManager.refreshSession();
+
+      await client.user.registerUser(
+        profilePictureUrl: googleProfilePictureUrl,
+      );
+    } catch (e) {
+      debugPrint('Error during Google sign-in: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: AppBar(
+        title: const Text('P-Chaa-ng Food Order'),
+      ),
+      body: Center(
+        child: ElevatedButton.icon(
+          onPressed: _handleGoogleSignIn,
+          icon: const Icon(Icons.login),
+          label: const Text('Sign in with Google'),
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+  final String title;
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  String? _userPictureUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserPicture();
+  }
+
+  Future<void> _loadUserPicture() async {
+    try {
+      final user = await client.user.getCurrentUser();
+      if (mounted && user?.picture != null) {
+        setState(() {
+          _userPictureUrl = user!.picture;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading user picture: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final userInfo = sessionManager.signedInUser;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: CircularUserImage(
+              userInfo: userInfo != null && _userPictureUrl != null
+                  ? userInfo.copyWith(imageUrl: _userPictureUrl)
+                  : userInfo,
+              size: 36,
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sign Out',
+            onPressed: () async {
+              googleProfilePictureUrl = null;
+              await googleSignIn.signOut();
+              await sessionManager.signOutDevice();
+            },
+          ),
+        ],
+      ),
       body: const GreetingsScreen(),
-      // To test authentication in this example app, uncomment the line below
-      // and comment out the line above. This wraps the GreetingsScreen with a
-      // SignInScreen, which automatically shows a sign-in UI when the user is
-      // not authenticated and displays the GreetingsScreen once they sign in.
-      //
-      // body: SignInScreen(
-      //   child: GreetingsScreen(
-      //     onSignOut: () async {
-      //       await client.auth.signOutDevice();
-      //     },
-      //   ),
-      // ),
     );
   }
 }
