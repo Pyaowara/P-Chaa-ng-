@@ -45,6 +45,12 @@ redis:
   #user: # defaults to empty
   #requireSsl: true # defaults to false
 
+minio:
+  endpoint: localhost
+  port: 8092
+  useSSL: false
+  bucket: menu-items
+
 maxRequestSize: 524288 # The maximum size of requests allowed in bytes
 
 sessionLogs:

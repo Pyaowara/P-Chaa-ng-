@@ -7,6 +7,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'screens/greetings_screen.dart';
+import 'screens/menu_items_screen.dart';
 
 late final Client client;
 late SessionManager sessionManager;
@@ -149,13 +150,22 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin {
   String? _userPictureUrl;
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     _loadUserPicture();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadUserPicture() async {
@@ -178,6 +188,19 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(
+              icon: Icon(Icons.person),
+              text: 'Profile',
+            ),
+            Tab(
+              icon: Icon(Icons.restaurant_menu),
+              text: 'Menu',
+            ),
+          ],
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
@@ -199,7 +222,13 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body: const GreetingsScreen(),
+      body: TabBarView(
+        controller: _tabController,
+        children: const [
+          GreetingsScreen(),
+          MenuItemsScreen(),
+        ],
+      ),
     );
   }
 }

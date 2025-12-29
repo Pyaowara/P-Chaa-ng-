@@ -23,8 +23,11 @@ abstract class MenuItem
     required this.timeToPrepare,
     required this.customization,
     this.s3Key,
+    this.imageUrl,
     required this.isAvailable,
     this.createdAt,
+    this.ingredientIds,
+    required this.isDeleted,
   });
 
   factory MenuItem({
@@ -34,8 +37,11 @@ abstract class MenuItem
     required int timeToPrepare,
     required List<_i2.CustomizationGroup> customization,
     String? s3Key,
+    String? imageUrl,
     required bool isAvailable,
     DateTime? createdAt,
+    List<int>? ingredientIds,
+    required bool isDeleted,
   }) = _MenuItemImpl;
 
   factory MenuItem.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -48,10 +54,17 @@ abstract class MenuItem
         jsonSerialization['customization'],
       ),
       s3Key: jsonSerialization['s3Key'] as String?,
+      imageUrl: jsonSerialization['imageUrl'] as String?,
       isAvailable: jsonSerialization['isAvailable'] as bool,
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      ingredientIds: jsonSerialization['ingredientIds'] == null
+          ? null
+          : _i3.Protocol().deserialize<List<int>>(
+              jsonSerialization['ingredientIds'],
+            ),
+      isDeleted: jsonSerialization['isDeleted'] as bool,
     );
   }
 
@@ -72,9 +85,15 @@ abstract class MenuItem
 
   String? s3Key;
 
+  String? imageUrl;
+
   bool isAvailable;
 
   DateTime? createdAt;
+
+  List<int>? ingredientIds;
+
+  bool isDeleted;
 
   @override
   _i1.Table<int?> get table => t;
@@ -89,8 +108,11 @@ abstract class MenuItem
     int? timeToPrepare,
     List<_i2.CustomizationGroup>? customization,
     String? s3Key,
+    String? imageUrl,
     bool? isAvailable,
     DateTime? createdAt,
+    List<int>? ingredientIds,
+    bool? isDeleted,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -102,8 +124,11 @@ abstract class MenuItem
       'timeToPrepare': timeToPrepare,
       'customization': customization.toJson(valueToJson: (v) => v.toJson()),
       if (s3Key != null) 's3Key': s3Key,
+      if (imageUrl != null) 'imageUrl': imageUrl,
       'isAvailable': isAvailable,
       if (createdAt != null) 'createdAt': createdAt?.toJson(),
+      if (ingredientIds != null) 'ingredientIds': ingredientIds?.toJson(),
+      'isDeleted': isDeleted,
     };
   }
 
@@ -119,8 +144,11 @@ abstract class MenuItem
         valueToJson: (v) => v.toJsonForProtocol(),
       ),
       if (s3Key != null) 's3Key': s3Key,
+      if (imageUrl != null) 'imageUrl': imageUrl,
       'isAvailable': isAvailable,
       if (createdAt != null) 'createdAt': createdAt?.toJson(),
+      if (ingredientIds != null) 'ingredientIds': ingredientIds?.toJson(),
+      'isDeleted': isDeleted,
     };
   }
 
@@ -164,8 +192,11 @@ class _MenuItemImpl extends MenuItem {
     required int timeToPrepare,
     required List<_i2.CustomizationGroup> customization,
     String? s3Key,
+    String? imageUrl,
     required bool isAvailable,
     DateTime? createdAt,
+    List<int>? ingredientIds,
+    required bool isDeleted,
   }) : super._(
          id: id,
          name: name,
@@ -173,8 +204,11 @@ class _MenuItemImpl extends MenuItem {
          timeToPrepare: timeToPrepare,
          customization: customization,
          s3Key: s3Key,
+         imageUrl: imageUrl,
          isAvailable: isAvailable,
          createdAt: createdAt,
+         ingredientIds: ingredientIds,
+         isDeleted: isDeleted,
        );
 
   /// Returns a shallow copy of this [MenuItem]
@@ -188,8 +222,11 @@ class _MenuItemImpl extends MenuItem {
     int? timeToPrepare,
     List<_i2.CustomizationGroup>? customization,
     Object? s3Key = _Undefined,
+    Object? imageUrl = _Undefined,
     bool? isAvailable,
     Object? createdAt = _Undefined,
+    Object? ingredientIds = _Undefined,
+    bool? isDeleted,
   }) {
     return MenuItem(
       id: id is int? ? id : this.id,
@@ -200,8 +237,13 @@ class _MenuItemImpl extends MenuItem {
           customization ??
           this.customization.map((e0) => e0.copyWith()).toList(),
       s3Key: s3Key is String? ? s3Key : this.s3Key,
+      imageUrl: imageUrl is String? ? imageUrl : this.imageUrl,
       isAvailable: isAvailable ?? this.isAvailable,
       createdAt: createdAt is DateTime? ? createdAt : this.createdAt,
+      ingredientIds: ingredientIds is List<int>?
+          ? ingredientIds
+          : this.ingredientIds?.map((e0) => e0).toList(),
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 }
@@ -235,6 +277,11 @@ class MenuItemUpdateTable extends _i1.UpdateTable<MenuItemTable> {
     value,
   );
 
+  _i1.ColumnValue<String, String> imageUrl(String? value) => _i1.ColumnValue(
+    table.imageUrl,
+    value,
+  );
+
   _i1.ColumnValue<bool, bool> isAvailable(bool value) => _i1.ColumnValue(
     table.isAvailable,
     value,
@@ -245,6 +292,17 @@ class MenuItemUpdateTable extends _i1.UpdateTable<MenuItemTable> {
         table.createdAt,
         value,
       );
+
+  _i1.ColumnValue<List<int>, List<int>> ingredientIds(List<int>? value) =>
+      _i1.ColumnValue(
+        table.ingredientIds,
+        value,
+      );
+
+  _i1.ColumnValue<bool, bool> isDeleted(bool value) => _i1.ColumnValue(
+    table.isDeleted,
+    value,
+  );
 }
 
 class MenuItemTable extends _i1.Table<int?> {
@@ -270,12 +328,24 @@ class MenuItemTable extends _i1.Table<int?> {
       's3Key',
       this,
     );
+    imageUrl = _i1.ColumnString(
+      'imageUrl',
+      this,
+    );
     isAvailable = _i1.ColumnBool(
       'isAvailable',
       this,
     );
     createdAt = _i1.ColumnDateTime(
       'createdAt',
+      this,
+    );
+    ingredientIds = _i1.ColumnSerializable<List<int>>(
+      'ingredientIds',
+      this,
+    );
+    isDeleted = _i1.ColumnBool(
+      'isDeleted',
       this,
     );
   }
@@ -292,9 +362,15 @@ class MenuItemTable extends _i1.Table<int?> {
 
   late final _i1.ColumnString s3Key;
 
+  late final _i1.ColumnString imageUrl;
+
   late final _i1.ColumnBool isAvailable;
 
   late final _i1.ColumnDateTime createdAt;
+
+  late final _i1.ColumnSerializable<List<int>> ingredientIds;
+
+  late final _i1.ColumnBool isDeleted;
 
   @override
   List<_i1.Column> get columns => [
@@ -304,8 +380,11 @@ class MenuItemTable extends _i1.Table<int?> {
     timeToPrepare,
     customization,
     s3Key,
+    imageUrl,
     isAvailable,
     createdAt,
+    ingredientIds,
+    isDeleted,
   ];
 }
 

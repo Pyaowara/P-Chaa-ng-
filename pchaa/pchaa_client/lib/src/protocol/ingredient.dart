@@ -11,61 +11,59 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
-import 'package:pchaa_client/src/protocol/protocol.dart' as _i2;
 
-abstract class AddOnOption implements _i1.SerializableModel {
-  AddOnOption._({
+abstract class Ingredient implements _i1.SerializableModel {
+  Ingredient._({
+    this.id,
     required this.name,
-    required this.price,
     required this.isAvailable,
-    this.ingredientIds,
+    required this.isDeleted,
   });
 
-  factory AddOnOption({
+  factory Ingredient({
+    int? id,
     required String name,
-    required double price,
     required bool isAvailable,
-    List<int>? ingredientIds,
-  }) = _AddOnOptionImpl;
+    required bool isDeleted,
+  }) = _IngredientImpl;
 
-  factory AddOnOption.fromJson(Map<String, dynamic> jsonSerialization) {
-    return AddOnOption(
+  factory Ingredient.fromJson(Map<String, dynamic> jsonSerialization) {
+    return Ingredient(
+      id: jsonSerialization['id'] as int?,
       name: jsonSerialization['name'] as String,
-      price: (jsonSerialization['price'] as num).toDouble(),
       isAvailable: jsonSerialization['isAvailable'] as bool,
-      ingredientIds: jsonSerialization['ingredientIds'] == null
-          ? null
-          : _i2.Protocol().deserialize<List<int>>(
-              jsonSerialization['ingredientIds'],
-            ),
+      isDeleted: jsonSerialization['isDeleted'] as bool,
     );
   }
 
-  String name;
+  /// The database id, set if the object has been inserted into the
+  /// database or if it has been fetched from the database. Otherwise,
+  /// the id will be null.
+  int? id;
 
-  double price;
+  String name;
 
   bool isAvailable;
 
-  List<int>? ingredientIds;
+  bool isDeleted;
 
-  /// Returns a shallow copy of this [AddOnOption]
+  /// Returns a shallow copy of this [Ingredient]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
-  AddOnOption copyWith({
+  Ingredient copyWith({
+    int? id,
     String? name,
-    double? price,
     bool? isAvailable,
-    List<int>? ingredientIds,
+    bool? isDeleted,
   });
   @override
   Map<String, dynamic> toJson() {
     return {
-      '__className__': 'AddOnOption',
+      '__className__': 'Ingredient',
+      if (id != null) 'id': id,
       'name': name,
-      'price': price,
       'isAvailable': isAvailable,
-      if (ingredientIds != null) 'ingredientIds': ingredientIds?.toJson(),
+      'isDeleted': isDeleted,
     };
   }
 
@@ -77,36 +75,34 @@ abstract class AddOnOption implements _i1.SerializableModel {
 
 class _Undefined {}
 
-class _AddOnOptionImpl extends AddOnOption {
-  _AddOnOptionImpl({
+class _IngredientImpl extends Ingredient {
+  _IngredientImpl({
+    int? id,
     required String name,
-    required double price,
     required bool isAvailable,
-    List<int>? ingredientIds,
+    required bool isDeleted,
   }) : super._(
+         id: id,
          name: name,
-         price: price,
          isAvailable: isAvailable,
-         ingredientIds: ingredientIds,
+         isDeleted: isDeleted,
        );
 
-  /// Returns a shallow copy of this [AddOnOption]
+  /// Returns a shallow copy of this [Ingredient]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   @override
-  AddOnOption copyWith({
+  Ingredient copyWith({
+    Object? id = _Undefined,
     String? name,
-    double? price,
     bool? isAvailable,
-    Object? ingredientIds = _Undefined,
+    bool? isDeleted,
   }) {
-    return AddOnOption(
+    return Ingredient(
+      id: id is int? ? id : this.id,
       name: name ?? this.name,
-      price: price ?? this.price,
       isAvailable: isAvailable ?? this.isAvailable,
-      ingredientIds: ingredientIds is List<int>?
-          ? ingredientIds
-          : this.ingredientIds?.map((e0) => e0).toList(),
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 }

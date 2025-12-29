@@ -8,8 +8,22 @@ emailIdp:
   - finishPasswordReset:
 jwtRefresh:
   - refreshAccessToken:
+ingredient:
+  - createIngredient:
+  - getAllIngredients:
+  - getIngredientById:
+  - updateIngredient:
+  - deleteIngredient:
+menuItem:
+  - createMenuItem:
+  - getAllMenuItems:
+  - getMenuItemById:
+  - updateMenuItem:
+  - deleteMenuItem:
 user:
   - registerUser:
   - getCurrentUser:
+  - getAllUser:
+  - updateUserRole:
 greeting:
   - hello:

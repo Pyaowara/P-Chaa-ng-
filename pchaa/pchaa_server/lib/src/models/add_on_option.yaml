@@ -3,3 +3,4 @@ fields:
   name: String
   price: double
   isAvailable: bool
+  ingredientIds: List<int>?

@@ -6,5 +6,8 @@ fields:
   timeToPrepare: int
   customization: List<CustomizationGroup>
   s3Key: String?
+  imageUrl: String?
   isAvailable: bool
   createdAt: DateTime?
+  ingredientIds: List<int>?
+  isDeleted: bool
