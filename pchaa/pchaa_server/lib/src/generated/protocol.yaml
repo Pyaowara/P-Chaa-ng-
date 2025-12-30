@@ -18,6 +18,8 @@ menuItem:
   - createMenuItem:
   - getAllMenuItems:
   - getMenuItemById:
+  - getAllAvailableMenuItems:
+  - getAvailableMenuItemById:
   - updateMenuItem:
   - deleteMenuItem:
 user:

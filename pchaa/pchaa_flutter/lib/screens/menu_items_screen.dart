@@ -11,7 +11,7 @@ class MenuItemsScreen extends StatefulWidget {
 }
 
 class _MenuItemsScreenState extends State<MenuItemsScreen> {
-  List<MenuItem>? _menuItems;
+  List<MenuItemWithUrl>? _menuItems;
   bool _isLoading = true;
   String? _errorMessage;
 
@@ -118,11 +118,10 @@ class _MenuItemsScreenState extends State<MenuItemsScreen> {
 
   String _getDisplayableImageUrl(String? imageUrl) {
     if (imageUrl == null) return '';
-    // Replace localhost with 10.0.2.2 for Android emulator compatibility
     return imageUrl.replaceAll('localhost', '10.0.2.2');
   }
 
-  Widget _buildMenuItemCard(MenuItem menuItem) {
+  Widget _buildMenuItemCard(MenuItemWithUrl menuItem) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 4,

@@ -291,22 +291,13 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
         'getAllIngredients': _i1.MethodConnector(
           name: 'getAllIngredients',
-          params: {
-            'includeDeleted': _i1.ParameterDescription(
-              name: 'includeDeleted',
-              type: _i1.getType<bool>(),
-              nullable: false,
-            ),
-          },
+          params: {},
           call:
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async => (endpoints['ingredient'] as _i4.IngredientEndpoint)
-                  .getAllIngredients(
-                    session,
-                    includeDeleted: params['includeDeleted'],
-                  ),
+                  .getAllIngredients(session),
         ),
         'getIngredientById': _i1.MethodConnector(
           name: 'getIngredientById',
@@ -475,6 +466,35 @@ class Endpoints extends _i1.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async => (endpoints['menuItem'] as _i5.MenuItemEndpoint)
                   .getMenuItemById(
+                    session,
+                    params['id'],
+                  ),
+        ),
+        'getAllAvailableMenuItems': _i1.MethodConnector(
+          name: 'getAllAvailableMenuItems',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['menuItem'] as _i5.MenuItemEndpoint)
+                  .getAllAvailableMenuItems(session),
+        ),
+        'getAvailableMenuItemById': _i1.MethodConnector(
+          name: 'getAvailableMenuItemById',
+          params: {
+            'id': _i1.ParameterDescription(
+              name: 'id',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['menuItem'] as _i5.MenuItemEndpoint)
+                  .getAvailableMenuItemById(
                     session,
                     params['id'],
                   ),

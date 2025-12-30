@@ -19,11 +19,13 @@ import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
 import 'package:pchaa_client/src/protocol/ingredient.dart' as _i5;
 import 'package:pchaa_client/src/protocol/menu_items.dart' as _i6;
 import 'package:pchaa_client/src/protocol/customization_group.dart' as _i7;
-import 'package:pchaa_client/src/protocol/users.dart' as _i8;
-import 'package:pchaa_client/src/protocol/user_role.dart' as _i9;
-import 'package:pchaa_client/src/protocol/greetings/greeting.dart' as _i10;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i11;
-import 'protocol.dart' as _i12;
+import 'package:pchaa_client/src/protocol/menu_item_with_url.dart' as _i8;
+import 'package:pchaa_client/src/protocol/available_menu_item.dart' as _i9;
+import 'package:pchaa_client/src/protocol/users.dart' as _i10;
+import 'package:pchaa_client/src/protocol/user_role.dart' as _i11;
+import 'package:pchaa_client/src/protocol/greetings/greeting.dart' as _i12;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i13;
+import 'protocol.dart' as _i14;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -258,13 +260,12 @@ class EndpointIngredient extends _i2.EndpointRef {
     },
   );
 
-  _i3.Future<List<_i5.Ingredient>> getAllIngredients({
-    required bool includeDeleted,
-  }) => caller.callServerEndpoint<List<_i5.Ingredient>>(
-    'ingredient',
-    'getAllIngredients',
-    {'includeDeleted': includeDeleted},
-  );
+  _i3.Future<List<_i5.Ingredient>> getAllIngredients() =>
+      caller.callServerEndpoint<List<_i5.Ingredient>>(
+        'ingredient',
+        'getAllIngredients',
+        {},
+      );
 
   _i3.Future<_i5.Ingredient?> getIngredientById(int id) =>
       caller.callServerEndpoint<_i5.Ingredient?>(
@@ -327,17 +328,31 @@ class EndpointMenuItem extends _i2.EndpointRef {
     },
   );
 
-  _i3.Future<List<_i6.MenuItem>> getAllMenuItems() =>
-      caller.callServerEndpoint<List<_i6.MenuItem>>(
+  _i3.Future<List<_i8.MenuItemWithUrl>> getAllMenuItems() =>
+      caller.callServerEndpoint<List<_i8.MenuItemWithUrl>>(
         'menuItem',
         'getAllMenuItems',
         {},
       );
 
-  _i3.Future<_i6.MenuItem?> getMenuItemById(int id) =>
-      caller.callServerEndpoint<_i6.MenuItem?>(
+  _i3.Future<_i8.MenuItemWithUrl?> getMenuItemById(int id) =>
+      caller.callServerEndpoint<_i8.MenuItemWithUrl?>(
         'menuItem',
         'getMenuItemById',
+        {'id': id},
+      );
+
+  _i3.Future<List<_i9.AvailableMenuItem>> getAllAvailableMenuItems() =>
+      caller.callServerEndpoint<List<_i9.AvailableMenuItem>>(
+        'menuItem',
+        'getAllAvailableMenuItems',
+        {},
+      );
+
+  _i3.Future<_i9.AvailableMenuItem?> getAvailableMenuItemById(int id) =>
+      caller.callServerEndpoint<_i9.AvailableMenuItem?>(
+        'menuItem',
+        'getAvailableMenuItemById',
         {'id': id},
       );
 
@@ -385,31 +400,31 @@ class EndpointUser extends _i2.EndpointRef {
   @override
   String get name => 'user';
 
-  _i3.Future<_i8.User?> registerUser({String? profilePictureUrl}) =>
-      caller.callServerEndpoint<_i8.User?>(
+  _i3.Future<_i10.User?> registerUser({String? profilePictureUrl}) =>
+      caller.callServerEndpoint<_i10.User?>(
         'user',
         'registerUser',
         {'profilePictureUrl': profilePictureUrl},
       );
 
-  _i3.Future<_i8.User?> getCurrentUser() =>
-      caller.callServerEndpoint<_i8.User?>(
+  _i3.Future<_i10.User?> getCurrentUser() =>
+      caller.callServerEndpoint<_i10.User?>(
         'user',
         'getCurrentUser',
         {},
       );
 
-  _i3.Future<List<_i8.User>?> getAllUser() =>
-      caller.callServerEndpoint<List<_i8.User>?>(
+  _i3.Future<List<_i10.User>?> getAllUser() =>
+      caller.callServerEndpoint<List<_i10.User>?>(
         'user',
         'getAllUser',
         {},
       );
 
-  _i3.Future<_i8.User> updateUserRole(
+  _i3.Future<_i10.User> updateUserRole(
     int userId,
-    _i9.UserRole newRole,
-  ) => caller.callServerEndpoint<_i8.User>(
+    _i11.UserRole newRole,
+  ) => caller.callServerEndpoint<_i10.User>(
     'user',
     'updateUserRole',
     {
@@ -429,8 +444,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i10.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i10.Greeting>(
+  _i3.Future<_i12.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i12.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -440,13 +455,13 @@ class EndpointGreeting extends _i2.EndpointRef {
 class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _i1.Caller(client);
-    auth = _i11.Caller(client);
+    auth = _i13.Caller(client);
     serverpod_auth_core = _i4.Caller(client);
   }
 
   late final _i1.Caller serverpod_auth_idp;
 
-  late final _i11.Caller auth;
+  late final _i13.Caller auth;
 
   late final _i4.Caller serverpod_auth_core;
 }
@@ -471,7 +486,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i12.Protocol(),
+         _i14.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,

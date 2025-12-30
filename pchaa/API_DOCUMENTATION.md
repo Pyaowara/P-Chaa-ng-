@@ -8,8 +8,6 @@ http://localhost:8080
 
 ## Endpoints
 
-### 1. User Endpoints
-
 #### GET /user/getCurrentUser
 
 Get current authenticated user
@@ -23,14 +21,7 @@ Get current authenticated user
 Get all users (owner only)
 
 - **Auth Required**: Yes (Owner role)
-- **Body**:
-
-```json
-{
-  "userId": 1
-}
-```
-
+- **Body**: None
 - **Response**: Array of User objects
 
 #### POST /user/updateUserRole
@@ -75,14 +66,7 @@ Create new ingredient (owner only)
 Get all ingredients
 
 - **Auth Required**: No
-- **Body**:
-
-```json
-{
-  "includeDeleted": false
-}
-```
-
+- **Body**: None
 - **Response**: Array of Ingredient objects
 
 #### GET /ingredient/getIngredientById
@@ -159,13 +143,13 @@ Create new menu item with optional image upload (owner only)
           "name": "Small",
           "price": 0.0,
           "isAvailable": true,
-          "ingredients": null
+          "ingredientIds": null
         },
         {
           "name": "Large",
           "price": 3.0,
           "isAvailable": true,
-          "ingredients": null
+          "ingredientIds": null
         }
       ]
     }
@@ -189,23 +173,16 @@ Create new menu item with optional image upload (owner only)
 - Pass ingredient IDs, not full objects. Server fetches and validates ingredients.
 - Image upload is integrated into creation - no separate endpoint needed
 - Supports data URL format: `data:image/jpeg;base64,/9j/4AAQ...` or plain base64
-- **Response**: Created MenuItem object with `imageUrl` populated if image was uploaded
+- **Response**: Created MenuItem object (imageUrl not included in response, computed on GET)
 
 #### GET /menuItem/getAllMenuItems
 
 Get all menu items with image URLs
 
 - **Auth Required**: No
-- **Body**:
-
-```json
-{
-  "includeDeleted": false
-}
-```
-
-- **Response**: Array of MenuItem objects with `imageUrl` populated
-- **Note**: Each menu item now includes `imageUrl` field with direct URL to image
+- **Body**: None
+- **Response**: Array of MenuItemWithUrl objects with `imageUrl` populated
+- **Note**: Each menu item includes `imageUrl` field with direct URL to image
 
 #### GET /menuItem/getMenuItemById
 
@@ -220,8 +197,33 @@ Get menu item by ID with image URL
 }
 ```
 
-- **Response**: MenuItem object with `imageUrl` populated or null
+- **Response**: MenuItemWithUrl object with `imageUrl` populated or null
 - **Note**: Response includes `imageUrl` field with direct URL to image
+
+#### GET /menuItem/getAllAvailableMenuItems
+
+Get all available menu items with forSale status
+
+- **Auth Required**: No
+- **Body**: None
+- **Response**: Array of AvailableMenuItem objects
+- **Note**: Includes `forSale` for menu item and each customization choice, based on availability and ingredient availability
+
+#### GET /menuItem/getAvailableMenuItemById
+
+Get available menu item by ID with forSale status
+
+- **Auth Required**: No
+- **Body**:
+
+```json
+{
+  "id": 1
+}
+```
+
+- **Response**: AvailableMenuItem object or null
+- **Note**: Includes `forSale` for menu item and each customization choice, based on availability and ingredient availability
 
 #### POST /menuItem/updateMenuItem
 
@@ -261,7 +263,7 @@ Update menu item with optional image upload/removal (owner only)
 - Providing image parameters uploads new image (replaces existing)
 - Pass `ingredientIds` to update ingredients (empty array clears all)
 - Supports data URL format or plain base64
-- **Response**: Updated MenuItem object with `imageUrl` populated
+- **Response**: Updated MenuItem object (imageUrl not included in response, computed on GET)
 
 #### POST /menuItem/deleteMenuItem
 
@@ -279,6 +281,7 @@ Delete menu item (owner only)
 - **Note**: Soft deletes if referenced in orders/carts, hard deletes otherwise
 - **Response**: `true`
 
+---
 
 ## Common Response Objects
 
@@ -307,7 +310,7 @@ Delete menu item (owner only)
 }
 ```
 
-### MenuItem
+### MenuItemWithUrl
 
 ```json
 {
@@ -325,6 +328,39 @@ Delete menu item (owner only)
 }
 ```
 
-**Note**: The `imageUrl` field is now automatically populated in all GET responses when an image exists.
+### AvailableMenuItem
+
+```json
+{
+  "id": 1,
+  "name": "Margherita Pizza",
+  "basePrice": 12.99,
+  "timeToPrepare": 15,
+  "customization": [
+    {
+      "title": "Size",
+      "pickOne": true,
+      "choices": [
+        {
+          "name": "Small",
+          "price": 0.0,
+          "isAvailable": true,
+          "ingredientIds": null,
+          "forSale": true
+        }
+      ]
+    }
+  ],
+  "s3Key": "menu-items/1735123456789-pizza.jpg",
+  "imageUrl": "http://localhost:8092/menu-items/1735123456789-pizza.jpg",
+  "isAvailable": true,
+  "createdAt": "2025-12-29T10:30:00.000Z",
+  "ingredientIds": [1, 2, 3],
+  "isDeleted": false,
+  "forSale": true
+}
+```
+
+**Note**: `imageUrl` is computed on GET requests and not stored in the database.
 
 ---

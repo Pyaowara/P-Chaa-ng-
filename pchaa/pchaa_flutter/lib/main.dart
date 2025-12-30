@@ -7,7 +7,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'screens/greetings_screen.dart';
-import 'screens/menu_items_screen.dart';
+import 'screens/available_menu_items_screen.dart';
 
 late final Client client;
 late SessionManager sessionManager;
@@ -226,7 +226,7 @@ class _MyHomePageState extends State<MyHomePage>
         controller: _tabController,
         children: const [
           GreetingsScreen(),
-          MenuItemsScreen(),
+          AvailableMenuItemsScreen(),
         ],
       ),
     );

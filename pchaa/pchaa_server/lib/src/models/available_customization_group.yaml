@@ -1,0 +1,5 @@
+class: AvailableCustomizationGroup
+fields:
+  title: String
+  pickOne: bool
+  choices: List<AvailableAddOnOption>

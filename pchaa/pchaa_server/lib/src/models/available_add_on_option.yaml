@@ -1,0 +1,7 @@
+class: AvailableAddOnOption
+fields:
+  name: String
+  price: double
+  isAvailable: bool
+  ingredientIds: List<int>?
+  forSale: bool

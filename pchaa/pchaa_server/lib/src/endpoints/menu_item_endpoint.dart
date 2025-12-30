@@ -34,7 +34,6 @@ class MenuItemEndpoint extends Endpoint {
     }
 
     String? s3Key;
-    String? imageUrl;
     if (imageDataBase64 != null && imageFileName != null) {
       String base64Data = imageDataBase64;
       String? detectedContentType = imageContentType;
@@ -61,7 +60,6 @@ class MenuItemEndpoint extends Endpoint {
         bytes,
         detectedContentType ?? 'image/jpeg',
       );
-      imageUrl = S3Utils.getMenuImageUrl(session, s3Key);
     }
 
     final newMenuItem = MenuItem(
@@ -70,7 +68,6 @@ class MenuItemEndpoint extends Endpoint {
       timeToPrepare: timeToPrepare,
       customization: customization,
       s3Key: s3Key,
-      imageUrl: imageUrl,
       isAvailable: isAvailable,
       createdAt: DateTime.now(),
       ingredientIds: ingredientIds,
@@ -89,27 +86,38 @@ class MenuItemEndpoint extends Endpoint {
     return insertedMenuItem;
   }
 
-  Future<List<MenuItem>> getAllMenuItems(
-    Session session) async {
+  Future<List<MenuItemWithUrl>> getAllMenuItems(Session session) async {
     List<MenuItem> menuItems;
 
-      menuItems = await MenuItem.db.find(
-        session,
-        where: (t) => t.isDeleted.equals(false),
-      );
+    menuItems = await MenuItem.db.find(
+      session,
+      where: (t) => t.isDeleted.equals(false),
+    );
 
     final menuItemsWithUrls = menuItems.map((item) {
       String? imageUrl;
       if (item.s3Key != null) {
         imageUrl = S3Utils.getMenuImageUrl(session, item.s3Key!);
       }
-      return item.copyWith(imageUrl: imageUrl);
+      return MenuItemWithUrl(
+        id: item.id,
+        name: item.name,
+        basePrice: item.basePrice,
+        timeToPrepare: item.timeToPrepare,
+        customization: item.customization,
+        s3Key: item.s3Key,
+        imageUrl: imageUrl,
+        isAvailable: item.isAvailable,
+        createdAt: item.createdAt,
+        ingredientIds: item.ingredientIds,
+        isDeleted: item.isDeleted,
+      );
     }).toList();
 
     return menuItemsWithUrls;
   }
 
-  Future<MenuItem?> getMenuItemById(
+  Future<MenuItemWithUrl?> getMenuItemById(
     Session session,
     int id,
   ) async {
@@ -124,10 +132,207 @@ class MenuItemEndpoint extends Endpoint {
       if (menuItem.s3Key != null) {
         imageUrl = S3Utils.getMenuImageUrl(session, menuItem.s3Key!);
       }
-      return menuItem.copyWith(imageUrl: imageUrl);
+      return MenuItemWithUrl(
+        id: menuItem.id,
+        name: menuItem.name,
+        basePrice: menuItem.basePrice,
+        timeToPrepare: menuItem.timeToPrepare,
+        customization: menuItem.customization,
+        s3Key: menuItem.s3Key,
+        imageUrl: imageUrl,
+        isAvailable: menuItem.isAvailable,
+        createdAt: menuItem.createdAt,
+        ingredientIds: menuItem.ingredientIds,
+        isDeleted: menuItem.isDeleted,
+      );
     }
 
     return null;
+  }
+
+  Future<List<AvailableMenuItem>> getAllAvailableMenuItems(
+    Session session,
+  ) async {
+    final menuItems = await MenuItem.db.find(
+      session,
+      where: (t) => t.isDeleted.equals(false),
+    );
+
+    List<AvailableMenuItem> availableMenuItems = [];
+
+    for (final menuItem in menuItems) {
+      Set<int> allIngredientIds = {};
+      if (menuItem.ingredientIds != null) {
+        allIngredientIds.addAll(menuItem.ingredientIds!);
+      }
+      for (final group in menuItem.customization) {
+        for (final choice in group.choices) {
+          if (choice.ingredientIds != null) {
+            allIngredientIds.addAll(choice.ingredientIds!);
+          }
+        }
+      }
+
+      final ingredients = await Future.wait(
+        allIngredientIds.map((id) => Ingredient.db.findById(session, id)),
+      );
+
+      final availableIngredientIds = ingredients
+          .where((ing) => ing != null && !ing.isDeleted && ing.isAvailable)
+          .map((ing) => ing!.id!)
+          .toSet();
+
+      final menuIngredientsAvailable =
+          menuItem.ingredientIds == null ||
+          menuItem.ingredientIds!.every(
+            (id) => availableIngredientIds.contains(id),
+          );
+      final menuForSale = menuItem.isAvailable && menuIngredientsAvailable;
+
+      List<AvailableCustomizationGroup> availableCustomization = [];
+      for (final group in menuItem.customization) {
+        List<AvailableAddOnOption> availableChoices = [];
+        for (final choice in group.choices) {
+          final choiceIngredientsAvailable =
+              choice.ingredientIds == null ||
+              choice.ingredientIds!.every(
+                (id) => availableIngredientIds.contains(id),
+              );
+          final choiceForSale =
+              choice.isAvailable && choiceIngredientsAvailable;
+
+          availableChoices.add(
+            AvailableAddOnOption(
+              name: choice.name,
+              price: choice.price,
+              isAvailable: choice.isAvailable,
+              ingredientIds: choice.ingredientIds,
+              forSale: choiceForSale,
+            ),
+          );
+        }
+        availableCustomization.add(
+          AvailableCustomizationGroup(
+            title: group.title,
+            pickOne: group.pickOne,
+            choices: availableChoices,
+          ),
+        );
+      }
+
+      String? imageUrl;
+      if (menuItem.s3Key != null) {
+        imageUrl = S3Utils.getMenuImageUrl(session, menuItem.s3Key!);
+      }
+
+      availableMenuItems.add(
+        AvailableMenuItem(
+          id: menuItem.id,
+          name: menuItem.name,
+          basePrice: menuItem.basePrice,
+          timeToPrepare: menuItem.timeToPrepare,
+          customization: availableCustomization,
+          s3Key: menuItem.s3Key,
+          imageUrl: imageUrl,
+          isAvailable: menuItem.isAvailable,
+          createdAt: menuItem.createdAt,
+          ingredientIds: menuItem.ingredientIds,
+          isDeleted: menuItem.isDeleted,
+          forSale: menuForSale,
+        ),
+      );
+    }
+
+    return availableMenuItems;
+  }
+
+  Future<AvailableMenuItem?> getAvailableMenuItemById(
+    Session session,
+    int id,
+  ) async {
+    final menuItem = await MenuItem.db.findById(session, id);
+
+    if (menuItem == null || menuItem.isDeleted) {
+      return null;
+    }
+
+    Set<int> allIngredientIds = {};
+    if (menuItem.ingredientIds != null) {
+      allIngredientIds.addAll(menuItem.ingredientIds!);
+    }
+    for (final group in menuItem.customization) {
+      for (final choice in group.choices) {
+        if (choice.ingredientIds != null) {
+          allIngredientIds.addAll(choice.ingredientIds!);
+        }
+      }
+    }
+
+    final ingredients = await Future.wait(
+      allIngredientIds.map((id) => Ingredient.db.findById(session, id)),
+    );
+
+    final availableIngredientIds = ingredients
+        .where((ing) => ing != null && !ing.isDeleted && ing.isAvailable)
+        .map((ing) => ing!.id!)
+        .toSet();
+
+    final menuIngredientsAvailable =
+        menuItem.ingredientIds == null ||
+        menuItem.ingredientIds!.every(
+          (id) => availableIngredientIds.contains(id),
+        );
+    final menuForSale = menuItem.isAvailable && menuIngredientsAvailable;
+
+    List<AvailableCustomizationGroup> availableCustomization = [];
+    for (final group in menuItem.customization) {
+      List<AvailableAddOnOption> availableChoices = [];
+      for (final choice in group.choices) {
+        final choiceIngredientsAvailable =
+            choice.ingredientIds == null ||
+            choice.ingredientIds!.every(
+              (id) => availableIngredientIds.contains(id),
+            );
+        final choiceForSale = choice.isAvailable && choiceIngredientsAvailable;
+
+        availableChoices.add(
+          AvailableAddOnOption(
+            name: choice.name,
+            price: choice.price,
+            isAvailable: choice.isAvailable,
+            ingredientIds: choice.ingredientIds,
+            forSale: choiceForSale,
+          ),
+        );
+      }
+      availableCustomization.add(
+        AvailableCustomizationGroup(
+          title: group.title,
+          pickOne: group.pickOne,
+          choices: availableChoices,
+        ),
+      );
+    }
+
+    String? imageUrl;
+    if (menuItem.s3Key != null) {
+      imageUrl = S3Utils.getMenuImageUrl(session, menuItem.s3Key!);
+    }
+
+    return AvailableMenuItem(
+      id: menuItem.id,
+      name: menuItem.name,
+      basePrice: menuItem.basePrice,
+      timeToPrepare: menuItem.timeToPrepare,
+      customization: availableCustomization,
+      s3Key: menuItem.s3Key,
+      imageUrl: imageUrl,
+      isAvailable: menuItem.isAvailable,
+      createdAt: menuItem.createdAt,
+      ingredientIds: menuItem.ingredientIds,
+      isDeleted: menuItem.isDeleted,
+      forSale: menuForSale,
+    );
   }
 
   Future<MenuItem> updateMenuItem(
@@ -153,12 +358,10 @@ class MenuItemEndpoint extends Endpoint {
     }
 
     String? newS3Key = menuItem.s3Key;
-    String? newImageUrl = menuItem.imageUrl;
 
     if (removeImage == true && menuItem.s3Key != null) {
       await S3Utils.deleteMenuImage(session, menuItem.s3Key!);
       newS3Key = null;
-      newImageUrl = null;
     }
 
     if (imageDataBase64 != null && imageFileName != null) {
@@ -191,7 +394,6 @@ class MenuItemEndpoint extends Endpoint {
         bytes,
         detectedContentType ?? 'image/jpeg',
       );
-      newImageUrl = S3Utils.getMenuImageUrl(session, newS3Key);
     }
 
     List<int>? newIngredientIds = menuItem.ingredientIds;
@@ -220,7 +422,6 @@ class MenuItemEndpoint extends Endpoint {
       timeToPrepare: timeToPrepare ?? menuItem.timeToPrepare,
       customization: customization ?? menuItem.customization,
       s3Key: newS3Key,
-      imageUrl: newImageUrl,
       isAvailable: isAvailable ?? menuItem.isAvailable,
       ingredientIds: newIngredientIds,
     );

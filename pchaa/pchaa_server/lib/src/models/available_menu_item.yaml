@@ -1,12 +1,14 @@
-class: MenuItem
-table: menu_items
+class: AvailableMenuItem
 fields:
+  id: int?
   name: String
   basePrice: double
   timeToPrepare: int
-  customization: List<CustomizationGroup>
+  customization: List<AvailableCustomizationGroup>
   s3Key: String?
+  imageUrl: String?
   isAvailable: bool
   createdAt: DateTime?
   ingredientIds: List<int>?
   isDeleted: bool
+  forSale: bool

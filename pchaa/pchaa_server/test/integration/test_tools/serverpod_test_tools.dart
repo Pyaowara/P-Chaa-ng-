@@ -20,9 +20,11 @@ import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
 import 'package:pchaa_server/src/generated/ingredient.dart' as _i5;
 import 'package:pchaa_server/src/generated/menu_items.dart' as _i6;
 import 'package:pchaa_server/src/generated/customization_group.dart' as _i7;
-import 'package:pchaa_server/src/generated/users.dart' as _i8;
-import 'package:pchaa_server/src/generated/user_role.dart' as _i9;
-import 'package:pchaa_server/src/generated/greetings/greeting.dart' as _i10;
+import 'package:pchaa_server/src/generated/menu_item_with_url.dart' as _i8;
+import 'package:pchaa_server/src/generated/available_menu_item.dart' as _i9;
+import 'package:pchaa_server/src/generated/users.dart' as _i10;
+import 'package:pchaa_server/src/generated/user_role.dart' as _i11;
+import 'package:pchaa_server/src/generated/greetings/greeting.dart' as _i12;
 import 'package:pchaa_server/src/generated/protocol.dart';
 import 'package:pchaa_server/src/generated/endpoints.dart';
 export 'package:serverpod_test/serverpod_test_public_exports.dart';
@@ -513,9 +515,8 @@ class _IngredientEndpoint {
   }
 
   _i3.Future<List<_i5.Ingredient>> getAllIngredients(
-    _i1.TestSessionBuilder sessionBuilder, {
-    required bool includeDeleted,
-  }) async {
+    _i1.TestSessionBuilder sessionBuilder,
+  ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
           (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
@@ -527,7 +528,7 @@ class _IngredientEndpoint {
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'ingredient',
           methodName: 'getAllIngredients',
-          parameters: _i1.testObjectToJson({'includeDeleted': includeDeleted}),
+          parameters: _i1.testObjectToJson({}),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =
@@ -702,7 +703,7 @@ class _MenuItemEndpoint {
     });
   }
 
-  _i3.Future<List<_i6.MenuItem>> getAllMenuItems(
+  _i3.Future<List<_i8.MenuItemWithUrl>> getAllMenuItems(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -724,7 +725,7 @@ class _MenuItemEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i6.MenuItem>>);
+                as _i3.Future<List<_i8.MenuItemWithUrl>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -732,7 +733,7 @@ class _MenuItemEndpoint {
     });
   }
 
-  _i3.Future<_i6.MenuItem?> getMenuItemById(
+  _i3.Future<_i8.MenuItemWithUrl?> getMenuItemById(
     _i1.TestSessionBuilder sessionBuilder,
     int id,
   ) async {
@@ -755,7 +756,68 @@ class _MenuItemEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i6.MenuItem?>);
+                as _i3.Future<_i8.MenuItemWithUrl?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<List<_i9.AvailableMenuItem>> getAllAvailableMenuItems(
+    _i1.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'menuItem',
+            method: 'getAllAvailableMenuItems',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'menuItem',
+          methodName: 'getAllAvailableMenuItems',
+          parameters: _i1.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<List<_i9.AvailableMenuItem>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i9.AvailableMenuItem?> getAvailableMenuItemById(
+    _i1.TestSessionBuilder sessionBuilder,
+    int id,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'menuItem',
+            method: 'getAvailableMenuItemById',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'menuItem',
+          methodName: 'getAvailableMenuItemById',
+          parameters: _i1.testObjectToJson({'id': id}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i9.AvailableMenuItem?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -858,7 +920,7 @@ class _UserEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i8.User?> registerUser(
+  _i3.Future<_i10.User?> registerUser(
     _i1.TestSessionBuilder sessionBuilder, {
     String? profilePictureUrl,
   }) async {
@@ -883,7 +945,7 @@ class _UserEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i8.User?>);
+                as _i3.Future<_i10.User?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -891,7 +953,7 @@ class _UserEndpoint {
     });
   }
 
-  _i3.Future<_i8.User?> getCurrentUser(
+  _i3.Future<_i10.User?> getCurrentUser(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -913,7 +975,7 @@ class _UserEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i8.User?>);
+                as _i3.Future<_i10.User?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -921,7 +983,7 @@ class _UserEndpoint {
     });
   }
 
-  _i3.Future<List<_i8.User>?> getAllUser(
+  _i3.Future<List<_i10.User>?> getAllUser(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -943,7 +1005,7 @@ class _UserEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i8.User>?>);
+                as _i3.Future<List<_i10.User>?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -951,10 +1013,10 @@ class _UserEndpoint {
     });
   }
 
-  _i3.Future<_i8.User> updateUserRole(
+  _i3.Future<_i10.User> updateUserRole(
     _i1.TestSessionBuilder sessionBuilder,
     int userId,
-    _i9.UserRole newRole,
+    _i11.UserRole newRole,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -978,7 +1040,7 @@ class _UserEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i8.User>);
+                as _i3.Future<_i10.User>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -997,7 +1059,7 @@ class _GreetingEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i10.Greeting> hello(
+  _i3.Future<_i12.Greeting> hello(
     _i1.TestSessionBuilder sessionBuilder,
     String name,
   ) async {
@@ -1020,7 +1082,7 @@ class _GreetingEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i10.Greeting>);
+                as _i3.Future<_i12.Greeting>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

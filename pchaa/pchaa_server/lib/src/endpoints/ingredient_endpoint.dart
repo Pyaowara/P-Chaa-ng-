@@ -29,13 +29,7 @@ class IngredientEndpoint extends Endpoint {
   }
 
   Future<List<Ingredient>> getAllIngredients(
-    Session session, {
-    bool includeDeleted = false,
-  }) async {
-    if (includeDeleted) {
-      return await Ingredient.db.find(session);
-    }
-
+    Session session) async {
     return await Ingredient.db.find(
       session,
       where: (t) => t.isDeleted.equals(false),
