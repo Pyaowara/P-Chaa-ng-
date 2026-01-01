@@ -13,24 +13,28 @@
 import 'package:serverpod/serverpod.dart' as _i1;
 import 'package:pchaa_server/src/generated/protocol.dart' as _i2;
 
-abstract class AddOnOption
+abstract class AvailableAddOnOption
     implements _i1.SerializableModel, _i1.ProtocolSerialization {
-  AddOnOption._({
+  AvailableAddOnOption._({
     required this.name,
     required this.price,
     required this.isAvailable,
     this.ingredientIds,
+    required this.forSale,
   });
 
-  factory AddOnOption({
+  factory AvailableAddOnOption({
     required String name,
     required double price,
     required bool isAvailable,
     List<int>? ingredientIds,
-  }) = _AddOnOptionImpl;
+    required bool forSale,
+  }) = _AvailableAddOnOptionImpl;
 
-  factory AddOnOption.fromJson(Map<String, dynamic> jsonSerialization) {
-    return AddOnOption(
+  factory AvailableAddOnOption.fromJson(
+    Map<String, dynamic> jsonSerialization,
+  ) {
+    return AvailableAddOnOption(
       name: jsonSerialization['name'] as String,
       price: (jsonSerialization['price'] as num).toDouble(),
       isAvailable: jsonSerialization['isAvailable'] as bool,
@@ -39,6 +43,7 @@ abstract class AddOnOption
           : _i2.Protocol().deserialize<List<int>>(
               jsonSerialization['ingredientIds'],
             ),
+      forSale: jsonSerialization['forSale'] as bool,
     );
   }
 
@@ -50,34 +55,39 @@ abstract class AddOnOption
 
   List<int>? ingredientIds;
 
-  /// Returns a shallow copy of this [AddOnOption]
+  bool forSale;
+
+  /// Returns a shallow copy of this [AvailableAddOnOption]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
-  AddOnOption copyWith({
+  AvailableAddOnOption copyWith({
     String? name,
     double? price,
     bool? isAvailable,
     List<int>? ingredientIds,
+    bool? forSale,
   });
   @override
   Map<String, dynamic> toJson() {
     return {
-      '__className__': 'AddOnOption',
+      '__className__': 'AvailableAddOnOption',
       'name': name,
       'price': price,
       'isAvailable': isAvailable,
       if (ingredientIds != null) 'ingredientIds': ingredientIds?.toJson(),
+      'forSale': forSale,
     };
   }
 
   @override
   Map<String, dynamic> toJsonForProtocol() {
     return {
-      '__className__': 'AddOnOption',
+      '__className__': 'AvailableAddOnOption',
       'name': name,
       'price': price,
       'isAvailable': isAvailable,
       if (ingredientIds != null) 'ingredientIds': ingredientIds?.toJson(),
+      'forSale': forSale,
     };
   }
 
@@ -89,36 +99,40 @@ abstract class AddOnOption
 
 class _Undefined {}
 
-class _AddOnOptionImpl extends AddOnOption {
-  _AddOnOptionImpl({
+class _AvailableAddOnOptionImpl extends AvailableAddOnOption {
+  _AvailableAddOnOptionImpl({
     required String name,
     required double price,
     required bool isAvailable,
     List<int>? ingredientIds,
+    required bool forSale,
   }) : super._(
          name: name,
          price: price,
          isAvailable: isAvailable,
          ingredientIds: ingredientIds,
+         forSale: forSale,
        );
 
-  /// Returns a shallow copy of this [AddOnOption]
+  /// Returns a shallow copy of this [AvailableAddOnOption]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   @override
-  AddOnOption copyWith({
+  AvailableAddOnOption copyWith({
     String? name,
     double? price,
     bool? isAvailable,
     Object? ingredientIds = _Undefined,
+    bool? forSale,
   }) {
-    return AddOnOption(
+    return AvailableAddOnOption(
       name: name ?? this.name,
       price: price ?? this.price,
       isAvailable: isAvailable ?? this.isAvailable,
       ingredientIds: ingredientIds is List<int>?
           ? ingredientIds
           : this.ingredientIds?.map((e0) => e0).toList(),
+      forSale: forSale ?? this.forSale,
     );
   }
 }

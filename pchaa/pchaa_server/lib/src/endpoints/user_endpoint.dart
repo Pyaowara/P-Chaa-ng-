@@ -1,21 +1,19 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart' as auth;
 import '../generated/protocol.dart';
+import '../utils/auth_utils.dart';
 
 class UserEndpoint extends Endpoint {
   Future<User?> registerUser(
     Session session, {
     String? profilePictureUrl,
   }) async {
+    await AuthUtils.isAuthenticated(session);
+
     final authInfo = await session.authenticated;
-
-    if (authInfo == null) {
-      throw Exception('User not authenticated');
-    }
-
     final authUserInfo = await auth.Users.findUserByUserId(
       session,
-      authInfo.userId,
+      authInfo!.userId,
     );
 
     if (authUserInfo == null) {
@@ -69,10 +67,16 @@ class UserEndpoint extends Endpoint {
 
   Future<User?> getCurrentUser(Session session) async {
     final authInfo = await session.authenticated;
+    print(session.authenticationKey);
 
     if (authInfo == null) {
+      session.log(
+        '[UserEndpoint] No authentication info found - token may be invalid or missing',
+      );
       return null;
     }
+
+    session.log('[UserEndpoint] Authenticated userId: ${authInfo.userId}');
 
     final authUserInfo = await auth.Users.findUserByUserId(
       session,
@@ -80,12 +84,56 @@ class UserEndpoint extends Endpoint {
     );
 
     if (authUserInfo == null) {
+      session.log(
+        '[UserEndpoint] No auth user info found for userId: ${authInfo.userId}',
+      );
       return null;
     }
 
-    return await User.db.findFirstRow(
+    session.log('[UserEndpoint] Found auth user: ${authUserInfo.email}');
+
+    final user = await User.db.findFirstRow(
       session,
       where: (t) => t.email.equals(authUserInfo.email!),
     );
+
+    if (user == null) {
+      session.log(
+        '[UserEndpoint] User not found in database for email: ${authUserInfo.email}',
+      );
+    } else {
+      session.log('[UserEndpoint] Found user: ${user.email}');
+    }
+
+    return user;
+  }
+
+  Future<List<User>?> getAllUser(Session session) async {
+    await AuthUtils.allowedRoles(session, [UserRole.owner]);
+
+    return await User.db.find(session);
+  }
+
+  Future<User> updateUserRole(
+    Session session,
+    int userId,
+    UserRole newRole,
+  ) async {
+    await AuthUtils.allowedRoles(session, [UserRole.owner]);
+
+    final targetUser = await User.db.findById(session, userId);
+
+    if (targetUser == null) {
+      throw Exception('Target user not found');
+    }
+
+    final updatedUser = targetUser.copyWith(role: newRole);
+    final result = await User.db.updateRow(session, updatedUser);
+
+    session.log(
+      '[UserEndpoint] Updated role of user ${targetUser.email} to ${newRole.name}',
+    );
+
+    return result;
   }
 }

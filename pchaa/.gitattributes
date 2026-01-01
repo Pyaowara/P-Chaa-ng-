@@ -1,0 +1,6 @@
+# Serverpod generated files
+server/lib/src/generated/** linguist-generated=true
+client/lib/src/** linguist-generated=true
+
+# Migrations (optional – see note below)
+server/migrations/** linguist-generated=true
