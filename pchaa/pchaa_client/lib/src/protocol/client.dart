@@ -394,6 +394,21 @@ class EndpointMenuItem extends _i2.EndpointRef {
 }
 
 /// {@category Endpoint}
+class EndpointQueue extends _i2.EndpointRef {
+  EndpointQueue(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'queue';
+
+  _i3.Future<Map<String, int>> getQueueCounters() =>
+      caller.callServerEndpoint<Map<String, int>>(
+        'queue',
+        'getQueueCounters',
+        {},
+      );
+}
+
+/// {@category Endpoint}
 class EndpointUser extends _i2.EndpointRef {
   EndpointUser(_i2.EndpointCaller caller) : super(caller);
 
@@ -499,6 +514,7 @@ class Client extends _i2.ServerpodClientShared {
     jwtRefresh = EndpointJwtRefresh(this);
     ingredient = EndpointIngredient(this);
     menuItem = EndpointMenuItem(this);
+    queue = EndpointQueue(this);
     user = EndpointUser(this);
     greeting = EndpointGreeting(this);
     modules = Modules(this);
@@ -512,6 +528,8 @@ class Client extends _i2.ServerpodClientShared {
 
   late final EndpointMenuItem menuItem;
 
+  late final EndpointQueue queue;
+
   late final EndpointUser user;
 
   late final EndpointGreeting greeting;
@@ -524,6 +542,7 @@ class Client extends _i2.ServerpodClientShared {
     'jwtRefresh': jwtRefresh,
     'ingredient': ingredient,
     'menuItem': menuItem,
+    'queue': queue,
     'user': user,
     'greeting': greeting,
   };

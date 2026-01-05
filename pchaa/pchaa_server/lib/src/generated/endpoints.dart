@@ -15,15 +15,16 @@ import '../auth/email_idp_endpoint.dart' as _i2;
 import '../auth/jwt_refresh_endpoint.dart' as _i3;
 import '../endpoints/ingredient_endpoint.dart' as _i4;
 import '../endpoints/menu_item_endpoint.dart' as _i5;
-import '../endpoints/user_endpoint.dart' as _i6;
-import '../greetings/greeting_endpoint.dart' as _i7;
-import 'package:pchaa_server/src/generated/customization_group.dart' as _i8;
-import 'package:pchaa_server/src/generated/user_role.dart' as _i9;
+import '../endpoints/queue_endpoint.dart' as _i6;
+import '../endpoints/user_endpoint.dart' as _i7;
+import '../greetings/greeting_endpoint.dart' as _i8;
+import 'package:pchaa_server/src/generated/customization_group.dart' as _i9;
+import 'package:pchaa_server/src/generated/user_role.dart' as _i10;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
-    as _i10;
-import 'package:serverpod_auth_server/serverpod_auth_server.dart' as _i11;
+    as _i11;
+import 'package:serverpod_auth_server/serverpod_auth_server.dart' as _i12;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
-    as _i12;
+    as _i13;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
@@ -53,13 +54,19 @@ class Endpoints extends _i1.EndpointDispatch {
           'menuItem',
           null,
         ),
-      'user': _i6.UserEndpoint()
+      'queue': _i6.QueueEndpoint()
+        ..initialize(
+          server,
+          'queue',
+          null,
+        ),
+      'user': _i7.UserEndpoint()
         ..initialize(
           server,
           'user',
           null,
         ),
-      'greeting': _i7.GreetingEndpoint()
+      'greeting': _i8.GreetingEndpoint()
         ..initialize(
           server,
           'greeting',
@@ -394,7 +401,7 @@ class Endpoints extends _i1.EndpointDispatch {
             ),
             'customization': _i1.ParameterDescription(
               name: 'customization',
-              type: _i1.getType<List<_i8.CustomizationGroup>>(),
+              type: _i1.getType<List<_i9.CustomizationGroup>>(),
               nullable: false,
             ),
             'isAvailable': _i1.ParameterDescription(
@@ -524,7 +531,7 @@ class Endpoints extends _i1.EndpointDispatch {
             ),
             'customization': _i1.ParameterDescription(
               name: 'customization',
-              type: _i1.getType<List<_i8.CustomizationGroup>?>(),
+              type: _i1.getType<List<_i9.CustomizationGroup>?>(),
               nullable: true,
             ),
             'isAvailable': _i1.ParameterDescription(
@@ -599,6 +606,22 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
+    connectors['queue'] = _i1.EndpointConnector(
+      name: 'queue',
+      endpoint: endpoints['queue']!,
+      methodConnectors: {
+        'getQueueCounters': _i1.MethodConnector(
+          name: 'getQueueCounters',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['queue'] as _i6.QueueEndpoint)
+                  .getQueueCounters(session),
+        ),
+      },
+    );
     connectors['user'] = _i1.EndpointConnector(
       name: 'user',
       endpoint: endpoints['user']!,
@@ -616,7 +639,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['user'] as _i6.UserEndpoint).registerUser(
+              ) async => (endpoints['user'] as _i7.UserEndpoint).registerUser(
                 session,
                 profilePictureUrl: params['profilePictureUrl'],
               ),
@@ -628,7 +651,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['user'] as _i6.UserEndpoint).getCurrentUser(
+              ) async => (endpoints['user'] as _i7.UserEndpoint).getCurrentUser(
                 session,
               ),
         ),
@@ -640,7 +663,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['user'] as _i6.UserEndpoint).getAllUser(session),
+                  (endpoints['user'] as _i7.UserEndpoint).getAllUser(session),
         ),
         'updateUserRole': _i1.MethodConnector(
           name: 'updateUserRole',
@@ -652,7 +675,7 @@ class Endpoints extends _i1.EndpointDispatch {
             ),
             'newRole': _i1.ParameterDescription(
               name: 'newRole',
-              type: _i1.getType<_i9.UserRole>(),
+              type: _i1.getType<_i10.UserRole>(),
               nullable: false,
             ),
           },
@@ -660,7 +683,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['user'] as _i6.UserEndpoint).updateUserRole(
+              ) async => (endpoints['user'] as _i7.UserEndpoint).updateUserRole(
                 session,
                 params['userId'],
                 params['newRole'],
@@ -685,17 +708,17 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['greeting'] as _i7.GreetingEndpoint).hello(
+              ) async => (endpoints['greeting'] as _i8.GreetingEndpoint).hello(
                 session,
                 params['name'],
               ),
         ),
       },
     );
-    modules['serverpod_auth_idp'] = _i10.Endpoints()
+    modules['serverpod_auth_idp'] = _i11.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth'] = _i11.Endpoints()..initializeEndpoints(server);
-    modules['serverpod_auth_core'] = _i12.Endpoints()
+    modules['serverpod_auth'] = _i12.Endpoints()..initializeEndpoints(server);
+    modules['serverpod_auth_core'] = _i13.Endpoints()
       ..initializeEndpoints(server);
   }
 }

@@ -1,5 +1,4 @@
 import 'package:minio/minio.dart';
-import 'package:minio/models.dart';
 import 'package:serverpod/serverpod.dart';
 import 'dart:typed_data';
 import 'dart:io';
