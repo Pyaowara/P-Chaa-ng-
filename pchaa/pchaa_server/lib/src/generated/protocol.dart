@@ -853,6 +853,12 @@ class Protocol extends _i1.SerializationManagerServer {
               : null)
           as T;
     }
+    if (t == Map<String, int>) {
+      return (data as Map).map(
+            (k, v) => MapEntry(deserialize<String>(k), deserialize<int>(v)),
+          )
+          as T;
+    }
     if (t == List<_i29.User>) {
       return (data as List).map((e) => deserialize<_i29.User>(e)).toList() as T;
     }

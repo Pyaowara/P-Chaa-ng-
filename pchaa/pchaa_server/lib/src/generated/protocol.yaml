@@ -22,6 +22,8 @@ menuItem:
   - getAvailableMenuItemById:
   - updateMenuItem:
   - deleteMenuItem:
+queue:
+  - getQueueCounters:
 user:
   - registerUser:
   - getCurrentUser:

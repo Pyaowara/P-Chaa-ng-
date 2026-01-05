@@ -140,6 +140,8 @@ class TestEndpoints {
 
   late final _MenuItemEndpoint menuItem;
 
+  late final _QueueEndpoint queue;
+
   late final _UserEndpoint user;
 
   late final _GreetingEndpoint greeting;
@@ -165,6 +167,10 @@ class _InternalTestEndpoints extends TestEndpoints
       serializationManager,
     );
     menuItem = _MenuItemEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    queue = _QueueEndpoint(
       endpoints,
       serializationManager,
     );
@@ -902,6 +908,47 @@ class _MenuItemEndpoint {
                   _localCallContext.arguments,
                 )
                 as _i3.Future<bool>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _QueueEndpoint {
+  _QueueEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _i2.EndpointDispatch _endpointDispatch;
+
+  final _i2.SerializationManager _serializationManager;
+
+  _i3.Future<Map<String, int>> getQueueCounters(
+    _i1.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'queue',
+            method: 'getQueueCounters',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'queue',
+          methodName: 'getQueueCounters',
+          parameters: _i1.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<Map<String, int>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
