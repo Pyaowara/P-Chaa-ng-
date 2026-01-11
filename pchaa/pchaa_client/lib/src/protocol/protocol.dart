@@ -30,16 +30,20 @@ import 'selected_option.dart' as _i17;
 import 'store_settings.dart' as _i18;
 import 'user_role.dart' as _i19;
 import 'users.dart' as _i20;
-import 'package:pchaa_client/src/protocol/ingredient.dart' as _i21;
-import 'package:pchaa_client/src/protocol/customization_group.dart' as _i22;
-import 'package:pchaa_client/src/protocol/menu_item_with_url.dart' as _i23;
-import 'package:pchaa_client/src/protocol/available_menu_item.dart' as _i24;
-import 'package:pchaa_client/src/protocol/users.dart' as _i25;
+import 'package:pchaa_client/src/protocol/carts.dart' as _i21;
+import 'package:pchaa_client/src/protocol/selected_option.dart' as _i22;
+import 'package:pchaa_client/src/protocol/ingredient.dart' as _i23;
+import 'package:pchaa_client/src/protocol/customization_group.dart' as _i24;
+import 'package:pchaa_client/src/protocol/menu_item_with_url.dart' as _i25;
+import 'package:pchaa_client/src/protocol/available_menu_item.dart' as _i26;
+import 'package:pchaa_client/src/protocol/orders.dart' as _i27;
+import 'package:pchaa_client/src/protocol/order_items.dart' as _i28;
+import 'package:pchaa_client/src/protocol/users.dart' as _i29;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
-    as _i26;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i27;
+    as _i30;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i31;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
-    as _i28;
+    as _i32;
 export 'add_on_option.dart';
 export 'available_add_on_option.dart';
 export 'available_customization_group.dart';
@@ -250,13 +254,22 @@ class Protocol extends _i1.SerializationManager {
               .toList()
           as T;
     }
-    if (t == List<_i21.Ingredient>) {
-      return (data as List).map((e) => deserialize<_i21.Ingredient>(e)).toList()
+    if (t == List<_i21.Cart>) {
+      return (data as List).map((e) => deserialize<_i21.Cart>(e)).toList() as T;
+    }
+    if (t == List<_i22.SelectedOption>) {
+      return (data as List)
+              .map((e) => deserialize<_i22.SelectedOption>(e))
+              .toList()
           as T;
     }
-    if (t == List<_i22.CustomizationGroup>) {
+    if (t == List<_i23.Ingredient>) {
+      return (data as List).map((e) => deserialize<_i23.Ingredient>(e)).toList()
+          as T;
+    }
+    if (t == List<_i24.CustomizationGroup>) {
       return (data as List)
-              .map((e) => deserialize<_i22.CustomizationGroup>(e))
+              .map((e) => deserialize<_i24.CustomizationGroup>(e))
               .toList()
           as T;
     }
@@ -269,24 +282,28 @@ class Protocol extends _i1.SerializationManager {
               : null)
           as T;
     }
-    if (t == List<_i23.MenuItemWithUrl>) {
+    if (t == List<_i25.MenuItemWithUrl>) {
       return (data as List)
-              .map((e) => deserialize<_i23.MenuItemWithUrl>(e))
+              .map((e) => deserialize<_i25.MenuItemWithUrl>(e))
               .toList()
           as T;
     }
-    if (t == List<_i24.AvailableMenuItem>) {
+    if (t == List<_i26.AvailableMenuItem>) {
       return (data as List)
-              .map((e) => deserialize<_i24.AvailableMenuItem>(e))
+              .map((e) => deserialize<_i26.AvailableMenuItem>(e))
               .toList()
           as T;
     }
-    if (t == _i1.getType<List<_i22.CustomizationGroup>?>()) {
+    if (t == _i1.getType<List<_i24.CustomizationGroup>?>()) {
       return (data != null
               ? (data as List)
-                    .map((e) => deserialize<_i22.CustomizationGroup>(e))
+                    .map((e) => deserialize<_i24.CustomizationGroup>(e))
                     .toList()
               : null)
+          as T;
+    }
+    if (t == List<_i27.Order>) {
+      return (data as List).map((e) => deserialize<_i27.Order>(e)).toList()
           as T;
     }
     if (t == Map<String, int>) {
@@ -295,23 +312,33 @@ class Protocol extends _i1.SerializationManager {
           )
           as T;
     }
-    if (t == List<_i25.User>) {
-      return (data as List).map((e) => deserialize<_i25.User>(e)).toList() as T;
+    if (t == Map<String, dynamic>) {
+      return (data as Map).map(
+            (k, v) => MapEntry(deserialize<String>(k), deserialize<dynamic>(v)),
+          )
+          as T;
     }
-    if (t == _i1.getType<List<_i25.User>?>()) {
+    if (t == List<_i28.OrderItem>) {
+      return (data as List).map((e) => deserialize<_i28.OrderItem>(e)).toList()
+          as T;
+    }
+    if (t == List<_i29.User>) {
+      return (data as List).map((e) => deserialize<_i29.User>(e)).toList() as T;
+    }
+    if (t == _i1.getType<List<_i29.User>?>()) {
       return (data != null
-              ? (data as List).map((e) => deserialize<_i25.User>(e)).toList()
+              ? (data as List).map((e) => deserialize<_i29.User>(e)).toList()
               : null)
           as T;
     }
     try {
-      return _i26.Protocol().deserialize<T>(data, t);
+      return _i30.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     try {
-      return _i27.Protocol().deserialize<T>(data, t);
+      return _i31.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     try {
-      return _i28.Protocol().deserialize<T>(data, t);
+      return _i32.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     return super.deserialize<T>(data, t);
   }
@@ -390,15 +417,15 @@ class Protocol extends _i1.SerializationManager {
       case _i20.User():
         return 'User';
     }
-    className = _i26.Protocol().getClassNameForObject(data);
+    className = _i30.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_idp.$className';
     }
-    className = _i27.Protocol().getClassNameForObject(data);
+    className = _i31.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth.$className';
     }
-    className = _i28.Protocol().getClassNameForObject(data);
+    className = _i32.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_core.$className';
     }
@@ -470,15 +497,15 @@ class Protocol extends _i1.SerializationManager {
     }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       data['className'] = dataClassName.substring(19);
-      return _i26.Protocol().deserializeByClassName(data);
+      return _i30.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth.')) {
       data['className'] = dataClassName.substring(15);
-      return _i27.Protocol().deserializeByClassName(data);
+      return _i31.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth_core.')) {
       data['className'] = dataClassName.substring(20);
-      return _i28.Protocol().deserializeByClassName(data);
+      return _i32.Protocol().deserializeByClassName(data);
     }
     return super.deserializeByClassName(data);
   }

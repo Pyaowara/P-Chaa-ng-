@@ -8,6 +8,15 @@ emailIdp:
   - finishPasswordReset:
 jwtRefresh:
   - refreshAccessToken:
+cart:
+  - getMyCart:
+  - getCartById:
+  - createCart:
+  - updateCart:
+  - deleteCart:
+  - clearMyCart:
+  - increaseCartQuantity:
+  - decreaseCartQuantity:
 ingredient:
   - createIngredient:
   - getAllIngredients:
@@ -22,6 +31,19 @@ menuItem:
   - getAvailableMenuItemById:
   - updateMenuItem:
   - deleteMenuItem:
+order:
+  - createOrder:
+  - confirmOrder:
+  - updateOrderStatus:
+  - cancelMyOrder:
+  - getMyOrders:
+  - getEstimatedQueue:
+  - getOrderById:
+  - getOrderItems:
+  - getTodayOrder:
+  - getFinishedOrders:
+  - getTodayOrderByType:
+  - getTodayOrderByStatus:
 queue:
   - getQueueCounters:
 user:
