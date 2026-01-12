@@ -608,14 +608,15 @@ Get order details with items
 - Users can only view their own orders
 - Owners can view any order
 - Returns order object and associated order items
-- For immediate orders with queue number, includes estimated ready time
+- For immediate orders with queue number, includes estimated preparation time and current queue length
 - **Response**: 
 
 ```json
 {
   "order": {Order object},
   "orderItems": [{OrderItem object}, ...],
-  "estimatedReadyTime" : 30 // minute
+  "estimatedPrepTime": 30, // minutes
+  "queueLength": 5         // number of orders ahead in the queue
 }
 ```
 
