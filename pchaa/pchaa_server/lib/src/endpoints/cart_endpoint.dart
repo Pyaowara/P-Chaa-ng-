@@ -62,7 +62,7 @@ class CartEndpoint extends Endpoint {
       additionalMessage: additionalMessage, 
       unitPrice: unitPrice, 
       totalPrice: totalPrice,
-      createdAt : ThailandTimeUtils.getThailandDate(),
+      createdAt : ThailandTimeUtils.getThailandNow(),
     );
     await Cart.db.insert(session, [cart]);
     session.log("[CartEndpoint] Created cart for userId: ${user.id}");
