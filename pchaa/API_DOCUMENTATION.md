@@ -472,37 +472,7 @@ Clear all items from user's cart
 - **Body**: None
 - **Response**: `true`
 
-#### POST /cart/increaseCartQuantity
 
-Increase quantity of cart item by 1
-
-- **Auth Required**: Yes (User role)
-- **Body**:
-
-```json
-{
-  "cartId": 1
-}
-```
-
-- **Response**: `true`
-
-#### POST /cart/decreaseCartQuantity
-
-Decrease quantity of cart item by 1
-
-- **Auth Required**: Yes (User role)
-- **Body**:
-
-```json
-{
-  "cartId": 1
-}
-```
-
-**Notes:**
-- Quantity cannot be less than 1
-- **Response**: `true`
 
 ---
 
@@ -699,21 +669,23 @@ Get finished orders by type (owner only)
 
 #### GET /order/getTodayOrderByType
 
-Get today's orders by specific type (owner only)
+Get today's orders by specific type with optional status filter (owner only)
 
 - **Auth Required**: Yes (Owner role)
 - **Body**:
 
 ```json
 {
-  "type": "I"
+  "type": "I",
+  "status": "preparing"
 }
 ```
 
 **Parameters:**
-- `type`: "I" for immediate or "S" for scheduled
+- `type`: "I" for immediate or "S" for scheduled (required)
+- `status`: Optional filter - "ordered", "preparing", "finished", "received", or "cancelled" (if null, returns all statuses)
 
-- **Response**: First order of the specified type for today
+- **Response**: Array of Order objects matching filters
 
 #### GET /order/getTodayOrderByStatus
 
