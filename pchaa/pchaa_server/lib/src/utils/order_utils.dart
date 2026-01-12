@@ -3,7 +3,7 @@ import 'package:serverpod/serverpod.dart' hide Order;
 import '../generated/protocol.dart';
 
 class OrderUtils {
-  static Future<int> calculateEstimatedPrepTime(
+  static Future<Map<String, int>> calculateEstimatedPrepTime(
     Session session,
     int orderId,
   ) async {
@@ -49,7 +49,10 @@ class OrderUtils {
     }
     // For simplicity, we return a fixed estimated delivery time.
     // In a real-world scenario, this could be based on various factors.
-    return totalPrepTime + thisOrderPrepTime;
+    return {
+      'estimatedPrepTime': totalPrepTime + thisOrderPrepTime,
+      'queueLength': beforeOrder.length,
+    };
   }
 
   static Future<Map<String, int>> getEstimatedTimeForNewOrder(

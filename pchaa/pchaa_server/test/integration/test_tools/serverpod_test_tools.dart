@@ -700,68 +700,6 @@ class _CartEndpoint {
       }
     });
   }
-
-  _i3.Future<void> increaseCartQuantity(
-    _i1.TestSessionBuilder sessionBuilder,
-    int cartId,
-  ) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'cart',
-            method: 'increaseCartQuantity',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'cart',
-          methodName: 'increaseCartQuantity',
-          parameters: _i1.testObjectToJson({'cartId': cartId}),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<void>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<void> decreaseCartQuantity(
-    _i1.TestSessionBuilder sessionBuilder,
-    int cartId,
-  ) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'cart',
-            method: 'decreaseCartQuantity',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'cart',
-          methodName: 'decreaseCartQuantity',
-          parameters: _i1.testObjectToJson({'cartId': cartId}),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<void>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
 }
 
 class _IngredientEndpoint {
@@ -1532,9 +1470,10 @@ class _OrderEndpoint {
     });
   }
 
-  _i3.Future<_i12.Order> getTodayOrderByType(
+  _i3.Future<List<_i12.Order>> getTodayOrderByType(
     _i1.TestSessionBuilder sessionBuilder,
     _i13.OrderType type,
+    _i14.OrderStatus? status,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1547,41 +1486,9 @@ class _OrderEndpoint {
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'order',
           methodName: 'getTodayOrderByType',
-          parameters: _i1.testObjectToJson({'type': type}),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<_i12.Order>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<List<_i12.Order>> getTodayOrderByStatus(
-    _i1.TestSessionBuilder sessionBuilder,
-    _i14.OrderStatus status,
-    _i13.OrderType? type,
-  ) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'order',
-            method: 'getTodayOrderByStatus',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'order',
-          methodName: 'getTodayOrderByStatus',
           parameters: _i1.testObjectToJson({
-            'status': status,
             'type': type,
+            'status': status,
           }),
           serializationManager: _serializationManager,
         );

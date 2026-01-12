@@ -311,20 +311,6 @@ class EndpointCart extends _i2.EndpointRef {
     'clearMyCart',
     {},
   );
-
-  _i3.Future<void> increaseCartQuantity(int cartId) =>
-      caller.callServerEndpoint<void>(
-        'cart',
-        'increaseCartQuantity',
-        {'cartId': cartId},
-      );
-
-  _i3.Future<void> decreaseCartQuantity(int cartId) =>
-      caller.callServerEndpoint<void>(
-        'cart',
-        'decreaseCartQuantity',
-        {'cartId': cartId},
-      );
 }
 
 /// {@category Endpoint}
@@ -568,22 +554,15 @@ class EndpointOrder extends _i2.EndpointRef {
         {'type': type},
       );
 
-  _i3.Future<_i12.Order> getTodayOrderByType(_i13.OrderType type) =>
-      caller.callServerEndpoint<_i12.Order>(
-        'order',
-        'getTodayOrderByType',
-        {'type': type},
-      );
-
-  _i3.Future<List<_i12.Order>> getTodayOrderByStatus(
-    _i14.OrderStatus status,
-    _i13.OrderType? type,
+  _i3.Future<List<_i12.Order>> getTodayOrderByType(
+    _i13.OrderType type,
+    _i14.OrderStatus? status,
   ) => caller.callServerEndpoint<List<_i12.Order>>(
     'order',
-    'getTodayOrderByStatus',
+    'getTodayOrderByType',
     {
-      'status': status,
       'type': type,
+      'status': status,
     },
   );
 }

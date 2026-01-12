@@ -1,3 +1,4 @@
+import 'package:pchaa_server/src/utils/thailand_time_utils.dart';
 import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart';
 import '../utils/auth_utils.dart';
@@ -61,6 +62,7 @@ class CartEndpoint extends Endpoint {
       additionalMessage: additionalMessage, 
       unitPrice: unitPrice, 
       totalPrice: totalPrice,
+      createdAt : ThailandTimeUtils.getThailandDate(),
     );
     await Cart.db.insert(session, [cart]);
     session.log("[CartEndpoint] Created cart for userId: ${user.id}");
@@ -134,41 +136,5 @@ class CartEndpoint extends Endpoint {
     session.log("[CartEndpoint] Cleared cart for userId: ${user.id}");
   }
 
-  Future<void> increaseCartQuantity(Session session, int cartId) async {
-    final user = await AuthUtils.allowedRoles(session, [UserRole.user]);
-    final cart = await Cart.db.findById(session, cartId);
-    if (cart == null) {
-      throw Exception('Cart not found');
-    }
-    if (cart.userId != user.id!) {
-      throw Exception('Access denied: Can\'t modify cart of another user');
-    }
-    cart.quantity += 1;
-    // Update totalPrice
-    cart.totalPrice = cart.unitPrice * cart.quantity;
-
-    await Cart.db.update(session, [cart]);
-    session.log("[CartEndpoint] Increased quantity for cart with id: ${cart.id} for userId: ${user.id}");
-  }
-
-  Future<void> decreaseCartQuantity(Session session, int cartId) async {
-    final user = await AuthUtils.allowedRoles(session, [UserRole.user]);
-    final cart = await Cart.db.findById(session, cartId);
-    if (cart == null) {
-      throw Exception('Cart not found');
-    }
-    if (cart.userId != user.id!) {
-      throw Exception('Access denied: Can\'t modify cart of another user');
-    }
-    if (cart.quantity <= 1) {
-      throw Exception('Quantity cannot be less than 1');
-    }
-    cart.quantity -= 1;
-    // Update totalPrice
-    cart.totalPrice = cart.unitPrice * cart.quantity;
-
-    await Cart.db.update(session, [cart]);
-    session.log("[CartEndpoint] Decreased quantity for cart with id: ${cart.id} for userId: ${user.id}");
-  }
 
 }

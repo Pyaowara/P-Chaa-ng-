@@ -416,44 +416,6 @@ class Endpoints extends _i1.EndpointDispatch {
               ) async =>
                   (endpoints['cart'] as _i4.CartEndpoint).clearMyCart(session),
         ),
-        'increaseCartQuantity': _i1.MethodConnector(
-          name: 'increaseCartQuantity',
-          params: {
-            'cartId': _i1.ParameterDescription(
-              name: 'cartId',
-              type: _i1.getType<int>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['cart'] as _i4.CartEndpoint).increaseCartQuantity(
-                    session,
-                    params['cartId'],
-                  ),
-        ),
-        'decreaseCartQuantity': _i1.MethodConnector(
-          name: 'decreaseCartQuantity',
-          params: {
-            'cartId': _i1.ParameterDescription(
-              name: 'cartId',
-              type: _i1.getType<int>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['cart'] as _i4.CartEndpoint).decreaseCartQuantity(
-                    session,
-                    params['cartId'],
-                  ),
-        ),
       },
     );
     connectors['ingredient'] = _i1.EndpointConnector(
@@ -986,6 +948,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<_i13.OrderType>(),
               nullable: false,
             ),
+            'status': _i1.ParameterDescription(
+              name: 'status',
+              type: _i1.getType<_i14.OrderStatus?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -995,31 +962,7 @@ class Endpoints extends _i1.EndpointDispatch {
                   (endpoints['order'] as _i7.OrderEndpoint).getTodayOrderByType(
                     session,
                     params['type'],
-                  ),
-        ),
-        'getTodayOrderByStatus': _i1.MethodConnector(
-          name: 'getTodayOrderByStatus',
-          params: {
-            'status': _i1.ParameterDescription(
-              name: 'status',
-              type: _i1.getType<_i14.OrderStatus>(),
-              nullable: false,
-            ),
-            'type': _i1.ParameterDescription(
-              name: 'type',
-              type: _i1.getType<_i13.OrderType?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['order'] as _i7.OrderEndpoint)
-                  .getTodayOrderByStatus(
-                    session,
                     params['status'],
-                    params['type'],
                   ),
         ),
       },

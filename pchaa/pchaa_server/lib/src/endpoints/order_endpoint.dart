@@ -22,10 +22,10 @@ class OrderEndpoint extends Endpoint {
       if (pickupTime == null) {
         throw Exception('Pickup time must be provided for scheduled orders');
       }
-      if (pickupTime.isBefore(ThailandTimeUtils.getThailandDate())) {
+      if (pickupTime.isBefore(ThailandTimeUtils.getThailandNow())) {
         throw Exception('Pickup time must be in the future');
       }
-      else if (pickupTime.difference(ThailandTimeUtils.getThailandDate()).inDays >= 1) {
+      else if (pickupTime.difference(ThailandTimeUtils.getThailandNow()).inDays >= 1) {
         throw Exception('Pickup time must be within the same day');
       }
     }
@@ -47,7 +47,7 @@ class OrderEndpoint extends Endpoint {
       totalOrderPrice: orderTotal, 
       orderDate: ThailandTimeUtils.getThailandDate(),
       replyMessage: replyMessage,
-      createdAt: DateTime.now()
+      createdAt: ThailandTimeUtils.getThailandNow()
     );
     final createdOrder = await Order.db.insert(session, [order]);
     for (var cart in mycarts) {
@@ -101,7 +101,7 @@ class OrderEndpoint extends Endpoint {
     if (order.status == OrderStatus.cancelled || order.status == OrderStatus.received) {
       throw Exception('Cannot change status of a cancelled or received order');
     }
-    else if (newStatus == OrderStatus.ordered || newStatus == OrderStatus.cancelled) {
+    else if (newStatus == OrderStatus.ordered) {
       throw Exception('Cannot change order status to $newStatus directly');
     }
     // Validate status transitions
@@ -173,7 +173,9 @@ class OrderEndpoint extends Endpoint {
     result['order'] = order;
     result['orderItems'] = orderItems;
     if (order.type == OrderType.I && order.queueNumber != null && (order.status == OrderStatus.preparing || order.status == OrderStatus.confirmed)) {
-      result['estimatedReadyTime'] = await OrderUtils.calculateEstimatedPrepTime(session, orderId);
+      var estimated = await OrderUtils.calculateEstimatedPrepTime(session, orderId);
+      result['estimatedPrepTime'] = estimated['estimatedPrepTime'];
+      result['queueLength'] = estimated['queueLength'];
     }
     session.log("[OrderEndpoint] Fetched order with id: $orderId for userId: ${user.id}");
     return result;
@@ -250,37 +252,23 @@ class OrderEndpoint extends Endpoint {
     return orders;
   }
 
-  Future<Order> getTodayOrderByType(Session session, OrderType type) async {
+  Future<List<Order>> getTodayOrderByType(Session session, OrderType type, OrderStatus? status) async {
     await AuthUtils.allowedRoles(session, [UserRole.owner]);
     
     final today = ThailandTimeUtils.getThailandDate();
     final orders = await Order.db.find(
       session,
-      where: (t) => t.orderDate.equals(today) & t.type.equals(type),
-      orderBy: (order) => order.id,
-    );
-    if (orders.isEmpty) {
-      throw Exception('No orders found for today with type: $type');
-    }
-    session.log("[OrderEndpoint] Fetched today's order of type: $type for date: $today");
-    return orders.first;
-  }
-
-  Future<List<Order>> getTodayOrderByStatus(Session session, OrderStatus status, OrderType? type) async {
-    await AuthUtils.allowedRoles(session, [UserRole.owner]);
-    
-    final today = ThailandTimeUtils.getThailandDate();
-    final orders = await Order.db.find(
-      session,
-      where: (t) => type != null 
+      where: (t) => status != null 
         ? t.orderDate.equals(today) & t.status.equals(status) & t.type.equals(type)
-        : t.orderDate.equals(today) & t.status.equals(status),
+        : t.orderDate.equals(today) & t.type.equals(type),
       orderBy: (order) => order.queueNumber,
     );
     
     session.log("[OrderEndpoint] Fetched today's order of status: $status for date: $today");
     return orders;
   }
+
+ 
 
 
 

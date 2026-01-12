@@ -15,8 +15,6 @@ cart:
   - updateCart:
   - deleteCart:
   - clearMyCart:
-  - increaseCartQuantity:
-  - decreaseCartQuantity:
 ingredient:
   - createIngredient:
   - getAllIngredients:
@@ -43,7 +41,6 @@ order:
   - getTodayOrder:
   - getFinishedOrders:
   - getTodayOrderByType:
-  - getTodayOrderByStatus:
 queue:
   - getQueueCounters:
 user:
