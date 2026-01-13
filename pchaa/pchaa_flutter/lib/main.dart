@@ -1,17 +1,14 @@
 import 'package:pchaa_client/pchaa_client.dart';
 import 'package:flutter/material.dart';
+import 'package:pchaa_flutter/screens/main_page.dart';
 import 'package:serverpod_flutter/serverpod_flutter.dart';
 import 'package:serverpod_auth_google_flutter/serverpod_auth_google_flutter.dart';
 import 'package:serverpod_auth_shared_flutter/serverpod_auth_shared_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-import 'screens/greetings_screen.dart';
+import './services/google_auth_service.dart';
 import 'screens/available_menu_items_screen.dart';
 
-late final Client client;
-late SessionManager sessionManager;
-late final FlutterAuthenticationKeyManager keyManager;
 String? googleProfilePictureUrl;
 late final GoogleSignIn googleSignIn;
 
@@ -24,6 +21,10 @@ void main() async {
     scopes: ['email', 'profile'],
     serverClientId: dotenv.env['GOOGLE_CLIENT_ID']!,
   );
+  googleAuthService = GoogleAuthService(googleSignIn);
+
+  // Restore previous login if user had signed in before
+  await googleAuthService.restorePreviousSignIn();
 
   keyManager = FlutterAuthenticationKeyManager(
     runMode: 'development',
@@ -70,13 +71,15 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'P-Chaa-ng App',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
         primarySwatch: Colors.blue,
       ),
-      home: sessionManager.signedInUser != null
-          ? const MyHomePage(title: 'P-Chaa-ng Food Order')
-          : const SignInPage(),
+      // home: sessionManager.signedInUser != null
+      //     ? const MyHomePage(title: 'P-Chaa-ng Food Order')
+      //     : const SignInPage(),
+      home: MainPage(),
     );
   }
 }
@@ -91,7 +94,7 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   Future<void> _handleGoogleSignIn() async {
     try {
-      final googleUser = await googleSignIn.signIn();
+      final googleUser = await googleAuthService.signIn();
       if (googleUser == null) return;
 
       googleProfilePictureUrl = googleUser.photoUrl;
@@ -142,25 +145,25 @@ class _SignInPageState extends State<SignInPage> {
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
+// class MyHomePage extends StatefulWidget {
+//   const MyHomePage({super.key, required this.title});
+//   final String title;
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
+//   @override
+//   State<MyHomePage> createState() => _MyHomePageState();
+// }
 
-class _MyHomePageState extends State<MyHomePage>
+// class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
-  String? _userPictureUrl;
+//   String? _userPictureUrl;
   late TabController _tabController;
 
-  @override
-  void initState() {
-    super.initState();
+//   @override
+//   void initState() {
+//     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _loadUserPicture();
-  }
+//     _loadUserPicture();
+//   }
 
   @override
   void dispose() {
@@ -168,26 +171,26 @@ class _MyHomePageState extends State<MyHomePage>
     super.dispose();
   }
 
-  Future<void> _loadUserPicture() async {
-    try {
-      final user = await client.user.getCurrentUser();
-      if (mounted && user?.picture != null) {
-        setState(() {
-          _userPictureUrl = user!.picture;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error loading user picture: $e');
-    }
-  }
+//   Future<void> _loadUserPicture() async {
+//     try {
+//       final user = await client.user.getCurrentUser();
+//       if (mounted && user?.picture != null) {
+//         setState(() {
+//           _userPictureUrl = user!.picture;
+//         });
+//       }
+//     } catch (e) {
+//       debugPrint('Error loading user picture: $e');
+//     }
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    final userInfo = sessionManager.signedInUser;
+//   @override
+//   Widget build(BuildContext context) {
+//     final userInfo = sessionManager.signedInUser;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text(widget.title),
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
@@ -201,34 +204,34 @@ class _MyHomePageState extends State<MyHomePage>
             ),
           ],
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: CircularUserImage(
-              userInfo: userInfo != null && _userPictureUrl != null
-                  ? userInfo.copyWith(imageUrl: _userPictureUrl)
-                  : userInfo,
-              size: 36,
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Sign Out',
-            onPressed: () async {
-              googleProfilePictureUrl = null;
-              await googleSignIn.signOut();
-              await sessionManager.signOutDevice();
-            },
-          ),
-        ],
-      ),
-      body: TabBarView(
+//         actions: [
+//           Padding(
+//             padding: const EdgeInsets.only(right: 8.0),
+//             child: CircularUserImage(
+//               userInfo: userInfo != null && _userPictureUrl != null
+//                   ? userInfo.copyWith(imageUrl: _userPictureUrl)
+//                   : userInfo,
+//               size: 36,
+//             ),
+//           ),
+//           IconButton(
+//             icon: const Icon(Icons.logout),
+//             tooltip: 'Sign Out',
+//             onPressed: () async {
+//               googleProfilePictureUrl = null;
+//               await googleSignIn.signOut();
+//               await sessionManager.signOutDevice();
+//             },
+//           ),
+//         ],
+//       ),
+//       body: TabBarView(
         controller: _tabController,
         children: const [
           GreetingsScreen(),
           AvailableMenuItemsScreen(),
         ],
       ),
-    );
-  }
-}
+//     );
+//   }
+// }
