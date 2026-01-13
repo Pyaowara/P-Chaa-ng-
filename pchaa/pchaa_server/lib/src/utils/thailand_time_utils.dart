@@ -5,6 +5,14 @@ class ThailandTimeUtils {
     return DateTime(thailandTime.year, thailandTime.month, thailandTime.day);
   }
 
+  static DateTime getThailandNow() {
+    var thisTime = DateTime.now().toUtc();
+    return thisTime.add(const Duration(hours: 7));
+  }
+
+
+
+
   static DateTime getNextThailandMidnight() {
     var now = DateTime.now().toUtc();
     var thailandMidnight = DateTime.utc(now.year, now.month, now.day, 17, 0, 0);

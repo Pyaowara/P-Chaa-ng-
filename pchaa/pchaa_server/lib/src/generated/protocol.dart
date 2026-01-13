@@ -36,11 +36,15 @@ import 'selected_option.dart' as _i21;
 import 'store_settings.dart' as _i22;
 import 'user_role.dart' as _i23;
 import 'users.dart' as _i24;
-import 'package:pchaa_server/src/generated/ingredient.dart' as _i25;
-import 'package:pchaa_server/src/generated/customization_group.dart' as _i26;
-import 'package:pchaa_server/src/generated/menu_item_with_url.dart' as _i27;
-import 'package:pchaa_server/src/generated/available_menu_item.dart' as _i28;
-import 'package:pchaa_server/src/generated/users.dart' as _i29;
+import 'package:pchaa_server/src/generated/carts.dart' as _i25;
+import 'package:pchaa_server/src/generated/selected_option.dart' as _i26;
+import 'package:pchaa_server/src/generated/ingredient.dart' as _i27;
+import 'package:pchaa_server/src/generated/customization_group.dart' as _i28;
+import 'package:pchaa_server/src/generated/menu_item_with_url.dart' as _i29;
+import 'package:pchaa_server/src/generated/available_menu_item.dart' as _i30;
+import 'package:pchaa_server/src/generated/orders.dart' as _i31;
+import 'package:pchaa_server/src/generated/order_items.dart' as _i32;
+import 'package:pchaa_server/src/generated/users.dart' as _i33;
 export 'add_on_option.dart';
 export 'available_add_on_option.dart';
 export 'available_customization_group.dart';
@@ -814,13 +818,22 @@ class Protocol extends _i1.SerializationManagerServer {
               .toList()
           as T;
     }
-    if (t == List<_i25.Ingredient>) {
-      return (data as List).map((e) => deserialize<_i25.Ingredient>(e)).toList()
+    if (t == List<_i25.Cart>) {
+      return (data as List).map((e) => deserialize<_i25.Cart>(e)).toList() as T;
+    }
+    if (t == List<_i26.SelectedOption>) {
+      return (data as List)
+              .map((e) => deserialize<_i26.SelectedOption>(e))
+              .toList()
           as T;
     }
-    if (t == List<_i26.CustomizationGroup>) {
+    if (t == List<_i27.Ingredient>) {
+      return (data as List).map((e) => deserialize<_i27.Ingredient>(e)).toList()
+          as T;
+    }
+    if (t == List<_i28.CustomizationGroup>) {
       return (data as List)
-              .map((e) => deserialize<_i26.CustomizationGroup>(e))
+              .map((e) => deserialize<_i28.CustomizationGroup>(e))
               .toList()
           as T;
     }
@@ -833,24 +846,28 @@ class Protocol extends _i1.SerializationManagerServer {
               : null)
           as T;
     }
-    if (t == List<_i27.MenuItemWithUrl>) {
+    if (t == List<_i29.MenuItemWithUrl>) {
       return (data as List)
-              .map((e) => deserialize<_i27.MenuItemWithUrl>(e))
+              .map((e) => deserialize<_i29.MenuItemWithUrl>(e))
               .toList()
           as T;
     }
-    if (t == List<_i28.AvailableMenuItem>) {
+    if (t == List<_i30.AvailableMenuItem>) {
       return (data as List)
-              .map((e) => deserialize<_i28.AvailableMenuItem>(e))
+              .map((e) => deserialize<_i30.AvailableMenuItem>(e))
               .toList()
           as T;
     }
-    if (t == _i1.getType<List<_i26.CustomizationGroup>?>()) {
+    if (t == _i1.getType<List<_i28.CustomizationGroup>?>()) {
       return (data != null
               ? (data as List)
-                    .map((e) => deserialize<_i26.CustomizationGroup>(e))
+                    .map((e) => deserialize<_i28.CustomizationGroup>(e))
                     .toList()
               : null)
+          as T;
+    }
+    if (t == List<_i31.Order>) {
+      return (data as List).map((e) => deserialize<_i31.Order>(e)).toList()
           as T;
     }
     if (t == Map<String, int>) {
@@ -859,12 +876,22 @@ class Protocol extends _i1.SerializationManagerServer {
           )
           as T;
     }
-    if (t == List<_i29.User>) {
-      return (data as List).map((e) => deserialize<_i29.User>(e)).toList() as T;
+    if (t == Map<String, dynamic>) {
+      return (data as Map).map(
+            (k, v) => MapEntry(deserialize<String>(k), deserialize<dynamic>(v)),
+          )
+          as T;
     }
-    if (t == _i1.getType<List<_i29.User>?>()) {
+    if (t == List<_i32.OrderItem>) {
+      return (data as List).map((e) => deserialize<_i32.OrderItem>(e)).toList()
+          as T;
+    }
+    if (t == List<_i33.User>) {
+      return (data as List).map((e) => deserialize<_i33.User>(e)).toList() as T;
+    }
+    if (t == _i1.getType<List<_i33.User>?>()) {
       return (data != null
-              ? (data as List).map((e) => deserialize<_i29.User>(e)).toList()
+              ? (data as List).map((e) => deserialize<_i33.User>(e)).toList()
               : null)
           as T;
     }
