@@ -1441,7 +1441,7 @@ class _OrderEndpoint {
 
   _i3.Future<List<_i12.Order>> getFinishedOrders(
     _i1.TestSessionBuilder sessionBuilder,
-    _i13.OrderType type,
+    _i13.OrderType? type,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
