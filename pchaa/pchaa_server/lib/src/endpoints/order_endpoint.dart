@@ -240,12 +240,14 @@ class OrderEndpoint extends Endpoint {
     return orders;
   }
 
-  Future<List<Order>> getFinishedOrders(Session session, OrderType type) async {
-    await AuthUtils.allowedRoles(session, [UserRole.owner]);
+  Future<List<Order>> getFinishedOrders(Session session, OrderType? type) async {
+    final today = ThailandTimeUtils.getThailandDate();
     
     final orders = await Order.db.find(
       session,
-      where: (t) => t.type.equals(type) & t.status.equals(OrderStatus.finished),
+      where: (t) => type != null 
+        ? t.orderDate.equals(today) & t.status.equals(OrderStatus.finished) & t.type.equals(type)
+        : t.orderDate.equals(today) & t.status.equals(OrderStatus.finished),
       orderBy: (order) => order.queueNumber,
     );
     session.log("[OrderEndpoint] Fetched finished orders of type: $type");
