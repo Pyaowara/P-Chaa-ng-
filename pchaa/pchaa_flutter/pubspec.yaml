@@ -29,6 +29,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_dotenv: ^5.2.1
+  carousel_slider: ^5.1.1
   pchaa_client:
     path: ../pchaa_client
   serverpod_auth_google_flutter: 3.1.1

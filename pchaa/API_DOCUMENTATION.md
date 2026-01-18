@@ -652,9 +652,9 @@ Get all today's orders (owner only)
 
 #### GET /order/getFinishedOrders
 
-Get finished orders by type (owner only)
+Get finished orders by type
 
-- **Auth Required**: Yes (Owner role)
+- **Auth Required**: No
 - **Body**:
 
 ```json

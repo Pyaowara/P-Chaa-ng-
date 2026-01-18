@@ -241,7 +241,6 @@ class OrderEndpoint extends Endpoint {
   }
 
   Future<List<Order>> getFinishedOrders(Session session, OrderType type) async {
-    await AuthUtils.allowedRoles(session, [UserRole.owner]);
     
     final orders = await Order.db.find(
       session,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
 
-import '../main.dart';
+import '../services/app_services.dart';
 
 class MenuItemsScreen extends StatefulWidget {
   const MenuItemsScreen({super.key});
@@ -152,7 +152,7 @@ class _MenuItemsScreenState extends State<MenuItemsScreen> {
                     );
                   },
                   errorBuilder: (context, error, stackTrace) {
-                    print(
+                    debugPrint(
                       'Image loading error for ${_getDisplayableImageUrl(menuItem.imageUrl)}: $error',
                     );
                     return Container(
@@ -210,8 +210,8 @@ class _MenuItemsScreenState extends State<MenuItemsScreen> {
                       ),
                       decoration: BoxDecoration(
                         color: menuItem.isAvailable
-                            ? Colors.green.withOpacity(0.1)
-                            : Colors.red.withOpacity(0.1),
+                            ? Colors.green.withValues(alpha:0.1)
+                            : Colors.red.withValues(alpha:0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: menuItem.isAvailable

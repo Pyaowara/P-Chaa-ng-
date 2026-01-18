@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
-import '../main.dart';
+import '../services/app_services.dart';
 import 'menu_item_detail_screen.dart';
 
 class AvailableMenuItemsScreen extends StatefulWidget {
