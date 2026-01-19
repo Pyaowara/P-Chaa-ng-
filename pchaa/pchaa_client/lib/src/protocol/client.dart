@@ -547,7 +547,7 @@ class EndpointOrder extends _i2.EndpointRef {
         {},
       );
 
-  _i3.Future<List<_i12.Order>> getFinishedOrders(_i13.OrderType type) =>
+  _i3.Future<List<_i12.Order>> getFinishedOrders(_i13.OrderType? type) =>
       caller.callServerEndpoint<List<_i12.Order>>(
         'order',
         'getFinishedOrders',

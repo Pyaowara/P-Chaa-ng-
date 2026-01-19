@@ -2,7 +2,7 @@ class ThailandTimeUtils {
   static DateTime getThailandDate() {
     var now = DateTime.now().toUtc();
     var thailandTime = now.add(const Duration(hours: 7));
-    return DateTime(thailandTime.year, thailandTime.month, thailandTime.day);
+    return DateTime(thailandTime.year, thailandTime.month, thailandTime.day).add(const Duration(hours: 7));
   }
 
   static DateTime getThailandNow() {

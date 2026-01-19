@@ -926,8 +926,8 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'type': _i1.ParameterDescription(
               name: 'type',
-              type: _i1.getType<_i13.OrderType>(),
-              nullable: false,
+              type: _i1.getType<_i13.OrderType?>(),
+              nullable: true,
             ),
           },
           call:
