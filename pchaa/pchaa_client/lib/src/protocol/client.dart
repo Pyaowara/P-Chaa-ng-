@@ -16,10 +16,22 @@ import 'package:serverpod_client/serverpod_client.dart' as _i2;
 import 'dart:async' as _i3;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _i4;
-import 'package:pchaa_client/src/protocol/users.dart' as _i5;
-import 'package:pchaa_client/src/protocol/greetings/greeting.dart' as _i6;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i7;
-import 'protocol.dart' as _i8;
+import 'package:pchaa_client/src/protocol/carts.dart' as _i5;
+import 'package:pchaa_client/src/protocol/selected_option.dart' as _i6;
+import 'package:pchaa_client/src/protocol/ingredient.dart' as _i7;
+import 'package:pchaa_client/src/protocol/menu_items.dart' as _i8;
+import 'package:pchaa_client/src/protocol/customization_group.dart' as _i9;
+import 'package:pchaa_client/src/protocol/menu_item_with_url.dart' as _i10;
+import 'package:pchaa_client/src/protocol/available_menu_item.dart' as _i11;
+import 'package:pchaa_client/src/protocol/orders.dart' as _i12;
+import 'package:pchaa_client/src/protocol/order_type.dart' as _i13;
+import 'package:pchaa_client/src/protocol/order_status.dart' as _i14;
+import 'package:pchaa_client/src/protocol/order_items.dart' as _i15;
+import 'package:pchaa_client/src/protocol/users.dart' as _i16;
+import 'package:pchaa_client/src/protocol/user_role.dart' as _i17;
+import 'package:pchaa_client/src/protocol/greetings/greeting.dart' as _i18;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i19;
+import 'protocol.dart' as _i20;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -236,29 +248,379 @@ class EndpointJwtRefresh extends _i4.EndpointRefreshJwtTokens {
 }
 
 /// {@category Endpoint}
+class EndpointCart extends _i2.EndpointRef {
+  EndpointCart(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'cart';
+
+  _i3.Future<List<_i5.Cart>> getMyCart() =>
+      caller.callServerEndpoint<List<_i5.Cart>>(
+        'cart',
+        'getMyCart',
+        {},
+      );
+
+  _i3.Future<_i5.Cart> getCartById(int cartId) =>
+      caller.callServerEndpoint<_i5.Cart>(
+        'cart',
+        'getCartById',
+        {'cartId': cartId},
+      );
+
+  _i3.Future<_i5.Cart> createCart(
+    int menuItemId,
+    List<_i6.SelectedOption> selectedOptions,
+    int quantity,
+    String? additionalMessage,
+  ) => caller.callServerEndpoint<_i5.Cart>(
+    'cart',
+    'createCart',
+    {
+      'menuItemId': menuItemId,
+      'selectedOptions': selectedOptions,
+      'quantity': quantity,
+      'additionalMessage': additionalMessage,
+    },
+  );
+
+  _i3.Future<_i5.Cart> updateCart(
+    int cartId,
+    List<_i6.SelectedOption> selectedOptions,
+    int quantity,
+    String? additionalMessage,
+  ) => caller.callServerEndpoint<_i5.Cart>(
+    'cart',
+    'updateCart',
+    {
+      'cartId': cartId,
+      'selectedOptions': selectedOptions,
+      'quantity': quantity,
+      'additionalMessage': additionalMessage,
+    },
+  );
+
+  _i3.Future<void> deleteCart(int cartId) => caller.callServerEndpoint<void>(
+    'cart',
+    'deleteCart',
+    {'cartId': cartId},
+  );
+
+  _i3.Future<void> clearMyCart() => caller.callServerEndpoint<void>(
+    'cart',
+    'clearMyCart',
+    {},
+  );
+}
+
+/// {@category Endpoint}
+class EndpointIngredient extends _i2.EndpointRef {
+  EndpointIngredient(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'ingredient';
+
+  _i3.Future<_i7.Ingredient> createIngredient(
+    String name,
+    bool isAvailable,
+  ) => caller.callServerEndpoint<_i7.Ingredient>(
+    'ingredient',
+    'createIngredient',
+    {
+      'name': name,
+      'isAvailable': isAvailable,
+    },
+  );
+
+  _i3.Future<List<_i7.Ingredient>> getAllIngredients() =>
+      caller.callServerEndpoint<List<_i7.Ingredient>>(
+        'ingredient',
+        'getAllIngredients',
+        {},
+      );
+
+  _i3.Future<_i7.Ingredient?> getIngredientById(int id) =>
+      caller.callServerEndpoint<_i7.Ingredient?>(
+        'ingredient',
+        'getIngredientById',
+        {'id': id},
+      );
+
+  _i3.Future<_i7.Ingredient> updateIngredient(
+    int id,
+    String? name,
+    bool? isAvailable,
+  ) => caller.callServerEndpoint<_i7.Ingredient>(
+    'ingredient',
+    'updateIngredient',
+    {
+      'id': id,
+      'name': name,
+      'isAvailable': isAvailable,
+    },
+  );
+
+  _i3.Future<bool> deleteIngredient(int id) => caller.callServerEndpoint<bool>(
+    'ingredient',
+    'deleteIngredient',
+    {'id': id},
+  );
+}
+
+/// {@category Endpoint}
+class EndpointMenuItem extends _i2.EndpointRef {
+  EndpointMenuItem(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'menuItem';
+
+  _i3.Future<_i8.MenuItem> createMenuItem(
+    String name,
+    double basePrice,
+    int timeToPrepare,
+    List<_i9.CustomizationGroup> customization,
+    bool isAvailable,
+    List<int>? ingredientIds,
+    String? imageDataBase64,
+    String? imageFileName,
+    String? imageContentType,
+  ) => caller.callServerEndpoint<_i8.MenuItem>(
+    'menuItem',
+    'createMenuItem',
+    {
+      'name': name,
+      'basePrice': basePrice,
+      'timeToPrepare': timeToPrepare,
+      'customization': customization,
+      'isAvailable': isAvailable,
+      'ingredientIds': ingredientIds,
+      'imageDataBase64': imageDataBase64,
+      'imageFileName': imageFileName,
+      'imageContentType': imageContentType,
+    },
+  );
+
+  _i3.Future<List<_i10.MenuItemWithUrl>> getAllMenuItems() =>
+      caller.callServerEndpoint<List<_i10.MenuItemWithUrl>>(
+        'menuItem',
+        'getAllMenuItems',
+        {},
+      );
+
+  _i3.Future<_i10.MenuItemWithUrl?> getMenuItemById(int id) =>
+      caller.callServerEndpoint<_i10.MenuItemWithUrl?>(
+        'menuItem',
+        'getMenuItemById',
+        {'id': id},
+      );
+
+  _i3.Future<List<_i11.AvailableMenuItem>> getAllAvailableMenuItems() =>
+      caller.callServerEndpoint<List<_i11.AvailableMenuItem>>(
+        'menuItem',
+        'getAllAvailableMenuItems',
+        {},
+      );
+
+  _i3.Future<_i11.AvailableMenuItem?> getAvailableMenuItemById(int id) =>
+      caller.callServerEndpoint<_i11.AvailableMenuItem?>(
+        'menuItem',
+        'getAvailableMenuItemById',
+        {'id': id},
+      );
+
+  _i3.Future<_i8.MenuItem> updateMenuItem(
+    int id,
+    String? name,
+    double? basePrice,
+    int? timeToPrepare,
+    List<_i9.CustomizationGroup>? customization,
+    bool? isAvailable,
+    List<int>? ingredientIds,
+    bool? removeImage,
+    String? imageDataBase64,
+    String? imageFileName,
+    String? imageContentType,
+  ) => caller.callServerEndpoint<_i8.MenuItem>(
+    'menuItem',
+    'updateMenuItem',
+    {
+      'id': id,
+      'name': name,
+      'basePrice': basePrice,
+      'timeToPrepare': timeToPrepare,
+      'customization': customization,
+      'isAvailable': isAvailable,
+      'ingredientIds': ingredientIds,
+      'removeImage': removeImage,
+      'imageDataBase64': imageDataBase64,
+      'imageFileName': imageFileName,
+      'imageContentType': imageContentType,
+    },
+  );
+
+  _i3.Future<bool> deleteMenuItem(int id) => caller.callServerEndpoint<bool>(
+    'menuItem',
+    'deleteMenuItem',
+    {'id': id},
+  );
+}
+
+/// {@category Endpoint}
+class EndpointOrder extends _i2.EndpointRef {
+  EndpointOrder(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'order';
+
+  _i3.Future<_i12.Order> createOrder(
+    String? replyMessage,
+    _i13.OrderType orderType,
+    DateTime? pickupTime,
+  ) => caller.callServerEndpoint<_i12.Order>(
+    'order',
+    'createOrder',
+    {
+      'replyMessage': replyMessage,
+      'orderType': orderType,
+      'pickupTime': pickupTime,
+    },
+  );
+
+  _i3.Future<_i12.Order> confirmOrder(int orderId) =>
+      caller.callServerEndpoint<_i12.Order>(
+        'order',
+        'confirmOrder',
+        {'orderId': orderId},
+      );
+
+  _i3.Future<_i12.Order> updateOrderStatus(
+    int orderId,
+    _i14.OrderStatus newStatus,
+  ) => caller.callServerEndpoint<_i12.Order>(
+    'order',
+    'updateOrderStatus',
+    {
+      'orderId': orderId,
+      'newStatus': newStatus,
+    },
+  );
+
+  _i3.Future<_i12.Order> cancelMyOrder(int orderId) =>
+      caller.callServerEndpoint<_i12.Order>(
+        'order',
+        'cancelMyOrder',
+        {'orderId': orderId},
+      );
+
+  _i3.Future<List<_i12.Order>> getMyOrders() =>
+      caller.callServerEndpoint<List<_i12.Order>>(
+        'order',
+        'getMyOrders',
+        {},
+      );
+
+  _i3.Future<Map<String, int>> getEstimatedQueue() =>
+      caller.callServerEndpoint<Map<String, int>>(
+        'order',
+        'getEstimatedQueue',
+        {},
+      );
+
+  _i3.Future<Map<String, dynamic>> getOrderById(int orderId) =>
+      caller.callServerEndpoint<Map<String, dynamic>>(
+        'order',
+        'getOrderById',
+        {'orderId': orderId},
+      );
+
+  _i3.Future<List<_i15.OrderItem>> getOrderItems(int orderId) =>
+      caller.callServerEndpoint<List<_i15.OrderItem>>(
+        'order',
+        'getOrderItems',
+        {'orderId': orderId},
+      );
+
+  _i3.Future<List<_i12.Order>> getTodayOrder() =>
+      caller.callServerEndpoint<List<_i12.Order>>(
+        'order',
+        'getTodayOrder',
+        {},
+      );
+
+  _i3.Future<List<_i12.Order>> getFinishedOrders(_i13.OrderType? type) =>
+      caller.callServerEndpoint<List<_i12.Order>>(
+        'order',
+        'getFinishedOrders',
+        {'type': type},
+      );
+
+  _i3.Future<List<_i12.Order>> getTodayOrderByType(
+    _i13.OrderType type,
+    _i14.OrderStatus? status,
+  ) => caller.callServerEndpoint<List<_i12.Order>>(
+    'order',
+    'getTodayOrderByType',
+    {
+      'type': type,
+      'status': status,
+    },
+  );
+}
+
+/// {@category Endpoint}
+class EndpointQueue extends _i2.EndpointRef {
+  EndpointQueue(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'queue';
+
+  _i3.Future<Map<String, int>> getQueueCounters() =>
+      caller.callServerEndpoint<Map<String, int>>(
+        'queue',
+        'getQueueCounters',
+        {},
+      );
+}
+
+/// {@category Endpoint}
 class EndpointUser extends _i2.EndpointRef {
   EndpointUser(_i2.EndpointCaller caller) : super(caller);
 
   @override
   String get name => 'user';
 
-  /// Register or update user after successful authentication.
-  /// This should be called from the client after authentication succeeds.
-  /// [profilePictureUrl] - Optional Google profile picture URL from the client
-  _i3.Future<_i5.User?> registerUser({String? profilePictureUrl}) =>
-      caller.callServerEndpoint<_i5.User?>(
+  _i3.Future<_i16.User?> registerUser({String? profilePictureUrl}) =>
+      caller.callServerEndpoint<_i16.User?>(
         'user',
         'registerUser',
         {'profilePictureUrl': profilePictureUrl},
       );
 
-  /// Get the current authenticated user's profile
-  _i3.Future<_i5.User?> getCurrentUser() =>
-      caller.callServerEndpoint<_i5.User?>(
+  _i3.Future<_i16.User?> getCurrentUser() =>
+      caller.callServerEndpoint<_i16.User?>(
         'user',
         'getCurrentUser',
         {},
       );
+
+  _i3.Future<List<_i16.User>?> getAllUser() =>
+      caller.callServerEndpoint<List<_i16.User>?>(
+        'user',
+        'getAllUser',
+        {},
+      );
+
+  _i3.Future<_i16.User> updateUserRole(
+    int userId,
+    _i17.UserRole newRole,
+  ) => caller.callServerEndpoint<_i16.User>(
+    'user',
+    'updateUserRole',
+    {
+      'userId': userId,
+      'newRole': newRole,
+    },
+  );
 }
 
 /// This is an example endpoint that returns a greeting message through
@@ -271,8 +633,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i6.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i6.Greeting>(
+  _i3.Future<_i18.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i18.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -282,13 +644,13 @@ class EndpointGreeting extends _i2.EndpointRef {
 class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _i1.Caller(client);
-    auth = _i7.Caller(client);
+    auth = _i19.Caller(client);
     serverpod_auth_core = _i4.Caller(client);
   }
 
   late final _i1.Caller serverpod_auth_idp;
 
-  late final _i7.Caller auth;
+  late final _i19.Caller auth;
 
   late final _i4.Caller serverpod_auth_core;
 }
@@ -313,7 +675,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i8.Protocol(),
+         _i20.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -324,6 +686,11 @@ class Client extends _i2.ServerpodClientShared {
        ) {
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
+    cart = EndpointCart(this);
+    ingredient = EndpointIngredient(this);
+    menuItem = EndpointMenuItem(this);
+    order = EndpointOrder(this);
+    queue = EndpointQueue(this);
     user = EndpointUser(this);
     greeting = EndpointGreeting(this);
     modules = Modules(this);
@@ -332,6 +699,16 @@ class Client extends _i2.ServerpodClientShared {
   late final EndpointEmailIdp emailIdp;
 
   late final EndpointJwtRefresh jwtRefresh;
+
+  late final EndpointCart cart;
+
+  late final EndpointIngredient ingredient;
+
+  late final EndpointMenuItem menuItem;
+
+  late final EndpointOrder order;
+
+  late final EndpointQueue queue;
 
   late final EndpointUser user;
 
@@ -343,6 +720,11 @@ class Client extends _i2.ServerpodClientShared {
   Map<String, _i2.EndpointRef> get endpointRefLookup => {
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
+    'cart': cart,
+    'ingredient': ingredient,
+    'menuItem': menuItem,
+    'order': order,
+    'queue': queue,
     'user': user,
     'greeting': greeting,
   };

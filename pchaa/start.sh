@@ -9,7 +9,7 @@ PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # Start backend server in new terminal
 echo "Opening backend terminal..."
-gnome-terminal -- bash -c "cd '$PROJECT_DIR/pchaa_server' && echo 'Starting backend server...' && dart bin/main.dart; exec bash"
+gnome-terminal -- bash -c "cd '$PROJECT_DIR/pchaa_server' && echo 'Starting backend server...' && dart bin/main.dart --apply-migrations; exec bash"
 
 # Wait a moment for backend to initialize
 sleep 2

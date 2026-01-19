@@ -1,0 +1,56 @@
+{
+  "__className__": "serverpod.DatabaseMigration",
+  "actions": [
+    {
+      "__className__": "serverpod.DatabaseMigrationAction",
+      "type": "alterTable",
+      "alterTable": {
+        "__className__": "serverpod.TableMigration",
+        "name": "menu_items",
+        "schema": "public",
+        "addColumns": [
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "ingredientIds",
+            "columnType": 8,
+            "isNullable": true,
+            "dartType": "List<int>?"
+          }
+        ],
+        "deleteColumns": [
+          "ingredients"
+        ],
+        "modifyColumns": [],
+        "addIndexes": [],
+        "deleteIndexes": [],
+        "addForeignKeys": [],
+        "deleteForeignKeys": [],
+        "warnings": [
+          {
+            "__className__": "serverpod.DatabaseMigrationWarning",
+            "type": "columnDropped",
+            "message": "Column \"ingredients\" of table \"menu_items\" will be dropped.",
+            "table": "menu_items",
+            "columns": [
+              "ingredients"
+            ],
+            "destrucive": true
+          }
+        ]
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "__className__": "serverpod.DatabaseMigrationWarning",
+      "type": "columnDropped",
+      "message": "Column \"ingredients\" of table \"menu_items\" will be dropped.",
+      "table": "menu_items",
+      "columns": [
+        "ingredients"
+      ],
+      "destrucive": true
+    }
+  ],
+  "migrationApiVersion": 1
+}

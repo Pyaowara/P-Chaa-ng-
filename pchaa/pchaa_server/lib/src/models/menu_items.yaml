@@ -8,3 +8,5 @@ fields:
   s3Key: String?
   isAvailable: bool
   createdAt: DateTime?
+  ingredientIds: List<int>?
+  isDeleted: bool

@@ -1,0 +1,6 @@
+class: Ingredient
+table: ingredients
+fields:
+  name: String
+  isAvailable: bool
+  isDeleted: bool

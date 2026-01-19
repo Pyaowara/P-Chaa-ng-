@@ -1,0 +1,48 @@
+{
+  "__className__": "serverpod.DatabaseMigration",
+  "actions": [
+    {
+      "__className__": "serverpod.DatabaseMigrationAction",
+      "type": "alterTable",
+      "alterTable": {
+        "__className__": "serverpod.TableMigration",
+        "name": "menu_items",
+        "schema": "public",
+        "addColumns": [],
+        "deleteColumns": [
+          "imageUrl"
+        ],
+        "modifyColumns": [],
+        "addIndexes": [],
+        "deleteIndexes": [],
+        "addForeignKeys": [],
+        "deleteForeignKeys": [],
+        "warnings": [
+          {
+            "__className__": "serverpod.DatabaseMigrationWarning",
+            "type": "columnDropped",
+            "message": "Column \"imageUrl\" of table \"menu_items\" will be dropped.",
+            "table": "menu_items",
+            "columns": [
+              "imageUrl"
+            ],
+            "destrucive": true
+          }
+        ]
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "__className__": "serverpod.DatabaseMigrationWarning",
+      "type": "columnDropped",
+      "message": "Column \"imageUrl\" of table \"menu_items\" will be dropped.",
+      "table": "menu_items",
+      "columns": [
+        "imageUrl"
+      ],
+      "destrucive": true
+    }
+  ],
+  "migrationApiVersion": 1
+}

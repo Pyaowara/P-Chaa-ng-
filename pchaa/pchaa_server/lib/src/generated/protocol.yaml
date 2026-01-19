@@ -8,8 +8,45 @@ emailIdp:
   - finishPasswordReset:
 jwtRefresh:
   - refreshAccessToken:
+cart:
+  - getMyCart:
+  - getCartById:
+  - createCart:
+  - updateCart:
+  - deleteCart:
+  - clearMyCart:
+ingredient:
+  - createIngredient:
+  - getAllIngredients:
+  - getIngredientById:
+  - updateIngredient:
+  - deleteIngredient:
+menuItem:
+  - createMenuItem:
+  - getAllMenuItems:
+  - getMenuItemById:
+  - getAllAvailableMenuItems:
+  - getAvailableMenuItemById:
+  - updateMenuItem:
+  - deleteMenuItem:
+order:
+  - createOrder:
+  - confirmOrder:
+  - updateOrderStatus:
+  - cancelMyOrder:
+  - getMyOrders:
+  - getEstimatedQueue:
+  - getOrderById:
+  - getOrderItems:
+  - getTodayOrder:
+  - getFinishedOrders:
+  - getTodayOrderByType:
+queue:
+  - getQueueCounters:
 user:
   - registerUser:
   - getCurrentUser:
+  - getAllUser:
+  - updateUserRole:
 greeting:
   - hello:

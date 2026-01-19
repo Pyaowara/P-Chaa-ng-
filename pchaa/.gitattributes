@@ -1,0 +1,6 @@
+# Serverpod generated files
+pchaa_server/lib/src/generated/** linguist-generated=true
+pchaa_client/lib/src/** linguist-generated=true
+
+# Migrations (optional – see note below)
+pchaa_server/migrations/** linguist-generated=true
