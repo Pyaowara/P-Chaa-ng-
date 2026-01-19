@@ -14,11 +14,17 @@ Solves the complexity of variable food customizations and daily queue management
 ![home](./images/home.png)
 ![menu](./images/menu.png)
 
+## Sprint 1 Result
+
+![s1_non_login](./images/s1_non_login.png)
+![s1_que](./images/s1_que.png)
+![s1_menu](./images/s1_menu.png)
+
 ## 🛠 Tech Stack
 
-- **Frontend:** Flutter (Mobile & Maybe Web)
+- **Frontend:** Flutter (Mobile)
 - **Database:** PostgreSQL (Relational data + JSONB for flexible add-ons)
-- **Storage:** MinIO (Food & Profile images)
+- **Storage:** MinIO (Food images)
 - **Backend:** Severpod
 
 ## 🏗 System Architecture
@@ -37,7 +43,7 @@ The system relies on a **PostgreSQL** schema optimized for data integrity and sn
 
 1. **`store_settings`**: Global store hours and manual toggle.
 2. **`menu_items`**: Base products with flexible JSONB customization schemas.
-3. **`carts` & `orders**`: Dynamic pricing and state management.
+3. **`carts` & `orders`**: Dynamic pricing and state management.
 4. **`daily_queue_counters`**: Automated daily reset logic for queue numbering.
 
 ## 📊 Developed by:
