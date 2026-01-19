@@ -9,17 +9,6 @@ Solves the complexity of variable food customizations and daily queue management
 - **Customer Side:** For real-time ordering, scheduled pickups, and live queue tracking.
 - **Owner Side:** For dynamic menu management and order fulfillment.
 
-## Project Prototype
-
-![home](./images/home.png)
-![menu](./images/menu.png)
-
-## Sprint 1 Result
-
-![s1_non_login](./images/s1_non_login.png)
-![s1_que](./images/s1_que.png)
-![s1_menu](./images/s1_menu.png)
-
 ## 🛠 Tech Stack
 
 - **Frontend:** Flutter (Mobile)
@@ -45,6 +34,17 @@ The system relies on a **PostgreSQL** schema optimized for data integrity and sn
 2. **`menu_items`**: Base products with flexible JSONB customization schemas.
 3. **`carts` & `orders`**: Dynamic pricing and state management.
 4. **`daily_queue_counters`**: Automated daily reset logic for queue numbering.
+
+## Project Prototype
+
+![home](./images/home.png)
+![menu](./images/menu.png)
+
+## Sprint 1 Result
+
+![s1_non_login](./images/s1_non_login.png)
+![s1_que](./images/s1_que.png)
+![s1_menu](./images/s1_menu.png)
 
 ## 📊 Developed by:
 
