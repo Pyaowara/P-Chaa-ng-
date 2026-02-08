@@ -42,8 +42,18 @@ class _IngredientModalState extends State<IngredientModal> {
 
   Future<void> _submitForm() async {
     if (_nameController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('กรุณากรอกชื่อวัตถุดิบ')),
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('กรุณากรอกชื่อวัตถุดิบ'),
+          content: const Text('ต้องกรอกชื่อวัตถุดิบก่อนทำการสร้าง'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('ยืนยัน'),
+            ),
+          ],
+        ),
       );
       return;
     }
