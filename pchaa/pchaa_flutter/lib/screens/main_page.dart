@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
 import 'package:pchaa_flutter/screens/available_menu_items_screen.dart';
+import 'package:pchaa_flutter/screens/ingredient_management.dart';
 import 'package:pchaa_flutter/screens/menu_items_screen.dart';
 import 'package:pchaa_flutter/screens/menu_screen.dart';
 import 'package:pchaa_flutter/widgets/myqueue.dart';
@@ -222,10 +223,43 @@ class _MainPageState extends State<MainPage> {
                     ],
                   ),
                 ),
-              const SizedBox(height: 20),
+              // Ingredient Management button (Owner only)
+              if (isLoggedIn && googleAuthService.userData?.role == UserRole.owner)
+                Container(
+                  width: double.maxFinite,
+                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const IngredientManagementPage(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.inventory_2),
+                    label: const Text(
+                      'จัดการวัตถุดิบ',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF5B8FA3),
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 10),
             ],
           ),
-          if (isLoggedIn && isOpen)
+          if (isLoggedIn && isOpen && googleAuthService.userData?.role != UserRole.owner)
             Padding(
               padding: const EdgeInsets.only(
                 left: 10,

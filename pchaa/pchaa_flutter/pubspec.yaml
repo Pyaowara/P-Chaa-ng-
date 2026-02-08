@@ -34,6 +34,7 @@ dependencies:
     path: ../pchaa_client
   serverpod_auth_google_flutter: 3.1.1
   serverpod_flutter: 3.1.1
+  provider: ^6.1.1
 
 dev_dependencies:
   flutter_lints: ">=3.0.0 <7.0.0"
