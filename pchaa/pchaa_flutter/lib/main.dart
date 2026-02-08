@@ -1,6 +1,7 @@
 import 'package:pchaa_client/pchaa_client.dart';
 import 'package:flutter/material.dart';
 import 'package:pchaa_flutter/screens/main_page.dart';
+import 'package:pchaa_flutter/screens/owner_main_page.dart';
 import 'package:pchaa_flutter/services/cart_service.dart';
 import 'package:serverpod_flutter/serverpod_flutter.dart';
 import 'package:serverpod_auth_google_flutter/serverpod_auth_google_flutter.dart';
@@ -26,7 +27,7 @@ void main() async {
   googleAuthService = GoogleAuthService(googleSignIn);
   isShopOpen = false;
 
-  // Restore previous login if user had signed in before
+    // Restore previous login if user had signed in before
   await googleAuthService.restorePreviousSignIn();
 
   keyManager = FlutterAuthenticationKeyManager(
@@ -54,6 +55,7 @@ void main() async {
       debugPrint('Cart refresh skipped: $e');
     }
   }
+  debugPrint("${googleAuthService.userData != null && googleAuthService.userData?.role == UserRole.user}");
 
   runApp(const MyApp());
 }
@@ -91,7 +93,7 @@ class _MyAppState extends State<MyApp> {
         useMaterial3: true,
         primarySwatch: Colors.blue,
       ),
-      home: MainPage(),
+      home: googleAuthService.userData == null || googleAuthService.userData?.role == UserRole.user ? MainPage() : OwnerMainPage(),
     );
   }
 }

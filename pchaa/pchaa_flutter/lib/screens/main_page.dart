@@ -3,6 +3,7 @@ import 'package:pchaa_client/pchaa_client.dart';
 import 'package:pchaa_flutter/screens/available_menu_items_screen.dart';
 import 'package:pchaa_flutter/screens/menu_items_screen.dart';
 import 'package:pchaa_flutter/screens/menu_screen.dart';
+import 'package:pchaa_flutter/screens/owner_main_page.dart';
 import 'package:pchaa_flutter/widgets/myqueue.dart';
 import 'package:pchaa_flutter/widgets/queueready.dart';
 import '../services/app_services.dart';
@@ -22,8 +23,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    // Listen for login status changes
-    // googleAuthService.addListener(_updateLoginStatus);
+
   }
 
   void _updateLoginStatus() {
@@ -33,6 +33,15 @@ class _MainPageState extends State<MainPage> {
       isLoggedIn = googleAuthService.isLoggedIn;
       print("⚡ Updated isLoggedIn to: $isLoggedIn");
     });
+  }
+
+  void _handleLoginSuccess() {
+    _updateLoginStatus();
+    if (googleAuthService.userData?.role == UserRole.owner && mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const OwnerMainPage()),
+      );
+    }
   }
 
   @override
@@ -134,9 +143,7 @@ class _MainPageState extends State<MainPage> {
                         ),
                         GoogleLoginButton(
                           onLoginSuccess: () {
-                            setState(() {
-                              _updateLoginStatus();
-                            });
+                            _handleLoginSuccess();
                           },
                           onLogoutSuccess: () {
                             setState(() {

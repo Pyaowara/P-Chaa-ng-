@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:pchaa_client/pchaa_client.dart';
 import '../services/app_services.dart';
 import '../services/cart_service.dart';
 
@@ -68,11 +69,14 @@ class _GoogleLoginButtonState extends State<GoogleLoginButton> {
       
       debugPrint('Fetching user data...');
       await googleAuthService.fetchUserData();
-      debugPrint((await client.user.getCurrentUser()).toString());
+      debugPrint((googleAuthService.userData).toString());
       
       debugPrint('Initializing cart service...');
       cartService = CartService();
-      await cartService.refresh();
+      if (googleAuthService.userData?.role == UserRole.user) {
+
+        await cartService.refresh();
+      }
       
       debugPrint('Login successful - calling onLoginSuccess');
       debugPrint('Callback is null? ${widget.onLoginSuccess == null}');

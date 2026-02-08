@@ -17,6 +17,7 @@ class CartService extends ChangeNotifier {
     _loading = true;
     _error = null;
     notifyListeners();
+    if (googleAuthService.userData?.role == UserRole.owner) return;
     try {
       final data = await client.cart.getMyCart();
       _items = data;
