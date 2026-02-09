@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
 import 'package:pchaa_flutter/screens/available_menu_items_screen.dart';
-import 'package:pchaa_flutter/screens/ingredient_management.dart';
-import 'package:pchaa_flutter/screens/menu_items_screen.dart';
 import 'package:pchaa_flutter/screens/menu_screen.dart';
 import 'package:pchaa_flutter/screens/owner_main_page.dart';
 import 'package:pchaa_flutter/widgets/myqueue.dart';
@@ -24,7 +22,6 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-
   }
 
   void _updateLoginStatus() {
@@ -73,7 +70,7 @@ class _MainPageState extends State<MainPage> {
                         ),
                       ),
                     ),
-      
+
                   // Gradient / overlay container
                   Container(
                     height: isLoggedIn ? 150 : 300,
@@ -91,7 +88,7 @@ class _MainPageState extends State<MainPage> {
                       color: Colors.white,
                     ),
                   ),
-      
+
                   // Positioned welcome text and button
                   Positioned(
                     bottom: 20,
@@ -157,7 +154,7 @@ class _MainPageState extends State<MainPage> {
                   ),
                 ],
               ),
-      
+
               const SizedBox(height: 5),
               if (isLoggedIn)
                 InkWell(
@@ -168,7 +165,6 @@ class _MainPageState extends State<MainPage> {
                     });
                   },
                   child: Container(
-                    
                     margin: EdgeInsets.symmetric(vertical: 5, horizontal: 30),
                     padding: EdgeInsets.all(12),
                     width: double.maxFinite,
@@ -230,24 +226,28 @@ class _MainPageState extends State<MainPage> {
                     ],
                   ),
                 ),
-              // Ingredient Management button (Owner only)
-              if (isLoggedIn && googleAuthService.userData?.role == UserRole.owner)
+
+              // Owner management button (only for owners)
+              if (isLoggedIn &&
+                  googleAuthService.userData?.role == UserRole.owner)
                 Container(
                   width: double.maxFinite,
-                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 30,
+                    vertical: 10,
+                  ),
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              const IngredientManagementPage(),
+                          builder: (context) => const OwnerMainPage(),
                         ),
                       );
                     },
-                    icon: const Icon(Icons.inventory_2),
+                    icon: const Icon(Icons.admin_panel_settings),
                     label: const Text(
-                      'จัดการวัตถุดิบ',
+                      'จัดการร้าน',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -263,10 +263,13 @@ class _MainPageState extends State<MainPage> {
                     ),
                   ),
                 ),
+
               const SizedBox(height: 10),
             ],
           ),
-          if (isLoggedIn && isOpen && googleAuthService.userData?.role != UserRole.owner)
+          if (isLoggedIn &&
+              isOpen &&
+              googleAuthService.userData?.role != UserRole.owner)
             Padding(
               padding: const EdgeInsets.only(
                 left: 10,
@@ -275,7 +278,7 @@ class _MainPageState extends State<MainPage> {
               ),
               child: Queueready(),
             ),
-      
+
           // Queue status and Menu button with green background
           Expanded(
             child: Container(
@@ -293,7 +296,45 @@ class _MainPageState extends State<MainPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     (isOpen
-                        ? (isLoggedIn ? Myqueue(limit: 3, queueList: [Order(userId: 1, status: OrderStatus.preparing, type: OrderType.I, totalOrderPrice: 30, orderDate: DateTime.now(),queueNumber: "I001"),Order(userId: 1, status: OrderStatus.preparing, type: OrderType.I, totalOrderPrice: 30, orderDate: DateTime.now(),queueNumber: "I001"),Order(userId: 1, status: OrderStatus.preparing, type: OrderType.I, totalOrderPrice: 30, orderDate: DateTime.now(),queueNumber: "I001"),Order(userId: 1, status: OrderStatus.preparing, type: OrderType.I, totalOrderPrice: 30, orderDate: DateTime.now(),queueNumber: "I001")],) : Queueready())
+                        ? (isLoggedIn
+                              ? Myqueue(
+                                  limit: 3,
+                                  queueList: [
+                                    Order(
+                                      userId: 1,
+                                      status: OrderStatus.preparing,
+                                      type: OrderType.I,
+                                      totalOrderPrice: 30,
+                                      orderDate: DateTime.now(),
+                                      queueNumber: "I001",
+                                    ),
+                                    Order(
+                                      userId: 1,
+                                      status: OrderStatus.preparing,
+                                      type: OrderType.I,
+                                      totalOrderPrice: 30,
+                                      orderDate: DateTime.now(),
+                                      queueNumber: "I001",
+                                    ),
+                                    Order(
+                                      userId: 1,
+                                      status: OrderStatus.preparing,
+                                      type: OrderType.I,
+                                      totalOrderPrice: 30,
+                                      orderDate: DateTime.now(),
+                                      queueNumber: "I001",
+                                    ),
+                                    Order(
+                                      userId: 1,
+                                      status: OrderStatus.preparing,
+                                      type: OrderType.I,
+                                      totalOrderPrice: 30,
+                                      orderDate: DateTime.now(),
+                                      queueNumber: "I001",
+                                    ),
+                                  ],
+                                )
+                              : Queueready())
                         : Expanded(
                             child: Center(
                               child: Text(
@@ -317,8 +358,7 @@ class _MainPageState extends State<MainPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  const MenuScreen(),
+                              builder: (context) => const MenuScreen(),
                             ),
                           );
                         },
