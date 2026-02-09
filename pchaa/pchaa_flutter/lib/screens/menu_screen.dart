@@ -18,6 +18,7 @@ class _MenuScreenState extends State<MenuScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   int _cartItemCount = 0;
+  double _cartTotalPrice = 0;
   List<AvailableMenuItem>? _filteredItems;
   @override
   void initState() {
@@ -30,6 +31,10 @@ class _MenuScreenState extends State<MenuScreen> {
     await cartService.refresh();
     setState(() {
       _cartItemCount = cartService.items.length;
+      _cartTotalPrice = cartService.items.fold(
+        0,
+        (previousValue, element) => previousValue + element.totalPrice,
+      );
     });
   }
 
@@ -321,7 +326,7 @@ class _MenuScreenState extends State<MenuScreen> {
                             ],
                           ),
                           Text(
-                            "฿0",
+                            "฿${_cartTotalPrice}",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 20,

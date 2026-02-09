@@ -141,8 +141,9 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     } catch (e) {
       debugPrint(e.toString());
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("error"),
+        SnackBar(
+          content: Text("Error: ${e.toString()}"),
+          duration: const Duration(seconds: 5),
         ),
       );
     } finally {
