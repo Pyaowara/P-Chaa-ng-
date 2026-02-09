@@ -1,4 +1,5 @@
 import 'package:pchaa_client/pchaa_client.dart';
+import 'package:pchaa_flutter/services/cart_service.dart';
 import 'package:pchaa_flutter/services/google_auth_service.dart';
 import 'package:serverpod_auth_shared_flutter/serverpod_auth_shared_flutter.dart';
 
@@ -13,4 +14,4 @@ late bool isShopOpen;
 // App services (declared without import to avoid circular dependency)
 // Import GoogleAuthService and CartService where needed
 late GoogleAuthService googleAuthService; // Will be GoogleAuthService instance
-late dynamic cartService; // Will be CartService instance
+late CartService cartService; // Will be CartService instance
