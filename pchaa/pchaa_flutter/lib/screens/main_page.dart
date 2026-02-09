@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
+import 'package:pchaa_flutter/constants/app_constants.dart';
 import 'package:pchaa_flutter/screens/available_menu_items_screen.dart';
 import 'package:pchaa_flutter/screens/menu_screen.dart';
 import 'package:pchaa_flutter/screens/owner_main_page.dart';
+import 'package:pchaa_flutter/widgets/common/app_button.dart';
 import 'package:pchaa_flutter/widgets/myqueue.dart';
 import 'package:pchaa_flutter/widgets/queueready.dart';
 import '../services/app_services.dart';
@@ -25,11 +27,9 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _updateLoginStatus() {
-    print("⚡ _updateLoginStatus called");
-    print("⚡ googleAuthService.isLoggedIn = ${googleAuthService.isLoggedIn}");
+    debugPrint("⚡ _updateLoginStatus called");
     setState(() {
       isLoggedIn = googleAuthService.isLoggedIn;
-      print("⚡ Updated isLoggedIn to: $isLoggedIn");
     });
   }
 
@@ -169,7 +169,7 @@ class _MainPageState extends State<MainPage> {
                     padding: EdgeInsets.all(12),
                     width: double.maxFinite,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFececec),
+                      color: AppColors.background,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
@@ -187,10 +187,8 @@ class _MainPageState extends State<MainPage> {
                   height: 70,
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: isOpen
-                        ? Color.fromARGB(195, 87, 156, 181)
-                        : Color(0xFFC10007),
-                    borderRadius: BorderRadius.circular(20),
+                    color: isOpen ? AppColors.success : AppColors.error,
+                    borderRadius: BorderRadius.circular(AppRadius.large),
                   ),
                   margin: const EdgeInsets.only(
                     left: 30,
@@ -227,16 +225,16 @@ class _MainPageState extends State<MainPage> {
                   ),
                 ),
 
-              // Owner management button (only for owners)
               if (isLoggedIn &&
                   googleAuthService.userData?.role == UserRole.owner)
-                Container(
-                  width: double.maxFinite,
-                  margin: const EdgeInsets.symmetric(
+                Padding(
+                  padding: const EdgeInsets.symmetric(
                     horizontal: 30,
                     vertical: 10,
                   ),
-                  child: ElevatedButton.icon(
+                  child: AppButton(
+                    icon: Icons.admin_panel_settings,
+                    label: 'จัดการร้าน',
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
@@ -245,22 +243,6 @@ class _MainPageState extends State<MainPage> {
                         ),
                       );
                     },
-                    icon: const Icon(Icons.admin_panel_settings),
-                    label: const Text(
-                      'จัดการร้าน',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF5B8FA3),
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
                   ),
                 ),
 
@@ -284,10 +266,10 @@ class _MainPageState extends State<MainPage> {
             child: Container(
               width: double.maxFinite,
               decoration: BoxDecoration(
-                color: const Color(0xFFececec),
+                color: AppColors.background,
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
+                  topLeft: Radius.circular(AppRadius.extraLarge),
+                  topRight: Radius.circular(AppRadius.extraLarge),
                 ),
               ),
               child: Container(
@@ -371,11 +353,13 @@ class _MainPageState extends State<MainPage> {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF5B8FA3),
+                          backgroundColor: AppColors.primary,
                           foregroundColor: Colors.black,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(
+                              AppRadius.medium,
+                            ),
                           ),
                         ),
                       ),

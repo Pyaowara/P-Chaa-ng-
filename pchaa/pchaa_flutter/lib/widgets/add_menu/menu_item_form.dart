@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pchaa_client/pchaa_client.dart';
+import 'package:pchaa_flutter/constants/app_constants.dart';
 import 'package:pchaa_flutter/widgets/add_menu/customization_group_editor.dart';
 import 'package:pchaa_flutter/widgets/add_menu/image_picker_field.dart';
 
 /// Main form widget for adding/editing menu items
 class MenuItemForm extends StatefulWidget {
-  final MenuItem? existingItem;
+  final MenuItemWithUrl? existingItem;
   final String? existingImageUrl;
   final List<Ingredient> availableIngredients;
   final Function({
@@ -53,7 +54,7 @@ class _MenuItemFormState extends State<MenuItemForm> {
       text: item?.basePrice.toString() ?? '',
     );
     _timeController = TextEditingController(
-      text: item?.timeToPrepare.toString() ?? '',
+      text: item?.timeToPrepare.toString() ?? '15',
     );
     _isAvailable = item?.isAvailable ?? true;
     _selectedIngredientIds = List.from(item?.ingredientIds ?? []);
@@ -252,7 +253,6 @@ class _MenuItemFormState extends State<MenuItemForm> {
                     controller: _timeController,
                     decoration: const InputDecoration(
                       labelText: 'เวลาทำ (นาที) *',
-                      hintText: '10',
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
@@ -292,7 +292,7 @@ class _MenuItemFormState extends State<MenuItemForm> {
                         _isAvailable = value;
                       });
                     },
-                    activeColor: const Color(0xFF5B8FA3),
+                    activeColor: AppColors.primary,
                   ),
                 ],
               ),
@@ -377,11 +377,11 @@ class _MenuItemFormState extends State<MenuItemForm> {
               child: ElevatedButton(
                 onPressed: widget.isLoading ? null : _handleSubmit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF5B8FA3),
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadius.medium),
                   ),
                 ),
                 child: widget.isLoading
