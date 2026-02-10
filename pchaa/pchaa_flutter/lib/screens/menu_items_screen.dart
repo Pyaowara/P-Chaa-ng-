@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
+import 'package:pchaa_flutter/utils/url_utils.dart';
 
 import '../services/app_services.dart';
 
@@ -116,11 +117,6 @@ class _MenuItemsScreenState extends State<MenuItemsScreen> {
     );
   }
 
-  String _getDisplayableImageUrl(String? imageUrl) {
-    if (imageUrl == null) return '';
-    return imageUrl.replaceAll('localhost', '10.0.2.2');
-  }
-
   Widget _buildMenuItemCard(MenuItemWithUrl menuItem) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -140,7 +136,7 @@ class _MenuItemsScreenState extends State<MenuItemsScreen> {
               child: AspectRatio(
                 aspectRatio: 16 / 9,
                 child: Image.network(
-                  _getDisplayableImageUrl(menuItem.imageUrl),
+                  UrlUtils.getDisplayableImageUrl(menuItem.imageUrl),
                   fit: BoxFit.cover,
                   loadingBuilder: (context, child, loadingProgress) {
                     if (loadingProgress == null) return child;
@@ -153,7 +149,7 @@ class _MenuItemsScreenState extends State<MenuItemsScreen> {
                   },
                   errorBuilder: (context, error, stackTrace) {
                     debugPrint(
-                      'Image loading error for ${_getDisplayableImageUrl(menuItem.imageUrl)}: $error',
+                      'Image loading error for ${UrlUtils.getDisplayableImageUrl(menuItem.imageUrl)}: $error',
                     );
                     return Container(
                       color: Colors.grey[200],
@@ -169,7 +165,7 @@ class _MenuItemsScreenState extends State<MenuItemsScreen> {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              'Failed to load image\n${_getDisplayableImageUrl(menuItem.imageUrl)}',
+                              'Failed to load image\n${UrlUtils.getDisplayableImageUrl(menuItem.imageUrl)}',
                               style: const TextStyle(
                                 fontSize: 10,
                                 color: Colors.grey,
@@ -210,8 +206,8 @@ class _MenuItemsScreenState extends State<MenuItemsScreen> {
                       ),
                       decoration: BoxDecoration(
                         color: menuItem.isAvailable
-                            ? Colors.green.withValues(alpha:0.1)
-                            : Colors.red.withValues(alpha:0.1),
+                            ? Colors.green.withValues(alpha: 0.1)
+                            : Colors.red.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: menuItem.isAvailable

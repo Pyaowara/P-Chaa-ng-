@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
+import 'package:pchaa_flutter/utils/url_utils.dart';
 import '../services/app_services.dart';
 import 'menu_item_detail_screen.dart';
 
@@ -7,7 +8,8 @@ class AvailableMenuItemsScreen extends StatefulWidget {
   const AvailableMenuItemsScreen({super.key});
 
   @override
-  State<AvailableMenuItemsScreen> createState() => _AvailableMenuItemsScreenState();
+  State<AvailableMenuItemsScreen> createState() =>
+      _AvailableMenuItemsScreenState();
 }
 
 class _AvailableMenuItemsScreenState extends State<AvailableMenuItemsScreen> {
@@ -121,11 +123,6 @@ class _AvailableMenuItemsScreenState extends State<AvailableMenuItemsScreen> {
     );
   }
 
-  String _getDisplayableImageUrl(String? imageUrl) {
-    if (imageUrl == null || imageUrl.isEmpty) return '';
-    return imageUrl.replaceAll('localhost', '10.0.2.2');
-  }
-
   Widget _buildMenuItemCard(AvailableMenuItem menuItem) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -151,21 +148,44 @@ class _AvailableMenuItemsScreenState extends State<AvailableMenuItemsScreen> {
               ColorFiltered(
                 // Only greyscale the image if not for sale
                 colorFilter: menuItem.forSale
-                    ? const ColorFilter.mode(Colors.transparent, BlendMode.multiply)
+                    ? const ColorFilter.mode(
+                        Colors.transparent,
+                        BlendMode.multiply,
+                      )
                     : const ColorFilter.matrix(<double>[
-                        0.2126, 0.7152, 0.0722, 0, 0,
-                        0.2126, 0.7152, 0.0722, 0, 0,
-                        0.2126, 0.7152, 0.0722, 0, 0,
-                        0,      0,      0,      1, 0,
+                        0.2126,
+                        0.7152,
+                        0.0722,
+                        0,
+                        0,
+                        0.2126,
+                        0.7152,
+                        0.0722,
+                        0,
+                        0,
+                        0.2126,
+                        0.7152,
+                        0.0722,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
                       ]),
                 child: AspectRatio(
                   aspectRatio: 16 / 9,
                   child: Image.network(
-                    _getDisplayableImageUrl(menuItem.imageUrl),
+                    UrlUtils.getDisplayableImageUrl(menuItem.imageUrl),
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Container(
                       color: Colors.grey[200],
-                      child: const Icon(Icons.broken_image, size: 48, color: Colors.grey),
+                      child: const Icon(
+                        Icons.broken_image,
+                        size: 48,
+                        color: Colors.grey,
+                      ),
                     ),
                   ),
                 ),
@@ -183,9 +203,10 @@ class _AvailableMenuItemsScreenState extends State<AvailableMenuItemsScreen> {
                       Expanded(
                         child: Text(
                           menuItem.name,
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
                       ),
                       _buildStatusBadge(menuItem.forSale),
@@ -204,7 +225,11 @@ class _AvailableMenuItemsScreenState extends State<AvailableMenuItemsScreen> {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      const Icon(Icons.timer_outlined, size: 18, color: Colors.orange),
+                      const Icon(
+                        Icons.timer_outlined,
+                        size: 18,
+                        color: Colors.orange,
+                      ),
                       const SizedBox(width: 4),
                       Text('${menuItem.timeToPrepare} min'),
                     ],
@@ -222,7 +247,9 @@ class _AvailableMenuItemsScreenState extends State<AvailableMenuItemsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: forSale ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+        color: forSale
+            ? Colors.green.withOpacity(0.1)
+            : Colors.red.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: forSale ? Colors.green : Colors.red),
       ),

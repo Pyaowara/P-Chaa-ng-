@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
+import 'package:pchaa_flutter/constants/app_constants.dart';
 import 'package:pchaa_flutter/screens/available_menu_items_screen.dart';
-import 'package:pchaa_flutter/screens/ingredient_management.dart';
-import 'package:pchaa_flutter/screens/menu_items_screen.dart';
 import 'package:pchaa_flutter/screens/menu_screen.dart';
 import 'package:pchaa_flutter/screens/owner_main_page.dart';
+import 'package:pchaa_flutter/widgets/common/app_button.dart';
 import 'package:pchaa_flutter/widgets/myqueue.dart';
 import 'package:pchaa_flutter/widgets/queueready.dart';
 import '../services/app_services.dart';
@@ -24,15 +24,12 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-
   }
 
   void _updateLoginStatus() {
-    print("⚡ _updateLoginStatus called");
-    print("⚡ googleAuthService.isLoggedIn = ${googleAuthService.isLoggedIn}");
+    debugPrint("⚡ _updateLoginStatus called");
     setState(() {
       isLoggedIn = googleAuthService.isLoggedIn;
-      print("⚡ Updated isLoggedIn to: $isLoggedIn");
     });
   }
 
@@ -73,7 +70,7 @@ class _MainPageState extends State<MainPage> {
                         ),
                       ),
                     ),
-      
+
                   // Gradient / overlay container
                   Container(
                     height: isLoggedIn ? 150 : 300,
@@ -91,7 +88,7 @@ class _MainPageState extends State<MainPage> {
                       color: Colors.white,
                     ),
                   ),
-      
+
                   // Positioned welcome text and button
                   Positioned(
                     bottom: 20,
@@ -157,7 +154,7 @@ class _MainPageState extends State<MainPage> {
                   ),
                 ],
               ),
-      
+
               const SizedBox(height: 5),
               if (isLoggedIn)
                 InkWell(
@@ -168,12 +165,11 @@ class _MainPageState extends State<MainPage> {
                     });
                   },
                   child: Container(
-                    
                     margin: EdgeInsets.symmetric(vertical: 5, horizontal: 30),
                     padding: EdgeInsets.all(12),
                     width: double.maxFinite,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFececec),
+                      color: AppColors.background,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
@@ -191,10 +187,8 @@ class _MainPageState extends State<MainPage> {
                   height: 70,
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: isOpen
-                        ? Color.fromARGB(195, 87, 156, 181)
-                        : Color(0xFFC10007),
-                    borderRadius: BorderRadius.circular(20),
+                    color: isOpen ? AppColors.success : AppColors.error,
+                    borderRadius: BorderRadius.circular(AppRadius.large),
                   ),
                   margin: const EdgeInsets.only(
                     left: 30,
@@ -230,43 +224,34 @@ class _MainPageState extends State<MainPage> {
                     ],
                   ),
                 ),
-              // Ingredient Management button (Owner only)
-              if (isLoggedIn && googleAuthService.userData?.role == UserRole.owner)
-                Container(
-                  width: double.maxFinite,
-                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: ElevatedButton.icon(
+
+              if (isLoggedIn &&
+                  googleAuthService.userData?.role == UserRole.owner)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 30,
+                    vertical: 10,
+                  ),
+                  child: AppButton(
+                    icon: Icons.admin_panel_settings,
+                    label: 'จัดการร้าน',
                     onPressed: () {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              const IngredientManagementPage(),
+                          builder: (context) => const OwnerMainPage(),
                         ),
                       );
                     },
-                    icon: const Icon(Icons.inventory_2),
-                    label: const Text(
-                      'จัดการวัตถุดิบ',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF5B8FA3),
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
                   ),
                 ),
+
               const SizedBox(height: 10),
             ],
           ),
-          if (isLoggedIn && isOpen && googleAuthService.userData?.role != UserRole.owner)
+          if (isLoggedIn &&
+              isOpen &&
+              googleAuthService.userData?.role != UserRole.owner)
             Padding(
               padding: const EdgeInsets.only(
                 left: 10,
@@ -275,16 +260,16 @@ class _MainPageState extends State<MainPage> {
               ),
               child: Queueready(),
             ),
-      
+
           // Queue status and Menu button with green background
           Expanded(
             child: Container(
               width: double.maxFinite,
               decoration: BoxDecoration(
-                color: const Color(0xFFececec),
+                color: AppColors.background,
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
+                  topLeft: Radius.circular(AppRadius.extraLarge),
+                  topRight: Radius.circular(AppRadius.extraLarge),
                 ),
               ),
               child: Container(
@@ -293,7 +278,45 @@ class _MainPageState extends State<MainPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     (isOpen
-                        ? (isLoggedIn ? Myqueue(limit: 3, queueList: [Order(userId: 1, status: OrderStatus.preparing, type: OrderType.I, totalOrderPrice: 30, orderDate: DateTime.now(),queueNumber: "I001"),Order(userId: 1, status: OrderStatus.preparing, type: OrderType.I, totalOrderPrice: 30, orderDate: DateTime.now(),queueNumber: "I001"),Order(userId: 1, status: OrderStatus.preparing, type: OrderType.I, totalOrderPrice: 30, orderDate: DateTime.now(),queueNumber: "I001"),Order(userId: 1, status: OrderStatus.preparing, type: OrderType.I, totalOrderPrice: 30, orderDate: DateTime.now(),queueNumber: "I001")],) : Queueready())
+                        ? (isLoggedIn
+                              ? Myqueue(
+                                  limit: 3,
+                                  queueList: [
+                                    Order(
+                                      userId: 1,
+                                      status: OrderStatus.preparing,
+                                      type: OrderType.I,
+                                      totalOrderPrice: 30,
+                                      orderDate: DateTime.now(),
+                                      queueNumber: "I001",
+                                    ),
+                                    Order(
+                                      userId: 1,
+                                      status: OrderStatus.preparing,
+                                      type: OrderType.I,
+                                      totalOrderPrice: 30,
+                                      orderDate: DateTime.now(),
+                                      queueNumber: "I001",
+                                    ),
+                                    Order(
+                                      userId: 1,
+                                      status: OrderStatus.preparing,
+                                      type: OrderType.I,
+                                      totalOrderPrice: 30,
+                                      orderDate: DateTime.now(),
+                                      queueNumber: "I001",
+                                    ),
+                                    Order(
+                                      userId: 1,
+                                      status: OrderStatus.preparing,
+                                      type: OrderType.I,
+                                      totalOrderPrice: 30,
+                                      orderDate: DateTime.now(),
+                                      queueNumber: "I001",
+                                    ),
+                                  ],
+                                )
+                              : Queueready())
                         : Expanded(
                             child: Center(
                               child: Text(
@@ -317,8 +340,7 @@ class _MainPageState extends State<MainPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  const MenuScreen(),
+                              builder: (context) => const MenuScreen(),
                             ),
                           );
                         },
@@ -331,11 +353,13 @@ class _MainPageState extends State<MainPage> {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF5B8FA3),
+                          backgroundColor: AppColors.primary,
                           foregroundColor: Colors.black,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(
+                              AppRadius.medium,
+                            ),
                           ),
                         ),
                       ),

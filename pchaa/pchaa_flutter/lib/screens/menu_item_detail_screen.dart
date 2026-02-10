@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
+import 'package:pchaa_flutter/utils/url_utils.dart';
 
 class MenuItemDetailScreen extends StatefulWidget {
   final AvailableMenuItem menuItem;
@@ -33,11 +34,6 @@ class _MenuItemDetailScreenState extends State<MenuItemDetailScreen> {
     return total;
   }
 
-  String _getDisplayableImageUrl(String? imageUrl) {
-    if (imageUrl == null) return '';
-    return imageUrl.replaceAll('localhost', '10.0.2.2');
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,7 +52,7 @@ class _MenuItemDetailScreenState extends State<MenuItemDetailScreen> {
                 child: AspectRatio(
                   aspectRatio: 16 / 9,
                   child: Image.network(
-                    _getDisplayableImageUrl(widget.menuItem.imageUrl),
+                    UrlUtils.getDisplayableImageUrl(widget.menuItem.imageUrl),
                     fit: BoxFit.cover,
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;

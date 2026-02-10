@@ -7,7 +7,7 @@ import '../services/cart_service.dart';
 class GoogleLoginButton extends StatefulWidget {
   final Function()? onLoginSuccess;
   final Function()? onLogoutSuccess;
-  
+
   const GoogleLoginButton({
     super.key,
     this.onLoginSuccess,
@@ -22,69 +22,43 @@ class _GoogleLoginButtonState extends State<GoogleLoginButton> {
   bool _loading = false;
 
   Future<void> _handleLogin() async {
-    debugPrint('_handleLogin STARTED');
     setState(() => _loading = true);
 
     try {
-      debugPrint('Attempting Google sign-in...');
       final googleUser = await googleAuthService.signIn();
-      debugPrint('Google user result: ${googleUser?.email ?? "NULL"}');
-      if (googleUser == null) {
-        debugPrint('Google user is null');
-        return;
-      }
+      if (googleUser == null) return;
 
       final serverAuthCode = googleUser.serverAuthCode;
-      debugPrint('🔑 Server auth code: ${serverAuthCode == null ? "NULL" : "EXISTS"}');
-      if (serverAuthCode == null) {
-        debugPrint('Server auth code is null');
-        return;
-      }
+      if (serverAuthCode == null) return;
 
-      debugPrint('🌐 Authenticating with server...');
       final authResponse = await client.modules.auth.google
           .authenticateWithServerAuthCode(
             serverAuthCode,
             'http://localhost:8082/googlesignin',
           );
 
-      debugPrint('Auth response - success: ${authResponse.success}, keyId: ${authResponse.keyId}, key: ${authResponse.key != null ? "EXISTS" : "NULL"}');
       if (!authResponse.success ||
           authResponse.keyId == null ||
           authResponse.key == null) {
-        debugPrint('Auth response failed or missing data, returning early');
         return;
       }
 
-      debugPrint('Storing authentication key...');
-      debugPrint('${authResponse.keyId}:${authResponse.key}');
       await keyManager.put('${authResponse.keyId}:${authResponse.key}');
-      debugPrint('Refreshing session...');
       await sessionManager.refreshSession();
 
-      debugPrint('Registering user...');
       await client.user.registerUser(
         profilePictureUrl: googleAuthService.photoUrl,
       );
-      
-      debugPrint('Fetching user data...');
+
       await googleAuthService.fetchUserData();
-      debugPrint((googleAuthService.userData).toString());
-      
-      debugPrint('Initializing cart service...');
+
       cartService = CartService();
       if (googleAuthService.userData?.role == UserRole.user) {
-
         await cartService.refresh();
       }
-      
-      debugPrint('Login successful - calling onLoginSuccess');
-      debugPrint('Callback is null? ${widget.onLoginSuccess == null}');
-      // Call the callback function if provided
+
       widget.onLoginSuccess?.call();
-      debugPrint('onLoginSuccess callback executed');
-      debugPrint(await googleAuthService.getToken());
-      setState(() {}); // Refresh UI
+      setState(() {});
     } catch (e) {
       debugPrint('Error during Google login: $e');
     } finally {
@@ -93,19 +67,12 @@ class _GoogleLoginButtonState extends State<GoogleLoginButton> {
   }
 
   Future<void> _handleLogout() async {
-    debugPrint('_handleLogout STARTED');
     setState(() => _loading = true);
     try {
-      debugPrint('👋 Signing out...');
       await googleAuthService.signOut();
       await sessionManager.signOutDevice();
-      
-      debugPrint("Logout successful - calling onLogoutSuccess");
-      debugPrint('Logout callback is null? ${widget.onLogoutSuccess == null}');
       widget.onLogoutSuccess?.call();
-      debugPrint("onLogoutSuccess callback executed");
-      
-      setState(() {}); // Refresh UI
+      setState(() {});
     } catch (e) {
       debugPrint('Error during logout: $e');
     } finally {

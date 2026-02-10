@@ -10,7 +10,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import './services/app_services.dart';
 import './services/google_auth_service.dart';
-import 'screens/available_menu_items_screen.dart';
 
 String? googleProfilePictureUrl;
 late final GoogleSignIn googleSignIn;
@@ -27,7 +26,7 @@ void main() async {
   googleAuthService = GoogleAuthService(googleSignIn);
   isShopOpen = false;
 
-    // Restore previous login if user had signed in before
+  // Restore previous login if user had signed in before
   await googleAuthService.restorePreviousSignIn();
 
   keyManager = FlutterAuthenticationKeyManager(
@@ -55,7 +54,9 @@ void main() async {
       debugPrint('Cart refresh skipped: $e');
     }
   }
-  debugPrint("${googleAuthService.userData != null && googleAuthService.userData?.role == UserRole.user}");
+  debugPrint(
+    "${googleAuthService.userData != null && googleAuthService.userData?.role == UserRole.user}",
+  );
 
   runApp(const MyApp());
 }
@@ -93,7 +94,11 @@ class _MyAppState extends State<MyApp> {
         useMaterial3: true,
         primarySwatch: Colors.blue,
       ),
-      home: googleAuthService.userData == null || googleAuthService.userData?.role == UserRole.user ? MainPage() : OwnerMainPage(),
+      home:
+          googleAuthService.userData == null ||
+              googleAuthService.userData?.role == UserRole.user
+          ? MainPage()
+          : OwnerMainPage(),
     );
   }
 }

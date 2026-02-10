@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
 import 'package:pchaa_flutter/services/app_services.dart';
+import 'package:pchaa_flutter/utils/url_utils.dart';
 import 'package:pchaa_flutter/widgets/customization_choices.dart';
 
 class MenuDetailScreen extends StatefulWidget {
@@ -140,8 +141,9 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     } catch (e) {
       debugPrint(e.toString());
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("error"),
+        SnackBar(
+          content: Text("Error: ${e.toString()}"),
+          duration: const Duration(seconds: 5),
         ),
       );
     } finally {
@@ -150,10 +152,6 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
         _isLoading = false;
       });
     }
-  }
-  String _getDisplayableImageUrl(String? imageUrl) {
-    if (imageUrl == null || imageUrl.isEmpty) return '';
-    return imageUrl.replaceAll('localhost', '10.0.2.2');
   }
 
   @override
@@ -259,7 +257,9 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                   "เพิ่มเติม",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 10,),
+                SizedBox(
+                  height: 10,
+                ),
                 TextField(
                   controller: _messageController,
                   maxLines: null,
@@ -278,11 +278,10 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    final imageUrl = _getDisplayableImageUrl(_menuDetail?.imageUrl);
-    final ImageProvider imageProvider =
-        imageUrl == null || imageUrl.isEmpty
-            ? const AssetImage("assets/images/food.jpg")
-            : NetworkImage(imageUrl);
+    final imageUrl = UrlUtils.getDisplayableImageUrl(_menuDetail?.imageUrl);
+    final ImageProvider imageProvider = imageUrl.isEmpty
+        ? const AssetImage("assets/images/food.jpg")
+        : NetworkImage(imageUrl);
     return Stack(
       children: [
         Container(

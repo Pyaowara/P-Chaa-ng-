@@ -3,7 +3,7 @@ import 'package:pchaa_client/pchaa_client.dart';
 import 'package:pchaa_flutter/screens/cart_list.dart';
 import 'package:pchaa_flutter/screens/menu_detail_screen.dart';
 import 'package:pchaa_flutter/services/app_services.dart';
-
+import 'package:pchaa_flutter/utils/url_utils.dart';
 import 'package:pchaa_flutter/widgets/menu_card.dart';
 
 class MenuScreen extends StatefulWidget {
@@ -18,6 +18,7 @@ class _MenuScreenState extends State<MenuScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   int _cartItemCount = 0;
+  double _cartTotalPrice = 0;
   List<AvailableMenuItem>? _filteredItems;
   @override
   void initState() {
@@ -30,6 +31,10 @@ class _MenuScreenState extends State<MenuScreen> {
     await cartService.refresh();
     setState(() {
       _cartItemCount = cartService.items.length;
+      _cartTotalPrice = cartService.items.fold(
+        0,
+        (previousValue, element) => previousValue + element.totalPrice,
+      );
     });
   }
 
@@ -58,10 +63,6 @@ class _MenuScreenState extends State<MenuScreen> {
       });
     }
   }
-  String _getDisplayableImageUrl(String? imageUrl) {
-    if (imageUrl == null || imageUrl.isEmpty) return '';
-    return imageUrl.replaceAll('localhost', '10.0.2.2');
-  }
 
   void _filterItems(String filter) {
     setState(() {
@@ -75,7 +76,7 @@ class _MenuScreenState extends State<MenuScreen> {
 
   bool isLoggedIn = googleAuthService.isLoggedIn;
   TextEditingController searchController = TextEditingController();
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -221,10 +222,12 @@ class _MenuScreenState extends State<MenuScreen> {
                   itemCount: _filteredItems?.length ?? 0,
                   itemBuilder: (context, index) {
                     return MenuCard(
-                      imagePath: _getDisplayableImageUrl(_filteredItems![index].imageUrl),
+                      imagePath: UrlUtils.getDisplayableImageUrl(
+                        _filteredItems![index].imageUrl,
+                      ),
                       name: _filteredItems![index].name,
                       price: _filteredItems![index].basePrice,
-                      isDisabled: !_filteredItems![index].isAvailable,
+                      isDisabled: !_filteredItems![index].forSale,
                       onAdd: () async {
                         await Navigator.push(
                           context,
@@ -253,7 +256,7 @@ class _MenuScreenState extends State<MenuScreen> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: (isLoggedIn && isShopOpen)
-                  ? () async{
+                  ? () async {
                       // ScaffoldMessenger.of(context).showSnackBar(
                       //   const SnackBar(
                       //     content: Text(
@@ -303,7 +306,11 @@ class _MenuScreenState extends State<MenuScreen> {
                                   ),
                                   child: Text(
                                     _cartItemCount.toString(),
-                                    style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold,color: Color(0xFF5B8FA3)),
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF5B8FA3),
+                                    ),
                                   ),
                                 ),
                               SizedBox(
@@ -319,7 +326,7 @@ class _MenuScreenState extends State<MenuScreen> {
                             ],
                           ),
                           Text(
-                            "฿0",
+                            "฿${_cartTotalPrice}",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 20,
