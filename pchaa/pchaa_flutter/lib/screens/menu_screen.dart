@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
+import 'package:pchaa_flutter/screens/cart_list.dart';
 import 'package:pchaa_flutter/screens/menu_detail_screen.dart';
 import 'package:pchaa_flutter/services/app_services.dart';
-
+import 'package:pchaa_flutter/utils/url_utils.dart';
 import 'package:pchaa_flutter/widgets/menu_card.dart';
 
 class MenuScreen extends StatefulWidget {
@@ -16,11 +17,25 @@ class _MenuScreenState extends State<MenuScreen> {
   List<AvailableMenuItem>? _menuItems;
   bool _isLoading = true;
   String? _errorMessage;
+  int _cartItemCount = 0;
+  double _cartTotalPrice = 0;
   List<AvailableMenuItem>? _filteredItems;
   @override
   void initState() {
     super.initState();
     _loadMenuItems();
+    _loadCart();
+  }
+
+  Future<void> _loadCart() async {
+    await cartService.refresh();
+    setState(() {
+      _cartItemCount = cartService.items.length;
+      _cartTotalPrice = cartService.items.fold(
+        0,
+        (previousValue, element) => previousValue + element.totalPrice,
+      );
+    });
   }
 
   Future<void> _loadMenuItems() async {
@@ -207,11 +222,14 @@ class _MenuScreenState extends State<MenuScreen> {
                   itemCount: _filteredItems?.length ?? 0,
                   itemBuilder: (context, index) {
                     return MenuCard(
+                      imagePath: UrlUtils.getDisplayableImageUrl(
+                        _filteredItems![index].imageUrl,
+                      ),
                       name: _filteredItems![index].name,
                       price: _filteredItems![index].basePrice,
-                      isDisabled: !_filteredItems![index].isAvailable,
-                      onAdd: () {
-                        Navigator.push(
+                      isDisabled: !_filteredItems![index].forSale,
+                      onAdd: () async {
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => MenuDetailScreen(
@@ -219,6 +237,9 @@ class _MenuScreenState extends State<MenuScreen> {
                             ),
                           ),
                         );
+                        setState(() {
+                          _loadCart();
+                        });
                       },
                     );
                   },
@@ -235,14 +256,23 @@ class _MenuScreenState extends State<MenuScreen> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: (isLoggedIn && isShopOpen)
-                  ? () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Add to cart functionality coming soon!',
-                          ),
+                  ? () async {
+                      // ScaffoldMessenger.of(context).showSnackBar(
+                      //   const SnackBar(
+                      //     content: Text(
+                      //       'Add to cart functionality coming soon!',
+                      //     ),
+                      //   ),
+                      // );
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CartList(),
                         ),
                       );
+                      setState(() {
+                        _loadCart();
+                      });
                     }
                   : null,
               style: ElevatedButton.styleFrom(
@@ -257,17 +287,46 @@ class _MenuScreenState extends State<MenuScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: (isLoggedIn && isShopOpen)
                     ? Row(
+                        // crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            "ออร์เดอร์ของฉัน",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                            ),
+                          Row(
+                            // crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              if (_cartItemCount != 0)
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: 5,
+                                    horizontal: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.rectangle,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Text(
+                                    _cartItemCount.toString(),
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF5B8FA3),
+                                    ),
+                                  ),
+                                ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Text(
+                                "ออร์เดอร์ของฉัน",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ],
                           ),
                           Text(
-                            "฿0",
+                            "฿${_cartTotalPrice}",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 20,

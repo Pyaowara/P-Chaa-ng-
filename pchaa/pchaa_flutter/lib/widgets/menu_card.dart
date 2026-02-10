@@ -88,8 +88,8 @@ class MenuCard extends StatelessWidget {
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(16),
               ),
-              child: imagePath != null
-                  ? Image.asset(
+              child: imagePath != null && imagePath != ""
+                  ? Image.network(
                       imagePath!,
                       height: 110,
                       width: double.infinity,
