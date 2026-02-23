@@ -14,7 +14,7 @@ class MenuDetailScreen extends StatefulWidget {
 
 class _MenuDetailScreenState extends State<MenuDetailScreen> {
   bool _isShopOpen = isShopOpen;
-  MenuItemWithUrl? _menuDetail;
+  AvailableMenuItem? _menuDetail;
   bool _isLoading = false;
   String? _errorMsg;
   int _quantity = 1;
@@ -45,7 +45,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
         _errorMsg = null;
       });
 
-      final menuItems = await client.menuItem.getMenuItemById(widget.menuId);
+      final menuItems = await client.menuItem.getAvailableMenuItemById(widget.menuId);
       debugPrint(menuItems.toString());
       if (!mounted) return;
       setState(() {
@@ -65,7 +65,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     return _selectedOptionsByGroup.values.expand((items) => items).toList();
   }
 
-  Set<String> _selectedNamesForGroup(CustomizationGroup group) {
+  Set<String> _selectedNamesForGroup(AvailableCustomizationGroup group) {
     final selected = _selectedOptionsByGroup[group.title] ?? [];
     return selected.map((item) => item.name).toSet();
   }
@@ -80,7 +80,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     _addOnTotal = total;
   }
 
-  void _setSingleSelection(CustomizationGroup group, String? value) {
+  void _setSingleSelection(AvailableCustomizationGroup group, String? value) {
     if (value == null || value.isEmpty) {
       _selectedOptionsByGroup.remove(group.title);
       _recalculateAddOnTotal();
@@ -98,7 +98,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     _recalculateAddOnTotal();
   }
 
-  void _setMultiSelection(CustomizationGroup group, Set<String> values) {
+  void _setMultiSelection(AvailableCustomizationGroup group, Set<String> values) {
     if (values.isEmpty) {
       _selectedOptionsByGroup.remove(group.title);
       _recalculateAddOnTotal();
@@ -170,6 +170,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                 _quantity = value;
               });
             },
+            menuDetail: _menuDetail,
             addOnTotal: _addOnTotal,
             basePrice: _menuDetail?.basePrice ?? 0,
             onAddToCart: _menuDetail != null && _quantity > 0
@@ -191,7 +192,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     );
   }
 
-  Widget _buildContent(MenuItemWithUrl? menuDetail) {
+  Widget _buildContent(AvailableMenuItem? menuDetail) {
     if (_errorMsg != null) {
       return Center(child: Text(_errorMsg!));
     }
@@ -328,6 +329,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
 
 class BottomBar extends StatelessWidget {
   final int quantity;
+  final AvailableMenuItem? menuDetail;
   final bool isShopOpened;
   final ValueChanged<int> onQuantityChanged;
   final VoidCallback? onAddToCart;
@@ -338,6 +340,7 @@ class BottomBar extends StatelessWidget {
     super.key,
     required this.isShopOpened,
     required this.quantity,
+    required this.menuDetail,
     required this.onQuantityChanged,
     required this.basePrice,
     required this.addOnTotal,
@@ -384,7 +387,7 @@ class BottomBar extends StatelessWidget {
           ),
           Expanded(
             child: ElevatedButton(
-              onPressed: isShopOpened && quantity > 0 ? onAddToCart : null,
+              onPressed: isShopOpened && quantity > 0 && menuDetail?.forSale == true ? onAddToCart : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
                 foregroundColor: Colors.black,

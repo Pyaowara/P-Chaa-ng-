@@ -54,6 +54,20 @@ void main() async {
       debugPrint('Cart refresh skipped: $e');
     }
   }
+  try {
+    final storeSettings = await client.store.getStoreSettings();
+    isShopOpen = storeSettings.isOpen;
+    settings = storeSettings;
+  } catch (e) {
+    debugPrint('Store settings fetch skipped: $e');
+    isShopOpen = false;
+    settings = StoreSettings(
+      isOpen: false,
+      openTime: '07:00:00',
+      closeTime: '14:00:00',
+      autoOpenClose: false,
+    );
+  }
   debugPrint(
     "${googleAuthService.userData != null && googleAuthService.userData?.role == UserRole.user}",
   );

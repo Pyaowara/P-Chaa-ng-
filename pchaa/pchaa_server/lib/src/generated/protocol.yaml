@@ -43,6 +43,10 @@ order:
   - getTodayOrderByType:
 queue:
   - getQueueCounters:
+store:
+  - getStoreSettings:
+  - updateStoreStatus:
+  - updateStoreSettings:
 user:
   - registerUser:
   - getCurrentUser:

@@ -7,9 +7,11 @@ import 'package:pchaa_flutter/screens/ingredient_management.dart';
 import 'package:pchaa_flutter/screens/main_page.dart';
 import 'package:pchaa_flutter/services/app_services.dart';
 import 'package:pchaa_flutter/services/menu_item_service.dart';
-import 'package:pchaa_flutter/utils/url_utils.dart';
 import 'package:pchaa_flutter/widgets/common/app_button.dart';
-import 'package:pchaa_flutter/widgets/google_login_button.dart';
+import 'package:pchaa_flutter/widgets/owner_page/owner_page_header.dart';
+import 'package:pchaa_flutter/widgets/owner_page/store_toggle.dart';
+import 'package:pchaa_flutter/widgets/owner_page/store_time_pickers.dart';
+import 'package:pchaa_flutter/widgets/owner_page/menu_item_card.dart';
 
 class OwnerMainPage extends StatefulWidget {
   const OwnerMainPage({super.key});
@@ -22,11 +24,103 @@ class _OwnerMainPageState extends State<OwnerMainPage> {
   bool isLoggedIn = googleAuthService.isLoggedIn;
   final MenuItemService _menuItemService = MenuItemService();
   bool _isLoadingMenuItems = true;
+  bool _isOpen = isShopOpen;
+  bool _isTogglingStore = false;
+  TimeOfDay _openTime = _parseTime(settings.openTime);
+  TimeOfDay _closeTime = _parseTime(settings.closeTime);
+
+  static TimeOfDay _parseTime(String timeStr) {
+    final parts = timeStr.split(':');
+    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+  }
+
+  static String _formatTime(TimeOfDay t) {
+    return '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}:00';
+  }
 
   @override
   void initState() {
     super.initState();
     _loadMenuItems();
+    _fetchStoreStatus();
+  }
+
+  Future<void> _fetchStoreStatus() async {
+    try {
+      final storeSettings = await client.store.getStoreSettings();
+      if (mounted) {
+        setState(() {
+          _isOpen = storeSettings.isOpen;
+          isShopOpen = storeSettings.isOpen;
+          _openTime = _parseTime(storeSettings.openTime);
+          _closeTime = _parseTime(storeSettings.closeTime);
+        });
+      }
+    } catch (e) {
+      debugPrint('Failed to fetch store status: $e');
+    }
+  }
+
+  Future<void> _pickTime({required bool isOpenTime}) async {
+    final initial = isOpenTime ? _openTime : _closeTime;
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: initial,
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
+    );
+    if (picked == null || !mounted) return;
+
+    setState(() {
+      if (isOpenTime) {
+        _openTime = picked;
+      } else {
+        _closeTime = picked;
+      }
+    });
+
+    try {
+      await client.store.updateStoreSettings(
+        StoreSettings(
+          isOpen: _isOpen,
+          openTime: _formatTime(_openTime),
+          closeTime: _formatTime(_closeTime),
+          autoOpenClose: settings.autoOpenClose,
+        ),
+      );
+      settings = settings.copyWith(
+        openTime: _formatTime(_openTime),
+        closeTime: _formatTime(_closeTime),
+      );
+    } catch (e) {
+      debugPrint('Failed to update store times: $e');
+    }
+  }
+
+  Future<void> _toggleStoreStatus() async {
+    setState(() {
+      _isTogglingStore = true;
+    });
+    try {
+      final newStatus = !_isOpen;
+      await client.store.updateStoreStatus(newStatus);
+      setState(() {
+        _isOpen = newStatus;
+        isShopOpen = newStatus;
+      });
+    } catch (e) {
+      debugPrint('Failed to toggle store status: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isTogglingStore = false;
+        });
+      }
+    }
   }
 
   Future<void> _loadMenuItems() async {
@@ -82,65 +176,30 @@ class _OwnerMainPageState extends State<OwnerMainPage> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          // Header styled like main_page
-          Stack(
-            children: [
-              Container(
-                height: 150,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                ),
-              ),
-              Positioned(
-                bottom: 20,
-                left: 30,
-                right: 20,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Flexible(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'ยินดีต้อนรับ',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            googleAuthService.name ?? "เจ้าของร้าน",
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 20,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    GoogleLoginButton(
-                      onLoginSuccess: () {
-                        _updateLoginStatus();
-                      },
-                      onLogoutSuccess: () {
-                        _updateLoginStatus();
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (_) => const MainPage(),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          // Header
+          OwnerPageHeader(
+            onLoginSuccess: _updateLoginStatus,
+            onLogoutSuccess: () {
+              _updateLoginStatus();
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const MainPage()),
+              );
+            },
+          ),
+
+          // Store toggle
+          StoreToggle(
+            isOpen: _isOpen,
+            isToggling: _isTogglingStore,
+            onToggle: _toggleStoreStatus,
+          ),
+
+          // Time pickers
+          StoreTimePickers(
+            openTime: _openTime,
+            closeTime: _closeTime,
+            onPickOpenTime: () => _pickTime(isOpenTime: true),
+            onPickCloseTime: () => _pickTime(isOpenTime: false),
           ),
 
           const SizedBox(height: 10),
@@ -225,7 +284,10 @@ class _OwnerMainPageState extends State<OwnerMainPage> {
                         itemCount: _menuItemService.menuItems.length,
                         itemBuilder: (context, index) {
                           final item = _menuItemService.menuItems[index];
-                          return _buildMenuItemCard(item);
+                          return MenuItemCard(
+                            item: item,
+                            onTap: () => _navigateToEditMenu(item),
+                          );
                         },
                       ),
 
@@ -251,102 +313,6 @@ class _OwnerMainPageState extends State<OwnerMainPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildMenuItemCard(MenuItemWithUrl item) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadius.medium),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadius.medium),
-        onTap: () => _navigateToEditMenu(item),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              // Menu image
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: UrlUtils.getDisplayableImageUrl(item.imageUrl).isNotEmpty
-                    ? Image.network(
-                        UrlUtils.getDisplayableImageUrl(item.imageUrl),
-                        width: 60,
-                        height: 60,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          width: 60,
-                          height: 60,
-                          color: Colors.grey.shade300,
-                          child: const Icon(
-                            Icons.restaurant_menu,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      )
-                    : Container(
-                        width: 60,
-                        height: 60,
-                        color: Colors.grey.shade300,
-                        child: const Icon(
-                          Icons.restaurant_menu,
-                          color: Colors.grey,
-                        ),
-                      ),
-              ),
-              const SizedBox(width: 12),
-              // Menu details
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '฿${item.basePrice.toStringAsFixed(0)}',
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Availability status
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: item.isAvailable
-                      ? Colors.green.withOpacity(0.1)
-                      : Colors.red.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  item.isAvailable ? 'พร้อมขาย' : 'ไม่พร้อม',
-                  style: TextStyle(
-                    color: item.isAvailable ? Colors.green : Colors.red,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Icon(Icons.chevron_right, color: Colors.grey),
-            ],
-          ),
-        ),
       ),
     );
   }
