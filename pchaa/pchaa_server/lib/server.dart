@@ -77,4 +77,5 @@ void run(List<String> args) async {
     thailandMidnight,
     identifier: 'dailyQueueReset',
   );
+  
 }
