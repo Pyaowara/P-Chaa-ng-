@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
 
 class CustomizationChoices extends StatelessWidget {
-  final CustomizationGroup customizationGroup;
+  final AvailableCustomizationGroup customizationGroup;
   final String? selectedValue;
   final Set<String> selectedValues;
   final ValueChanged<String?>? onSingleChanged;
@@ -36,7 +36,7 @@ class CustomizationChoices extends StatelessWidget {
     );
   }
 
-  Widget _buildSingleCheckboxGroup(List<AddOnOption> choices) {
+  Widget _buildSingleCheckboxGroup(List<AvailableAddOnOption> choices) {
     return Column(
       children: choices.map((choice) {
         final isChecked = selectedValue == choice.name;
@@ -88,7 +88,7 @@ class CustomizationChoices extends StatelessWidget {
     );
   }
 
-  Widget _buildCheckboxGroup(List<AddOnOption> choices) {
+  Widget _buildCheckboxGroup(List<AvailableAddOnOption> choices) {
     return Column(
       children: choices.map((choice) {
         final isChecked = selectedValues.contains(choice.name);

@@ -10,8 +10,8 @@ class StoreEndpoint extends Endpoint {
     if (store == null) {
       store = StoreSettings(
         isOpen: false,
-        openTime: '08:00:00',
-        closeTime: '20:00:00',
+        openTime: '07:00:00',
+        closeTime: '14:00:00',
         autoOpenClose: false,
       );
       store = await StoreSettings.db.insertRow(session, store);

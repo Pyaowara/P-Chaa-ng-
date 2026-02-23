@@ -10,6 +10,7 @@ late Client client;
 late SessionManager sessionManager;
 late FlutterAuthenticationKeyManager keyManager;
 late bool isShopOpen;
+late StoreSettings settings;
 
 // App services (declared without import to avoid circular dependency)
 // Import GoogleAuthService and CartService where needed
