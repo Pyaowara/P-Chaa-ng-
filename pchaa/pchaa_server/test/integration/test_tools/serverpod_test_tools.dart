@@ -1162,7 +1162,6 @@ class _OrderEndpoint {
 
   _i3.Future<_i12.Order> createOrder(
     _i1.TestSessionBuilder sessionBuilder,
-    String? replyMessage,
     _i13.OrderType orderType,
     DateTime? pickupTime,
   ) async {
@@ -1178,7 +1177,6 @@ class _OrderEndpoint {
           endpointPath: 'order',
           methodName: 'createOrder',
           parameters: _i1.testObjectToJson({
-            'replyMessage': replyMessage,
             'orderType': orderType,
             'pickupTime': pickupTime,
           }),
@@ -1232,6 +1230,7 @@ class _OrderEndpoint {
     _i1.TestSessionBuilder sessionBuilder,
     int orderId,
     _i14.OrderStatus newStatus,
+    String? replyMessage,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1247,6 +1246,7 @@ class _OrderEndpoint {
           parameters: _i1.testObjectToJson({
             'orderId': orderId,
             'newStatus': newStatus,
+            'replyMessage': replyMessage,
           }),
           serializationManager: _serializationManager,
         );

@@ -474,14 +474,12 @@ class EndpointOrder extends _i2.EndpointRef {
   String get name => 'order';
 
   _i3.Future<_i12.Order> createOrder(
-    String? replyMessage,
     _i13.OrderType orderType,
     DateTime? pickupTime,
   ) => caller.callServerEndpoint<_i12.Order>(
     'order',
     'createOrder',
     {
-      'replyMessage': replyMessage,
       'orderType': orderType,
       'pickupTime': pickupTime,
     },
@@ -497,12 +495,14 @@ class EndpointOrder extends _i2.EndpointRef {
   _i3.Future<_i12.Order> updateOrderStatus(
     int orderId,
     _i14.OrderStatus newStatus,
+    String? replyMessage,
   ) => caller.callServerEndpoint<_i12.Order>(
     'order',
     'updateOrderStatus',
     {
       'orderId': orderId,
       'newStatus': newStatus,
+      'replyMessage': replyMessage,
     },
   );
 

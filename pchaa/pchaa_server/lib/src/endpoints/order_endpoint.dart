@@ -5,16 +5,20 @@ import '../utils/auth_utils.dart';
 import '../utils/menu_items_utils.dart';
 import '../utils/thailand_time_utils.dart';
 import '../utils/queue_utils.dart';
+import '../utils/store_utils.dart';
 
 class OrderEndpoint extends Endpoint {
   
-   Future<Order> createOrder(Session session, String? replyMessage, OrderType orderType, DateTime? pickupTime) async {
+   Future<Order> createOrder(Session session, OrderType orderType, DateTime? pickupTime) async {
     final user = await AuthUtils.allowedRoles(session, [UserRole.user]);
 
     final mycarts = await Cart.db.find(
       session,
       where: (t) => t.userId.equals(user.id!),
     );
+    if (StoreUtils.isStoreOpen(session) == false) {
+      throw Exception('Store is currently closed. Please try again later.');
+    }
     if (mycarts.isEmpty) {
       throw Exception('No items in cart to create an order');
     }
@@ -46,7 +50,6 @@ class OrderEndpoint extends Endpoint {
       pickupTime: orderType == OrderType.S ? pickupTime : null,
       totalOrderPrice: orderTotal, 
       orderDate: ThailandTimeUtils.getThailandDate(),
-      replyMessage: replyMessage,
       createdAt: ThailandTimeUtils.getThailandNow()
     );
     final createdOrder = await Order.db.insert(session, [order]);
@@ -91,12 +94,15 @@ class OrderEndpoint extends Endpoint {
     return order;
   }
 
-  Future<Order> updateOrderStatus(Session session, int orderId, OrderStatus newStatus) async {
+  Future<Order> updateOrderStatus(Session session, int orderId, OrderStatus newStatus, String? replyMessage) async {
     await AuthUtils.allowedRoles(session, [UserRole.owner]);
     
     final order = await Order.db.findById(session, orderId);
     if (order == null) {
       throw Exception('Order not found');
+    }
+    if (replyMessage != null && newStatus != OrderStatus.cancelled) {
+      throw Exception('Reply message can only be provided when cancelling an order');
     }
     if (order.status == OrderStatus.cancelled || order.status == OrderStatus.received) {
       throw Exception('Cannot change status of a cancelled or received order');
@@ -115,6 +121,16 @@ class OrderEndpoint extends Endpoint {
       throw Exception('Invalid status transition from finished to $newStatus');
     }
     order.status = newStatus;
+    if (newStatus == OrderStatus.cancelled) {
+      if (replyMessage == null || replyMessage.isEmpty) {
+        order.replyMessage = 'Your order has been cancelled.';
+      }
+      else{
+        order.replyMessage = replyMessage;
+      }
+      
+    }
+    
     await Order.db.update(session, [order]);
     session.log("[OrderEndpoint] Updated order status for ${order.queueNumber} to status: ${order.status}");
     return order;
