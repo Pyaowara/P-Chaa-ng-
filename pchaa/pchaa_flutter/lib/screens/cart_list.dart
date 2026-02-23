@@ -4,6 +4,7 @@ import 'package:pchaa_flutter/services/app_services.dart';
 import 'package:pchaa_flutter/widgets/cart/cart_bottom_bar.dart';
 import 'package:pchaa_flutter/widgets/cart/cart_empty_state.dart';
 import 'package:pchaa_flutter/widgets/cart/cart_item_card.dart';
+import 'package:pchaa_flutter/widgets/cart/checkout_modal.dart';
 
 class CartList extends StatefulWidget {
   const CartList({super.key});
@@ -124,9 +125,9 @@ class _CartListState extends State<CartList> {
   }
 
   void _onCheckout() {
-    // TODO: Implement checkout
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Checkout coming soon!')),
+    showDialog(
+      context: context,
+      builder: (context) => const CheckoutModal(),
     );
   }
 
