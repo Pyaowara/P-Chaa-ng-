@@ -467,6 +467,42 @@ class EndpointMenuItem extends _i2.EndpointRef {
 }
 
 /// {@category Endpoint}
+class EndpointNotification extends _i2.EndpointRef {
+  EndpointNotification(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'notification';
+
+  /// Register or update an FCM token for the authenticated user
+  _i3.Future<bool> registerToken(
+    String token, {
+    String? deviceInfo,
+  }) => caller.callServerEndpoint<bool>(
+    'notification',
+    'registerToken',
+    {
+      'token': token,
+      'deviceInfo': deviceInfo,
+    },
+  );
+
+  /// Remove an FCM token (e.g., on logout)
+  _i3.Future<bool> removeToken(String token) => caller.callServerEndpoint<bool>(
+    'notification',
+    'removeToken',
+    {'token': token},
+  );
+
+  /// Send a login notification to the owner/admin users
+  /// Called by the client after a successful login
+  _i3.Future<bool> sendLoginNotification() => caller.callServerEndpoint<bool>(
+    'notification',
+    'sendLoginNotification',
+    {},
+  );
+}
+
+/// {@category Endpoint}
 class EndpointOrder extends _i2.EndpointRef {
   EndpointOrder(_i2.EndpointCaller caller) : super(caller);
 
@@ -719,6 +755,7 @@ class Client extends _i2.ServerpodClientShared {
     cart = EndpointCart(this);
     ingredient = EndpointIngredient(this);
     menuItem = EndpointMenuItem(this);
+    notification = EndpointNotification(this);
     order = EndpointOrder(this);
     queue = EndpointQueue(this);
     store = EndpointStore(this);
@@ -736,6 +773,8 @@ class Client extends _i2.ServerpodClientShared {
   late final EndpointIngredient ingredient;
 
   late final EndpointMenuItem menuItem;
+
+  late final EndpointNotification notification;
 
   late final EndpointOrder order;
 
@@ -756,6 +795,7 @@ class Client extends _i2.ServerpodClientShared {
     'cart': cart,
     'ingredient': ingredient,
     'menuItem': menuItem,
+    'notification': notification,
     'order': order,
     'queue': queue,
     'store': store,

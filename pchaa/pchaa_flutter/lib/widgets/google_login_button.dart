@@ -52,6 +52,14 @@ class _GoogleLoginButtonState extends State<GoogleLoginButton> {
 
       await googleAuthService.fetchUserData();
 
+      // Register FCM token and send login notification
+      await notificationService.registerTokenWithServer();
+      try {
+        await client.notification.sendLoginNotification();
+      } catch (e) {
+        debugPrint('Login notification failed: $e');
+      }
+
       cartService = CartService();
       if (googleAuthService.userData?.role == UserRole.user) {
         await cartService.refresh();
@@ -69,6 +77,8 @@ class _GoogleLoginButtonState extends State<GoogleLoginButton> {
   Future<void> _handleLogout() async {
     setState(() => _loading = true);
     try {
+      // Remove FCM token before signing out
+      await notificationService.removeTokenFromServer();
       await googleAuthService.signOut();
       await sessionManager.signOutDevice();
       widget.onLogoutSuccess?.call();

@@ -8,6 +8,7 @@ import 'src/web/routes/app_config_route.dart';
 import 'src/web/routes/root.dart';
 import 'src/future_calls/reset_queue_call.dart';
 import 'src/utils/thailand_time_utils.dart';
+import 'src/utils/fcm_service.dart';
 
 import 'package:serverpod_auth_server/serverpod_auth_server.dart' as auth;
 
@@ -67,6 +68,14 @@ void run(List<String> args) async {
   // Start the server.
   await pod.start();
 
+  // Initialize FCM notification service
+  await FcmService.instance.initialize(
+    projectId: pod.getPassword('firebase_project_id'),
+    clientEmail: pod.getPassword('firebase_client_email'),
+    privateKey: pod.getPassword('firebase_private_key'),
+    clientId: pod.getPassword('firebase_client_id'),
+  );
+
   // Register future call for daily queue reset
   pod.registerFutureCall(ResetQueueCall(), 'resetQueue');
   var thailandMidnight = ThailandTimeUtils.getNextThailandMidnight();
@@ -77,5 +86,4 @@ void run(List<String> args) async {
     thailandMidnight,
     identifier: 'dailyQueueReset',
   );
-  
 }

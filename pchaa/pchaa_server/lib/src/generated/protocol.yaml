@@ -29,6 +29,10 @@ menuItem:
   - getAvailableMenuItemById:
   - updateMenuItem:
   - deleteMenuItem:
+notification:
+  - registerToken:
+  - removeToken:
+  - sendLoginNotification:
 order:
   - createOrder:
   - confirmOrder:
