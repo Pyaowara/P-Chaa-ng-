@@ -6,7 +6,7 @@ import '../utils/menu_items_utils.dart';
 
 class CartEndpoint extends Endpoint {
 
-  Future<List<Cart>> getMyCart(Session session) async {
+  Future<Map<String, dynamic>> getMyCart(Session session) async {
     final user =await AuthUtils.allowedRoles(session, [UserRole.user]);
     
     final carts = await Cart.db.find(
@@ -14,7 +14,30 @@ class CartEndpoint extends Endpoint {
       where: (t) => t.userId.equals(user.id!),
     );
     session.log("[CartEndpoint] Fetched cart for userId: ${user.id}");
-    return carts;
+    var result = <String, dynamic>{};
+    result['carts'] = carts;
+    
+    var addedMenuItemIds = <int>{};
+    var menuItems = <Map<String, dynamic>>[];
+    for (var cart in carts) {
+      if (!addedMenuItemIds.contains(cart.menuItemId)) {
+        final menuItem = await MenuItem.db.findById(session, cart.menuItemId);
+        if (menuItem != null) {
+          menuItems.add({
+            "menuItemId": menuItem.id,
+            "name": menuItem.name,
+          });
+        } else {
+          menuItems.add({
+            "menuItemId": cart.menuItemId,
+            "name": "Unknown Item",
+          });
+        }
+        addedMenuItemIds.add(cart.menuItemId);
+      }
+    }
+    result['menuItems'] = menuItems;
+    return result;
   }
 
   Future<Cart> getCartById(Session session, int cartId) async {

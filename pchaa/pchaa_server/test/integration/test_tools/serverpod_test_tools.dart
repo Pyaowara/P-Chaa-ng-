@@ -149,6 +149,8 @@ class TestEndpoints {
 
   late final _MenuItemEndpoint menuItem;
 
+  late final _NotificationEndpoint notification;
+
   late final _OrderEndpoint order;
 
   late final _QueueEndpoint queue;
@@ -184,6 +186,10 @@ class _InternalTestEndpoints extends TestEndpoints
       serializationManager,
     );
     menuItem = _MenuItemEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    notification = _NotificationEndpoint(
       endpoints,
       serializationManager,
     );
@@ -510,7 +516,7 @@ class _CartEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<List<_i5.Cart>> getMyCart(
+  _i3.Future<Map<String, dynamic>> getMyCart(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -532,7 +538,7 @@ class _CartEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i5.Cart>>);
+                as _i3.Future<Map<String, dynamic>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1150,6 +1156,113 @@ class _MenuItemEndpoint {
   }
 }
 
+class _NotificationEndpoint {
+  _NotificationEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _i2.EndpointDispatch _endpointDispatch;
+
+  final _i2.SerializationManager _serializationManager;
+
+  _i3.Future<bool> registerToken(
+    _i1.TestSessionBuilder sessionBuilder,
+    String token, {
+    String? deviceInfo,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'notification',
+            method: 'registerToken',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'notification',
+          methodName: 'registerToken',
+          parameters: _i1.testObjectToJson({
+            'token': token,
+            'deviceInfo': deviceInfo,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<bool>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<bool> removeToken(
+    _i1.TestSessionBuilder sessionBuilder,
+    String token,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'notification',
+            method: 'removeToken',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'notification',
+          methodName: 'removeToken',
+          parameters: _i1.testObjectToJson({'token': token}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<bool>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<bool> sendLoginNotification(
+    _i1.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'notification',
+            method: 'sendLoginNotification',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'notification',
+          methodName: 'sendLoginNotification',
+          parameters: _i1.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<bool>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
 class _OrderEndpoint {
   _OrderEndpoint(
     this._endpointDispatch,
@@ -1162,7 +1275,6 @@ class _OrderEndpoint {
 
   _i3.Future<_i12.Order> createOrder(
     _i1.TestSessionBuilder sessionBuilder,
-    String? replyMessage,
     _i13.OrderType orderType,
     DateTime? pickupTime,
   ) async {
@@ -1178,7 +1290,6 @@ class _OrderEndpoint {
           endpointPath: 'order',
           methodName: 'createOrder',
           parameters: _i1.testObjectToJson({
-            'replyMessage': replyMessage,
             'orderType': orderType,
             'pickupTime': pickupTime,
           }),
@@ -1232,6 +1343,7 @@ class _OrderEndpoint {
     _i1.TestSessionBuilder sessionBuilder,
     int orderId,
     _i14.OrderStatus newStatus,
+    String? replymessage,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1247,6 +1359,7 @@ class _OrderEndpoint {
           parameters: _i1.testObjectToJson({
             'orderId': orderId,
             'newStatus': newStatus,
+            'replymessage': replymessage,
           }),
           serializationManager: _serializationManager,
         );

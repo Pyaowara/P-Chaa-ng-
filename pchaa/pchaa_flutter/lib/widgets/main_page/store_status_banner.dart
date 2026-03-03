@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pchaa_client/pchaa_client.dart';
 import 'package:pchaa_flutter/constants/app_constants.dart';
 import 'package:pchaa_flutter/services/app_services.dart';
 

@@ -1,8 +1,6 @@
 // services/google_auth_service.dart
 import 'package:flutter/cupertino.dart';
 import 'package:pchaa_client/pchaa_client.dart';
-import 'package:pchaa_flutter/services/cart_service.dart';
-import 'package:serverpod_auth_shared_flutter/serverpod_auth_shared_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pchaa_flutter/services/app_services.dart';
 

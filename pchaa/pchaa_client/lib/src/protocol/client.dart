@@ -255,8 +255,8 @@ class EndpointCart extends _i2.EndpointRef {
   @override
   String get name => 'cart';
 
-  _i3.Future<List<_i5.Cart>> getMyCart() =>
-      caller.callServerEndpoint<List<_i5.Cart>>(
+  _i3.Future<Map<String, dynamic>> getMyCart() =>
+      caller.callServerEndpoint<Map<String, dynamic>>(
         'cart',
         'getMyCart',
         {},
@@ -467,6 +467,38 @@ class EndpointMenuItem extends _i2.EndpointRef {
 }
 
 /// {@category Endpoint}
+class EndpointNotification extends _i2.EndpointRef {
+  EndpointNotification(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'notification';
+
+  _i3.Future<bool> registerToken(
+    String token, {
+    String? deviceInfo,
+  }) => caller.callServerEndpoint<bool>(
+    'notification',
+    'registerToken',
+    {
+      'token': token,
+      'deviceInfo': deviceInfo,
+    },
+  );
+
+  _i3.Future<bool> removeToken(String token) => caller.callServerEndpoint<bool>(
+    'notification',
+    'removeToken',
+    {'token': token},
+  );
+
+  _i3.Future<bool> sendLoginNotification() => caller.callServerEndpoint<bool>(
+    'notification',
+    'sendLoginNotification',
+    {},
+  );
+}
+
+/// {@category Endpoint}
 class EndpointOrder extends _i2.EndpointRef {
   EndpointOrder(_i2.EndpointCaller caller) : super(caller);
 
@@ -474,14 +506,12 @@ class EndpointOrder extends _i2.EndpointRef {
   String get name => 'order';
 
   _i3.Future<_i12.Order> createOrder(
-    String? replyMessage,
     _i13.OrderType orderType,
     DateTime? pickupTime,
   ) => caller.callServerEndpoint<_i12.Order>(
     'order',
     'createOrder',
     {
-      'replyMessage': replyMessage,
       'orderType': orderType,
       'pickupTime': pickupTime,
     },
@@ -497,12 +527,14 @@ class EndpointOrder extends _i2.EndpointRef {
   _i3.Future<_i12.Order> updateOrderStatus(
     int orderId,
     _i14.OrderStatus newStatus,
+    String? replymessage,
   ) => caller.callServerEndpoint<_i12.Order>(
     'order',
     'updateOrderStatus',
     {
       'orderId': orderId,
       'newStatus': newStatus,
+      'replymessage': replymessage,
     },
   );
 
@@ -719,6 +751,7 @@ class Client extends _i2.ServerpodClientShared {
     cart = EndpointCart(this);
     ingredient = EndpointIngredient(this);
     menuItem = EndpointMenuItem(this);
+    notification = EndpointNotification(this);
     order = EndpointOrder(this);
     queue = EndpointQueue(this);
     store = EndpointStore(this);
@@ -736,6 +769,8 @@ class Client extends _i2.ServerpodClientShared {
   late final EndpointIngredient ingredient;
 
   late final EndpointMenuItem menuItem;
+
+  late final EndpointNotification notification;
 
   late final EndpointOrder order;
 
@@ -756,6 +791,7 @@ class Client extends _i2.ServerpodClientShared {
     'cart': cart,
     'ingredient': ingredient,
     'menuItem': menuItem,
+    'notification': notification,
     'order': order,
     'queue': queue,
     'store': store,
