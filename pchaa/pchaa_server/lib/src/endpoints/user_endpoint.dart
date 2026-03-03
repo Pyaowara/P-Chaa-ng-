@@ -8,7 +8,7 @@ class UserEndpoint extends Endpoint {
     Session session, {
     String? profilePictureUrl,
   }) async {
-    await AuthUtils.isAuthenticated(session);
+    // await AuthUtils.isAuthenticated(session);
 
     final authInfo = await session.authenticated;
     final authUserInfo = await auth.Users.findUserByUserId(
