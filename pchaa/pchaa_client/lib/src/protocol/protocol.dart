@@ -18,19 +18,19 @@ import 'available_menu_item.dart' as _i5;
 import 'carts.dart' as _i6;
 import 'customization_group.dart' as _i7;
 import 'daily_queue_counters.dart' as _i8;
-import 'greetings/greeting.dart' as _i9;
-import 'ingredient.dart' as _i10;
-import 'menu_item_with_url.dart' as _i11;
-import 'menu_items.dart' as _i12;
-import 'order_items.dart' as _i13;
-import 'order_status.dart' as _i14;
-import 'order_type.dart' as _i15;
-import 'orders.dart' as _i16;
-import 'selected_option.dart' as _i17;
-import 'store_settings.dart' as _i18;
-import 'user_role.dart' as _i19;
-import 'users.dart' as _i20;
-import 'package:pchaa_client/src/protocol/carts.dart' as _i21;
+import 'fcm_token.dart' as _i9;
+import 'greetings/greeting.dart' as _i10;
+import 'ingredient.dart' as _i11;
+import 'menu_item_with_url.dart' as _i12;
+import 'menu_items.dart' as _i13;
+import 'order_items.dart' as _i14;
+import 'order_status.dart' as _i15;
+import 'order_type.dart' as _i16;
+import 'orders.dart' as _i17;
+import 'selected_option.dart' as _i18;
+import 'store_settings.dart' as _i19;
+import 'user_role.dart' as _i20;
+import 'users.dart' as _i21;
 import 'package:pchaa_client/src/protocol/selected_option.dart' as _i22;
 import 'package:pchaa_client/src/protocol/ingredient.dart' as _i23;
 import 'package:pchaa_client/src/protocol/customization_group.dart' as _i24;
@@ -51,6 +51,7 @@ export 'available_menu_item.dart';
 export 'carts.dart';
 export 'customization_group.dart';
 export 'daily_queue_counters.dart';
+export 'fcm_token.dart';
 export 'greetings/greeting.dart';
 export 'ingredient.dart';
 export 'menu_item_with_url.dart';
@@ -120,41 +121,44 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i8.DailyQueueCounter) {
       return _i8.DailyQueueCounter.fromJson(data) as T;
     }
-    if (t == _i9.Greeting) {
-      return _i9.Greeting.fromJson(data) as T;
+    if (t == _i9.FcmToken) {
+      return _i9.FcmToken.fromJson(data) as T;
     }
-    if (t == _i10.Ingredient) {
-      return _i10.Ingredient.fromJson(data) as T;
+    if (t == _i10.Greeting) {
+      return _i10.Greeting.fromJson(data) as T;
     }
-    if (t == _i11.MenuItemWithUrl) {
-      return _i11.MenuItemWithUrl.fromJson(data) as T;
+    if (t == _i11.Ingredient) {
+      return _i11.Ingredient.fromJson(data) as T;
     }
-    if (t == _i12.MenuItem) {
-      return _i12.MenuItem.fromJson(data) as T;
+    if (t == _i12.MenuItemWithUrl) {
+      return _i12.MenuItemWithUrl.fromJson(data) as T;
     }
-    if (t == _i13.OrderItem) {
-      return _i13.OrderItem.fromJson(data) as T;
+    if (t == _i13.MenuItem) {
+      return _i13.MenuItem.fromJson(data) as T;
     }
-    if (t == _i14.OrderStatus) {
-      return _i14.OrderStatus.fromJson(data) as T;
+    if (t == _i14.OrderItem) {
+      return _i14.OrderItem.fromJson(data) as T;
     }
-    if (t == _i15.OrderType) {
-      return _i15.OrderType.fromJson(data) as T;
+    if (t == _i15.OrderStatus) {
+      return _i15.OrderStatus.fromJson(data) as T;
     }
-    if (t == _i16.Order) {
-      return _i16.Order.fromJson(data) as T;
+    if (t == _i16.OrderType) {
+      return _i16.OrderType.fromJson(data) as T;
     }
-    if (t == _i17.SelectedOption) {
-      return _i17.SelectedOption.fromJson(data) as T;
+    if (t == _i17.Order) {
+      return _i17.Order.fromJson(data) as T;
     }
-    if (t == _i18.StoreSettings) {
-      return _i18.StoreSettings.fromJson(data) as T;
+    if (t == _i18.SelectedOption) {
+      return _i18.SelectedOption.fromJson(data) as T;
     }
-    if (t == _i19.UserRole) {
-      return _i19.UserRole.fromJson(data) as T;
+    if (t == _i19.StoreSettings) {
+      return _i19.StoreSettings.fromJson(data) as T;
     }
-    if (t == _i20.User) {
-      return _i20.User.fromJson(data) as T;
+    if (t == _i20.UserRole) {
+      return _i20.UserRole.fromJson(data) as T;
+    }
+    if (t == _i21.User) {
+      return _i21.User.fromJson(data) as T;
     }
     if (t == _i1.getType<_i2.AddOnOption?>()) {
       return (data != null ? _i2.AddOnOption.fromJson(data) : null) as T;
@@ -181,41 +185,44 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i1.getType<_i8.DailyQueueCounter?>()) {
       return (data != null ? _i8.DailyQueueCounter.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i9.Greeting?>()) {
-      return (data != null ? _i9.Greeting.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i9.FcmToken?>()) {
+      return (data != null ? _i9.FcmToken.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i10.Ingredient?>()) {
-      return (data != null ? _i10.Ingredient.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i10.Greeting?>()) {
+      return (data != null ? _i10.Greeting.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i11.MenuItemWithUrl?>()) {
-      return (data != null ? _i11.MenuItemWithUrl.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i11.Ingredient?>()) {
+      return (data != null ? _i11.Ingredient.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i12.MenuItem?>()) {
-      return (data != null ? _i12.MenuItem.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i12.MenuItemWithUrl?>()) {
+      return (data != null ? _i12.MenuItemWithUrl.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i13.OrderItem?>()) {
-      return (data != null ? _i13.OrderItem.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i13.MenuItem?>()) {
+      return (data != null ? _i13.MenuItem.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i14.OrderStatus?>()) {
-      return (data != null ? _i14.OrderStatus.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i14.OrderItem?>()) {
+      return (data != null ? _i14.OrderItem.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i15.OrderType?>()) {
-      return (data != null ? _i15.OrderType.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i15.OrderStatus?>()) {
+      return (data != null ? _i15.OrderStatus.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i16.Order?>()) {
-      return (data != null ? _i16.Order.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i16.OrderType?>()) {
+      return (data != null ? _i16.OrderType.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i17.SelectedOption?>()) {
-      return (data != null ? _i17.SelectedOption.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i17.Order?>()) {
+      return (data != null ? _i17.Order.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i18.StoreSettings?>()) {
-      return (data != null ? _i18.StoreSettings.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i18.SelectedOption?>()) {
+      return (data != null ? _i18.SelectedOption.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i19.UserRole?>()) {
-      return (data != null ? _i19.UserRole.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i19.StoreSettings?>()) {
+      return (data != null ? _i19.StoreSettings.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i20.User?>()) {
-      return (data != null ? _i20.User.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i20.UserRole?>()) {
+      return (data != null ? _i20.UserRole.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i21.User?>()) {
+      return (data != null ? _i21.User.fromJson(data) : null) as T;
     }
     if (t == List<int>) {
       return (data as List).map((e) => deserialize<int>(e)).toList() as T;
@@ -238,9 +245,9 @@ class Protocol extends _i1.SerializationManager {
               .toList()
           as T;
     }
-    if (t == List<_i17.SelectedOption>) {
+    if (t == List<_i18.SelectedOption>) {
       return (data as List)
-              .map((e) => deserialize<_i17.SelectedOption>(e))
+              .map((e) => deserialize<_i18.SelectedOption>(e))
               .toList()
           as T;
     }
@@ -254,8 +261,11 @@ class Protocol extends _i1.SerializationManager {
               .toList()
           as T;
     }
-    if (t == List<_i21.Cart>) {
-      return (data as List).map((e) => deserialize<_i21.Cart>(e)).toList() as T;
+    if (t == Map<String, dynamic>) {
+      return (data as Map).map(
+            (k, v) => MapEntry(deserialize<String>(k), deserialize<dynamic>(v)),
+          )
+          as T;
     }
     if (t == List<_i22.SelectedOption>) {
       return (data as List)
@@ -312,12 +322,6 @@ class Protocol extends _i1.SerializationManager {
           )
           as T;
     }
-    if (t == Map<String, dynamic>) {
-      return (data as Map).map(
-            (k, v) => MapEntry(deserialize<String>(k), deserialize<dynamic>(v)),
-          )
-          as T;
-    }
     if (t == List<_i28.OrderItem>) {
       return (data as List).map((e) => deserialize<_i28.OrderItem>(e)).toList()
           as T;
@@ -352,18 +356,19 @@ class Protocol extends _i1.SerializationManager {
       _i6.Cart => 'Cart',
       _i7.CustomizationGroup => 'CustomizationGroup',
       _i8.DailyQueueCounter => 'DailyQueueCounter',
-      _i9.Greeting => 'Greeting',
-      _i10.Ingredient => 'Ingredient',
-      _i11.MenuItemWithUrl => 'MenuItemWithUrl',
-      _i12.MenuItem => 'MenuItem',
-      _i13.OrderItem => 'OrderItem',
-      _i14.OrderStatus => 'OrderStatus',
-      _i15.OrderType => 'OrderType',
-      _i16.Order => 'Order',
-      _i17.SelectedOption => 'SelectedOption',
-      _i18.StoreSettings => 'StoreSettings',
-      _i19.UserRole => 'UserRole',
-      _i20.User => 'User',
+      _i9.FcmToken => 'FcmToken',
+      _i10.Greeting => 'Greeting',
+      _i11.Ingredient => 'Ingredient',
+      _i12.MenuItemWithUrl => 'MenuItemWithUrl',
+      _i13.MenuItem => 'MenuItem',
+      _i14.OrderItem => 'OrderItem',
+      _i15.OrderStatus => 'OrderStatus',
+      _i16.OrderType => 'OrderType',
+      _i17.Order => 'Order',
+      _i18.SelectedOption => 'SelectedOption',
+      _i19.StoreSettings => 'StoreSettings',
+      _i20.UserRole => 'UserRole',
+      _i21.User => 'User',
       _ => null,
     };
   }
@@ -392,29 +397,31 @@ class Protocol extends _i1.SerializationManager {
         return 'CustomizationGroup';
       case _i8.DailyQueueCounter():
         return 'DailyQueueCounter';
-      case _i9.Greeting():
+      case _i9.FcmToken():
+        return 'FcmToken';
+      case _i10.Greeting():
         return 'Greeting';
-      case _i10.Ingredient():
+      case _i11.Ingredient():
         return 'Ingredient';
-      case _i11.MenuItemWithUrl():
+      case _i12.MenuItemWithUrl():
         return 'MenuItemWithUrl';
-      case _i12.MenuItem():
+      case _i13.MenuItem():
         return 'MenuItem';
-      case _i13.OrderItem():
+      case _i14.OrderItem():
         return 'OrderItem';
-      case _i14.OrderStatus():
+      case _i15.OrderStatus():
         return 'OrderStatus';
-      case _i15.OrderType():
+      case _i16.OrderType():
         return 'OrderType';
-      case _i16.Order():
+      case _i17.Order():
         return 'Order';
-      case _i17.SelectedOption():
+      case _i18.SelectedOption():
         return 'SelectedOption';
-      case _i18.StoreSettings():
+      case _i19.StoreSettings():
         return 'StoreSettings';
-      case _i19.UserRole():
+      case _i20.UserRole():
         return 'UserRole';
-      case _i20.User():
+      case _i21.User():
         return 'User';
     }
     className = _i30.Protocol().getClassNameForObject(data);
@@ -459,41 +466,44 @@ class Protocol extends _i1.SerializationManager {
     if (dataClassName == 'DailyQueueCounter') {
       return deserialize<_i8.DailyQueueCounter>(data['data']);
     }
+    if (dataClassName == 'FcmToken') {
+      return deserialize<_i9.FcmToken>(data['data']);
+    }
     if (dataClassName == 'Greeting') {
-      return deserialize<_i9.Greeting>(data['data']);
+      return deserialize<_i10.Greeting>(data['data']);
     }
     if (dataClassName == 'Ingredient') {
-      return deserialize<_i10.Ingredient>(data['data']);
+      return deserialize<_i11.Ingredient>(data['data']);
     }
     if (dataClassName == 'MenuItemWithUrl') {
-      return deserialize<_i11.MenuItemWithUrl>(data['data']);
+      return deserialize<_i12.MenuItemWithUrl>(data['data']);
     }
     if (dataClassName == 'MenuItem') {
-      return deserialize<_i12.MenuItem>(data['data']);
+      return deserialize<_i13.MenuItem>(data['data']);
     }
     if (dataClassName == 'OrderItem') {
-      return deserialize<_i13.OrderItem>(data['data']);
+      return deserialize<_i14.OrderItem>(data['data']);
     }
     if (dataClassName == 'OrderStatus') {
-      return deserialize<_i14.OrderStatus>(data['data']);
+      return deserialize<_i15.OrderStatus>(data['data']);
     }
     if (dataClassName == 'OrderType') {
-      return deserialize<_i15.OrderType>(data['data']);
+      return deserialize<_i16.OrderType>(data['data']);
     }
     if (dataClassName == 'Order') {
-      return deserialize<_i16.Order>(data['data']);
+      return deserialize<_i17.Order>(data['data']);
     }
     if (dataClassName == 'SelectedOption') {
-      return deserialize<_i17.SelectedOption>(data['data']);
+      return deserialize<_i18.SelectedOption>(data['data']);
     }
     if (dataClassName == 'StoreSettings') {
-      return deserialize<_i18.StoreSettings>(data['data']);
+      return deserialize<_i19.StoreSettings>(data['data']);
     }
     if (dataClassName == 'UserRole') {
-      return deserialize<_i19.UserRole>(data['data']);
+      return deserialize<_i20.UserRole>(data['data']);
     }
     if (dataClassName == 'User') {
-      return deserialize<_i20.User>(data['data']);
+      return deserialize<_i21.User>(data['data']);
     }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       data['className'] = dataClassName.substring(19);
