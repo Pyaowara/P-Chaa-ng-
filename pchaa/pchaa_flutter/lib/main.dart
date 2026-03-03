@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:pchaa_flutter/screens/main_page.dart';
 import 'package:pchaa_flutter/screens/owner_main_page.dart';
 import 'package:pchaa_flutter/services/cart_service.dart';
+import 'package:pchaa_flutter/services/notification_service.dart';
 import 'package:serverpod_flutter/serverpod_flutter.dart';
 import 'package:serverpod_auth_google_flutter/serverpod_auth_google_flutter.dart';
 import 'package:serverpod_auth_shared_flutter/serverpod_auth_shared_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_core/firebase_core.dart';
 import './services/app_services.dart';
 import './services/google_auth_service.dart';
 
@@ -18,6 +20,17 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await dotenv.load(fileName: ".env");
+
+  // Initialize Firebase with options from .env
+  await Firebase.initializeApp(
+    options: FirebaseOptions(
+      apiKey: dotenv.env['FIREBASE_API_KEY']!,
+      appId: dotenv.env['FIREBASE_APP_ID']!,
+      messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID']!,
+      projectId: dotenv.env['FIREBASE_PROJECT_ID']!,
+      storageBucket: dotenv.env['FIREBASE_STORAGE_BUCKET'],
+    ),
+  );
 
   googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
@@ -53,6 +66,13 @@ void main() async {
     } catch (e) {
       debugPrint('Cart refresh skipped: $e');
     }
+  }
+
+  // Initialize FCM notification service
+  notificationService = NotificationService();
+  await notificationService.initialize();
+  if (sessionManager.signedInUser != null) {
+    await notificationService.registerTokenWithServer();
   }
   try {
     final storeSettings = await client.store.getStoreSettings();
