@@ -839,11 +839,6 @@ class Endpoints extends _i1.EndpointDispatch {
         'createOrder': _i1.MethodConnector(
           name: 'createOrder',
           params: {
-            'replyMessage': _i1.ParameterDescription(
-              name: 'replyMessage',
-              type: _i1.getType<String?>(),
-              nullable: true,
-            ),
             'orderType': _i1.ParameterDescription(
               name: 'orderType',
               type: _i1.getType<_i15.OrderType>(),
@@ -861,7 +856,6 @@ class Endpoints extends _i1.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async => (endpoints['order'] as _i8.OrderEndpoint).createOrder(
                 session,
-                params['replyMessage'],
                 params['orderType'],
                 params['pickupTime'],
               ),
@@ -897,6 +891,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<_i16.OrderStatus>(),
               nullable: false,
             ),
+            'replymessage': _i1.ParameterDescription(
+              name: 'replymessage',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -907,6 +906,7 @@ class Endpoints extends _i1.EndpointDispatch {
                     session,
                     params['orderId'],
                     params['newStatus'],
+                    params['replymessage'],
                   ),
         ),
         'cancelMyOrder': _i1.MethodConnector(

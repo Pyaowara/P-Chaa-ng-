@@ -106,4 +106,5 @@ class NotificationEndpoint extends Endpoint {
 
     return true;
   }
+  
 }

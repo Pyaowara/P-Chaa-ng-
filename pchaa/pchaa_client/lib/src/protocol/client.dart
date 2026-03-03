@@ -255,8 +255,8 @@ class EndpointCart extends _i2.EndpointRef {
   @override
   String get name => 'cart';
 
-  _i3.Future<List<_i5.Cart>> getMyCart() =>
-      caller.callServerEndpoint<List<_i5.Cart>>(
+  _i3.Future<Map<String, dynamic>> getMyCart() =>
+      caller.callServerEndpoint<Map<String, dynamic>>(
         'cart',
         'getMyCart',
         {},
@@ -473,7 +473,6 @@ class EndpointNotification extends _i2.EndpointRef {
   @override
   String get name => 'notification';
 
-  /// Register or update an FCM token for the authenticated user
   _i3.Future<bool> registerToken(
     String token, {
     String? deviceInfo,
@@ -486,15 +485,12 @@ class EndpointNotification extends _i2.EndpointRef {
     },
   );
 
-  /// Remove an FCM token (e.g., on logout)
   _i3.Future<bool> removeToken(String token) => caller.callServerEndpoint<bool>(
     'notification',
     'removeToken',
     {'token': token},
   );
 
-  /// Send a login notification to the owner/admin users
-  /// Called by the client after a successful login
   _i3.Future<bool> sendLoginNotification() => caller.callServerEndpoint<bool>(
     'notification',
     'sendLoginNotification',
@@ -510,14 +506,12 @@ class EndpointOrder extends _i2.EndpointRef {
   String get name => 'order';
 
   _i3.Future<_i12.Order> createOrder(
-    String? replyMessage,
     _i13.OrderType orderType,
     DateTime? pickupTime,
   ) => caller.callServerEndpoint<_i12.Order>(
     'order',
     'createOrder',
     {
-      'replyMessage': replyMessage,
       'orderType': orderType,
       'pickupTime': pickupTime,
     },
@@ -533,12 +527,14 @@ class EndpointOrder extends _i2.EndpointRef {
   _i3.Future<_i12.Order> updateOrderStatus(
     int orderId,
     _i14.OrderStatus newStatus,
+    String? replymessage,
   ) => caller.callServerEndpoint<_i12.Order>(
     'order',
     'updateOrderStatus',
     {
       'orderId': orderId,
       'newStatus': newStatus,
+      'replymessage': replymessage,
     },
   );
 
