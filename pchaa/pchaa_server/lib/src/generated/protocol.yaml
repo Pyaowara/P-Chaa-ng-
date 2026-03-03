@@ -43,8 +43,6 @@ order:
   - getOrderById:
   - getOrderItems:
   - getTodayOrder:
-  - getFinishedOrders:
-  - getTodayOrderByType:
 queue:
   - getQueueCounters:
 store:

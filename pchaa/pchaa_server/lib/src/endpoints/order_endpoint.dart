@@ -61,7 +61,8 @@ class OrderEndpoint extends Endpoint {
         itemName: menuItem.name, 
         selectedOptions: cart.selectedOptions, 
         quantity: cart.quantity, 
-        finalPrice: cart.totalPrice
+        finalPrice: cart.totalPrice,
+        additionalMessage: cart.additionalMessage,
       );
       await OrderItem.db.insert(session, [orderItem]);
     }
@@ -230,7 +231,7 @@ class OrderEndpoint extends Endpoint {
     return orderItems;
   }
 
-  Future<List<Order>> getTodayOrder(Session session) async {
+  Future<List<OrderWithUserName>> getTodayOrder(Session session) async {
     await AuthUtils.allowedRoles(session, [UserRole.owner]);
     
     final today = ThailandTimeUtils.getThailandDate();
@@ -266,42 +267,19 @@ class OrderEndpoint extends Endpoint {
     );
     orders.addAll(cancelledOrder);
 
+    // Fetch user data for each order
+    var result = <OrderWithUserName>[];
+    for (var order in orders) {
+      final user = await User.db.findById(session, order.userId);
+      result.add(OrderWithUserName(
+        order: order,
+        userName: user?.fullName ?? 'Unknown User',
+      ));
+    }
+
     session.log("[OrderEndpoint] Fetched today's order for date: $today");
-    return orders;
+    return result;
   }
 
-  Future<List<Order>> getFinishedOrders(Session session, OrderType? type) async {
-    final today = ThailandTimeUtils.getThailandDate();
-    
-    final orders = await Order.db.find(
-      session,
-      where: (t) => type != null 
-        ? t.orderDate.equals(today) & t.status.equals(OrderStatus.finished) & t.type.equals(type)
-        : t.orderDate.equals(today) & t.status.equals(OrderStatus.finished),
-      orderBy: (order) => order.queueNumber,
-    );
-    session.log("[OrderEndpoint] Fetched finished orders of type: $type");
-    return orders;
-  }
-
-  Future<List<Order>> getTodayOrderByType(Session session, OrderType type, OrderStatus? status) async {
-    await AuthUtils.allowedRoles(session, [UserRole.owner]);
-    
-    final today = ThailandTimeUtils.getThailandDate();
-    final orders = await Order.db.find(
-      session,
-      where: (t) => status != null 
-        ? t.orderDate.equals(today) & t.status.equals(status) & t.type.equals(type)
-        : t.orderDate.equals(today) & t.type.equals(type),
-      orderBy: (order) => order.queueNumber,
-    );
-    
-    session.log("[OrderEndpoint] Fetched today's order of status: $status for date: $today");
-    return orders;
-  }
-
- 
-
-
-
+  
 }
