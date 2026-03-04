@@ -1,0 +1,4 @@
+class: OrderWithUserName
+fields:
+  order: Order
+  userName: String
