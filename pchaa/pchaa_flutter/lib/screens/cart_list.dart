@@ -14,8 +14,7 @@ class CartList extends StatefulWidget {
 }
 
 class _CartListState extends State<CartList> {
-  List<Cart> _cartItems = [];
-  Map<int, MenuItemWithUrl?> _menuItemsCache = {};
+  List<CartDetail> _cartItems = [];
   double _totalPrice = 0.0;
   bool _isLoading = true;
   String? _error;
@@ -36,26 +35,10 @@ class _CartListState extends State<CartList> {
       await cartService.refresh();
       final items = cartService.items;
 
-      // Fetch menu item details for each cart item
-      final Map<int, MenuItemWithUrl?> menuCache = {};
-      for (final cartItem in items) {
-        if (!menuCache.containsKey(cartItem.menuItemId)) {
-          try {
-            final menuItem = await client.menuItem.getMenuItemById(
-              cartItem.menuItemId,
-            );
-            menuCache[cartItem.menuItemId] = menuItem;
-          } catch (e) {
-            menuCache[cartItem.menuItemId] = null;
-          }
-        }
-      }
-
       if (!mounted) return;
       setState(() {
         _cartItems = items;
-        _menuItemsCache = menuCache;
-        _totalPrice = items.fold(0.0, (sum, item) => sum + item.totalPrice);
+        _totalPrice = items.fold(0.0, (sum, item) => sum + item.cart.totalPrice);
         _isLoading = false;
       });
     } catch (e) {
@@ -69,7 +52,7 @@ class _CartListState extends State<CartList> {
 
   Future<void> _removeCartItem(int cartId) async {
     try {
-      await client.cart.deleteCart(cartId);
+      await cartService.remove(cartId);
       await _loadCart();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -107,7 +90,7 @@ class _CartListState extends State<CartList> {
 
     if (confirm == true) {
       try {
-        await client.cart.clearMyCart();
+        await cartService.clear();
         await _loadCart();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -188,11 +171,11 @@ class _CartListState extends State<CartList> {
         padding: const EdgeInsets.only(top: 8, bottom: 100),
         itemCount: _cartItems.length,
         itemBuilder: (context, index) {
-          final cartItem = _cartItems[index];
+          final cartDetail = _cartItems[index];
           return CartItemCard(
-            cartItem: cartItem,
-            menuItem: _menuItemsCache[cartItem.menuItemId],
-            onDismissed: () => _removeCartItem(cartItem.id!),
+            cartItem: cartDetail.cart,
+            menuItemName: cartDetail.menuItemName,
+            onDismissed: () => _removeCartItem(cartDetail.cart.id!),
           );
         },
       ),

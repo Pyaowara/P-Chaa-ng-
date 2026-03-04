@@ -6,12 +6,14 @@ import 'package:pchaa_flutter/utils/url_utils.dart';
 class CartItemCard extends StatelessWidget {
   final Cart cartItem;
   final MenuItemWithUrl? menuItem;
+  final String? menuItemName;
   final VoidCallback onDismissed;
 
   const CartItemCard({
     super.key,
     required this.cartItem,
     this.menuItem,
+    this.menuItemName,
     required this.onDismissed,
   });
 
@@ -81,7 +83,7 @@ class CartItemCard extends StatelessWidget {
       children: [
         // Menu name
         Text(
-          menuItem?.name ?? 'Menu Item #${cartItem.menuItemId}',
+          menuItemName ?? menuItem?.name ?? 'Menu Item #${cartItem.menuItemId}',
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
