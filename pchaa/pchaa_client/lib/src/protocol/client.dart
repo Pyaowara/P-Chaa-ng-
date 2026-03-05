@@ -27,14 +27,16 @@ import 'package:pchaa_client/src/protocol/available_menu_item.dart' as _i12;
 import 'package:pchaa_client/src/protocol/orders.dart' as _i13;
 import 'package:pchaa_client/src/protocol/order_type.dart' as _i14;
 import 'package:pchaa_client/src/protocol/order_status.dart' as _i15;
-import 'package:pchaa_client/src/protocol/order_items.dart' as _i16;
-import 'package:pchaa_client/src/protocol/order_with_user_name.dart' as _i17;
-import 'package:pchaa_client/src/protocol/store_settings.dart' as _i18;
-import 'package:pchaa_client/src/protocol/users.dart' as _i19;
-import 'package:pchaa_client/src/protocol/user_role.dart' as _i20;
-import 'package:pchaa_client/src/protocol/greetings/greeting.dart' as _i21;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i22;
-import 'protocol.dart' as _i23;
+import 'package:pchaa_client/src/protocol/estimated_queue.dart' as _i16;
+import 'package:pchaa_client/src/protocol/order_with_estimated.dart' as _i17;
+import 'package:pchaa_client/src/protocol/order_items.dart' as _i18;
+import 'package:pchaa_client/src/protocol/order_with_user_name.dart' as _i19;
+import 'package:pchaa_client/src/protocol/store_settings.dart' as _i20;
+import 'package:pchaa_client/src/protocol/users.dart' as _i21;
+import 'package:pchaa_client/src/protocol/user_role.dart' as _i22;
+import 'package:pchaa_client/src/protocol/greetings/greeting.dart' as _i23;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i24;
+import 'protocol.dart' as _i25;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -554,31 +556,38 @@ class EndpointOrder extends _i2.EndpointRef {
         {},
       );
 
-  _i3.Future<Map<String, int>> getEstimatedQueue() =>
-      caller.callServerEndpoint<Map<String, int>>(
+  _i3.Future<_i16.EstimatedQueue> getEstimatedQueue() =>
+      caller.callServerEndpoint<_i16.EstimatedQueue>(
         'order',
         'getEstimatedQueue',
         {},
       );
 
-  _i3.Future<Map<String, dynamic>> getOrderById(int orderId) =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
+  _i3.Future<_i17.OrderWithEstimated> getOrderById(int orderId) =>
+      caller.callServerEndpoint<_i17.OrderWithEstimated>(
         'order',
         'getOrderById',
         {'orderId': orderId},
       );
 
-  _i3.Future<List<_i16.OrderItem>> getOrderItems(int orderId) =>
-      caller.callServerEndpoint<List<_i16.OrderItem>>(
+  _i3.Future<List<_i18.OrderItem>> getOrderItems(int orderId) =>
+      caller.callServerEndpoint<List<_i18.OrderItem>>(
         'order',
         'getOrderItems',
         {'orderId': orderId},
       );
 
-  _i3.Future<List<_i17.OrderWithUserName>> getTodayOrder() =>
-      caller.callServerEndpoint<List<_i17.OrderWithUserName>>(
+  _i3.Future<List<_i19.OrderWithUserName>> getTodayOrder() =>
+      caller.callServerEndpoint<List<_i19.OrderWithUserName>>(
         'order',
         'getTodayOrder',
+        {},
+      );
+
+  _i3.Future<List<_i19.OrderWithUserName>> getFinishedOrder() =>
+      caller.callServerEndpoint<List<_i19.OrderWithUserName>>(
+        'order',
+        'getFinishedOrder',
         {},
       );
 }
@@ -605,8 +614,8 @@ class EndpointStore extends _i2.EndpointRef {
   @override
   String get name => 'store';
 
-  _i3.Future<_i18.StoreSettings> getStoreSettings() =>
-      caller.callServerEndpoint<_i18.StoreSettings>(
+  _i3.Future<_i20.StoreSettings> getStoreSettings() =>
+      caller.callServerEndpoint<_i20.StoreSettings>(
         'store',
         'getStoreSettings',
         {},
@@ -619,7 +628,7 @@ class EndpointStore extends _i2.EndpointRef {
         {'isOpen': isOpen},
       );
 
-  _i3.Future<void> updateStoreSettings(_i18.StoreSettings storeSettings) =>
+  _i3.Future<void> updateStoreSettings(_i20.StoreSettings storeSettings) =>
       caller.callServerEndpoint<void>(
         'store',
         'updateStoreSettings',
@@ -634,31 +643,31 @@ class EndpointUser extends _i2.EndpointRef {
   @override
   String get name => 'user';
 
-  _i3.Future<_i19.User?> registerUser({String? profilePictureUrl}) =>
-      caller.callServerEndpoint<_i19.User?>(
+  _i3.Future<_i21.User?> registerUser({String? profilePictureUrl}) =>
+      caller.callServerEndpoint<_i21.User?>(
         'user',
         'registerUser',
         {'profilePictureUrl': profilePictureUrl},
       );
 
-  _i3.Future<_i19.User?> getCurrentUser() =>
-      caller.callServerEndpoint<_i19.User?>(
+  _i3.Future<_i21.User?> getCurrentUser() =>
+      caller.callServerEndpoint<_i21.User?>(
         'user',
         'getCurrentUser',
         {},
       );
 
-  _i3.Future<List<_i19.User>?> getAllUser() =>
-      caller.callServerEndpoint<List<_i19.User>?>(
+  _i3.Future<List<_i21.User>?> getAllUser() =>
+      caller.callServerEndpoint<List<_i21.User>?>(
         'user',
         'getAllUser',
         {},
       );
 
-  _i3.Future<_i19.User> updateUserRole(
+  _i3.Future<_i21.User> updateUserRole(
     int userId,
-    _i20.UserRole newRole,
-  ) => caller.callServerEndpoint<_i19.User>(
+    _i22.UserRole newRole,
+  ) => caller.callServerEndpoint<_i21.User>(
     'user',
     'updateUserRole',
     {
@@ -678,8 +687,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i21.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i21.Greeting>(
+  _i3.Future<_i23.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i23.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -689,13 +698,13 @@ class EndpointGreeting extends _i2.EndpointRef {
 class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _i1.Caller(client);
-    auth = _i22.Caller(client);
+    auth = _i24.Caller(client);
     serverpod_auth_core = _i4.Caller(client);
   }
 
   late final _i1.Caller serverpod_auth_idp;
 
-  late final _i22.Caller auth;
+  late final _i24.Caller auth;
 
   late final _i4.Caller serverpod_auth_core;
 }
@@ -720,7 +729,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i23.Protocol(),
+         _i25.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,

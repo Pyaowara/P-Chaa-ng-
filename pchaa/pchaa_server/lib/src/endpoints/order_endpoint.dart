@@ -177,12 +177,15 @@ class OrderEndpoint extends Endpoint {
     session.log("[OrderEndpoint] Fetched orders for userId: ${user.id}");
     return orders;
   }
-  Future <Map<String, int>> getEstimatedQueue(Session session) async {
+  Future<EstimatedQueue> getEstimatedQueue(Session session) async {
     await AuthUtils.allowedRoles(session, [UserRole.user, UserRole.owner]);
     var result = await OrderUtils.getEstimatedTimeForNewOrder(session);
-    return result;
+    return EstimatedQueue(
+      estimatedPrepTime: result['estimatedPrepTime']!,
+      queueLength: result['queueLength']!,
+    );
   }
-  Future<Map<String, dynamic>> getOrderById(Session session, int orderId) async {
+  Future<OrderWithEstimated> getOrderById(Session session, int orderId) async {
     final user = await AuthUtils.allowedRoles(session, [UserRole.user, UserRole.owner]);
     
     final order = await Order.db.findById(session, orderId);
@@ -197,16 +200,20 @@ class OrderEndpoint extends Endpoint {
       session,
       where: (t) => t.orderId.equals(orderId),
     );
-    var result = <String, dynamic>{};
-    result['order'] = order;
-    result['orderItems'] = orderItems;
+    int? estimatedPrepTime;
+    int? queueLength;
     if (order.type == OrderType.I && order.queueNumber != null && (order.status == OrderStatus.preparing || order.status == OrderStatus.confirmed)) {
       var estimated = await OrderUtils.calculateEstimatedPrepTime(session, orderId);
-      result['estimatedPrepTime'] = estimated['estimatedPrepTime'];
-      result['queueLength'] = estimated['queueLength'];
+      estimatedPrepTime = estimated['estimatedPrepTime'];
+      queueLength = estimated['queueLength'];
     }
     session.log("[OrderEndpoint] Fetched order with id: $orderId for userId: ${user.id}");
-    return result;
+    return OrderWithEstimated(
+      order: order,
+      orderItems: orderItems,
+      estimatedPrepTime: estimatedPrepTime,
+      queueLength: queueLength,
+    );
   }
 
   Future<List<OrderItem>> getOrderItems(Session session, int orderId) async {
@@ -275,6 +282,29 @@ class OrderEndpoint extends Endpoint {
     }
 
     session.log("[OrderEndpoint] Fetched today's order for date: $today");
+    return result;
+  }
+
+  Future<List<OrderWithUserName>> getFinishedOrder(Session session) async {
+    
+    final today = ThailandTimeUtils.getThailandDate();
+    final finishedOrders = await Order.db.find(
+      session,
+      where: (t) => t.orderDate.equals(today) & t.status.equals(OrderStatus.finished),
+      orderBy: (order) => order.queueNumber,
+    );
+
+    // Fetch user data for each order
+    var result = <OrderWithUserName>[];
+    for (var order in finishedOrders) {
+      final user = await User.db.findById(session, order.userId);
+      result.add(OrderWithUserName(
+        order: order,
+        userName: user?.fullName ?? 'Unknown User',
+      ));
+    }
+
+    session.log("[OrderEndpoint] Fetched finished orders for date: $today");
     return result;
   }
 
