@@ -996,6 +996,16 @@ class Endpoints extends _i1.EndpointDispatch {
               ) async => (endpoints['order'] as _i8.OrderEndpoint)
                   .getTodayOrder(session),
         ),
+        'getFinishedOrder': _i1.MethodConnector(
+          name: 'getFinishedOrder',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['order'] as _i8.OrderEndpoint)
+                  .getFinishedOrder(session),
+        ),
       },
     );
     connectors['queue'] = _i1.EndpointConnector(
