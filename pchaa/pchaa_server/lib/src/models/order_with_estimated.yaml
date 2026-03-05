@@ -1,0 +1,6 @@
+class: OrderWithEstimated
+fields:
+  order: Order
+  orderItems: List<OrderItem>
+  estimatedPrepTime: int?
+  queueLength: int?
