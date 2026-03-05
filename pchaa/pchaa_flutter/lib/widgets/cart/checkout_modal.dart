@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
 import 'package:pchaa_flutter/screens/customer_order_status.dart';
+import 'package:pchaa_flutter/screens/main_page.dart';
 import 'package:pchaa_flutter/services/app_services.dart';
 
 class CheckoutModal extends StatefulWidget {
@@ -29,22 +30,28 @@ class _CheckoutModalState extends State<CheckoutModal> {
   void _handleSend() async {
     final now = DateTime.now();
 
-    // await client.order.createOrder(
-    //   "",
-    //   _selectedOption == "immediate" ? OrderType.I : OrderType.S,
-    //   _selectedOption != 'immediate'
-    //       ? DateTime(
-    //           now.year,
-    //           now.month,
-    //           now.day,
-    //           _selectedTime!.hour,
-    //           _selectedTime!.minute,
-    //         )
-    //       : null,
-    // );
+    Order order = await client.order.createOrder(
+      _selectedOption == "immediate" ? OrderType.I : OrderType.S,
+      _selectedOption != 'immediate'
+          ? DateTime(
+              now.year,
+              now.month,
+              now.day,
+              _selectedTime!.hour,
+              _selectedTime!.minute,
+            )
+          : null,
+    );
+    
     Navigator.pop(context);
-    Order order = Order(userId: 1,id: 1, status: OrderStatus.received, type: OrderType.I, totalOrderPrice: 10,orderDate: DateTime.now());
-    Navigator.push(context, MaterialPageRoute(builder: (context) =>  CustomerOrderStatus(orderdetail: order,)));
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CustomerOrderStatus(orderdetail: order),
+      ),
+      (route) => route.isFirst, // Keep only the first route (MainPage)
+    );
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(

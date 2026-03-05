@@ -20,13 +20,36 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   bool isLoggedIn = googleAuthService.isLoggedIn;
   bool isOpen = isShopOpen;
+  List<Order> myOrders = [];
   StoreSettings store = settings;
 
   @override
   void initState() {
     super.initState();
     _fetchStoreStatus();
+    _fetchMyOrders();
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  
+
+  Future<void> _fetchMyOrders() async {
+    try {
+      final orders = await client.order.getMyOrders();
+      debugPrint("YO! $orders");
+      setState(() {
+        myOrders = orders;
+      });
+    } catch (e) {
+      debugPrint('Error fetching orders: $e');
+    }
+  }
+
+
 
   Future<void> _fetchStoreStatus() async {
     try {
@@ -56,12 +79,9 @@ class _MainPageState extends State<MainPage> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const OwnerMainPage()),
       );
+    }else{
+      _fetchMyOrders();
     }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override
@@ -83,7 +103,7 @@ class _MainPageState extends State<MainPage> {
                 },
               ),
 
-              const SizedBox(height: 5),
+              const SizedBox(height: 1),
 
               // Store status banner
               StoreStatusBanner(isOpen: isOpen),
@@ -144,11 +164,13 @@ class _MainPageState extends State<MainPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Queue section
-                    QueueSection(isOpen: isOpen, isLoggedIn: isLoggedIn),
+                    QueueSection(isOpen: isOpen, isLoggedIn: isLoggedIn,orders: myOrders,onNavigate: () {
+                      _fetchMyOrders();
+                    },),
                     if (isOpen) Expanded(child: SizedBox()),
 
                     // Menu button
-                    const MenuButton(),
+                    MenuButton(onNavigate: _fetchMyOrders)
                   ],
                 ),
               ),
