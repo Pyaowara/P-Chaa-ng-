@@ -32,7 +32,7 @@ class _AllQueuePageState extends State<AllQueuePage> {
       final orders = await client.order.getMyOrders();
       if (mounted) {
         setState(() {
-          _queueList = orders;
+          _queueList = orders.reversed.toList();
           _isLoading = false;
         });
       }

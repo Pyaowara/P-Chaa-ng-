@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
 import 'package:pchaa_flutter/constants/app_constants.dart';
+import 'package:pchaa_flutter/screens/customer_order_status.dart';
 import 'package:pchaa_flutter/screens/owner_main_page.dart';
 import 'package:pchaa_flutter/widgets/common/app_button.dart';
 import 'package:pchaa_flutter/widgets/main_page/main_page_header.dart';
@@ -11,7 +14,9 @@ import 'package:pchaa_flutter/widgets/queueready.dart';
 import '../services/app_services.dart';
 
 class MainPage extends StatefulWidget {
-  const MainPage({super.key});
+  final Order? orderToOpen;
+
+  const MainPage({super.key, this.orderToOpen});
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -22,17 +27,50 @@ class _MainPageState extends State<MainPage> {
   bool isOpen = isShopOpen;
   List<Order> myOrders = [];
   StoreSettings store = settings;
+  bool _didOpenInitialOrder = false;
+  Timer? _ordersRefreshTimer;
 
   @override
   void initState() {
     super.initState();
-    _fetchStoreStatus();
-    _fetchMyOrders();
+    _initializePage();
+    _startOrdersAutoRefresh();
   }
 
   @override
   void dispose() {
+    _ordersRefreshTimer?.cancel();
     super.dispose();
+  }
+
+  void _startOrdersAutoRefresh() {
+    _ordersRefreshTimer?.cancel();
+    _ordersRefreshTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      _fetchMyOrders();
+    });
+  }
+
+  Future<void> _initializePage() async {
+    await _fetchStoreStatus();
+    await _fetchMyOrders();
+
+    if (!mounted || _didOpenInitialOrder || widget.orderToOpen == null) {
+      return;
+    }
+
+    _didOpenInitialOrder = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Navigator.of(context)
+          .push(
+            MaterialPageRoute(
+              builder: (_) => CustomerOrderStatus(
+                orderid: widget.orderToOpen!.id!,
+              ),
+            ),
+          )
+          .then((_) => _fetchMyOrders());
+    });
   }
 
   
@@ -40,9 +78,9 @@ class _MainPageState extends State<MainPage> {
   Future<void> _fetchMyOrders() async {
     try {
       final orders = await client.order.getMyOrders();
-      debugPrint("YO! $orders");
+      if (!mounted) return;
       setState(() {
-        myOrders = orders;
+        myOrders = orders.reversed.toList();
       });
     } catch (e) {
       debugPrint('Error fetching orders: $e');
@@ -67,7 +105,6 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _updateLoginStatus() {
-    debugPrint("⚡ _updateLoginStatus called");
     setState(() {
       isLoggedIn = googleAuthService.isLoggedIn;
     });
@@ -79,7 +116,7 @@ class _MainPageState extends State<MainPage> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const OwnerMainPage()),
       );
-    }else{
+    } else {
       _fetchMyOrders();
     }
   }
@@ -97,9 +134,7 @@ class _MainPageState extends State<MainPage> {
                 isLoggedIn: isLoggedIn,
                 onLoginSuccess: _handleLoginSuccess,
                 onLogoutSuccess: () {
-                  setState(() {
-                    _updateLoginStatus();
-                  });
+                  _updateLoginStatus();
                 },
               ),
 
@@ -164,9 +199,14 @@ class _MainPageState extends State<MainPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Queue section
-                    QueueSection(isOpen: isOpen, isLoggedIn: isLoggedIn,orders: myOrders,onNavigate: () {
-                      _fetchMyOrders();
-                    },),
+                    QueueSection(
+                      isOpen: isOpen,
+                      isLoggedIn: isLoggedIn,
+                      orders: myOrders,
+                      onNavigate: () {
+                        _fetchMyOrders();
+                      },
+                    ),
                     if (isOpen) Expanded(child: SizedBox()),
 
                     // Menu button

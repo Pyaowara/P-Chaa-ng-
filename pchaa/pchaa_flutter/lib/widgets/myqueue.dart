@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
 import 'package:pchaa_flutter/screens/customer_order_status.dart';
-import 'package:pchaa_flutter/services/app_services.dart';
 import 'package:pchaa_flutter/screens/all_queue_page.dart';
 
 class Myqueue extends StatefulWidget {
@@ -133,7 +132,7 @@ class QueueListTile extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => CustomerOrderStatus(
-              orderdetail: order,
+              orderid: order.id!,
             ),
           ),
         ).then((_) {
@@ -179,7 +178,7 @@ class QueueListTile extends StatelessWidget {
             ],
           ),
           trailing: Text(
-            order.queueNumber ?? "0000",
+            order.queueNumber ?? "X000",
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 20,

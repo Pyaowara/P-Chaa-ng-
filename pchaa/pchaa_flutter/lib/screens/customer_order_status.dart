@@ -1,14 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
 import 'package:pchaa_flutter/services/app_services.dart';
-import 'package:pchaa_flutter/widgets/cart/cart_item_card.dart';
 import 'package:pchaa_flutter/widgets/order_manage/index.dart';
 import 'package:pchaa_flutter/widgets/order_status/order_status_icon.dart';
 import 'package:pchaa_flutter/widgets/order_status/order_status_stepper.dart';
 
 class CustomerOrderStatus extends StatefulWidget {
-  final Order orderdetail;
-  const CustomerOrderStatus({super.key, required this.orderdetail});
+  final int orderid;
+  const CustomerOrderStatus({super.key, required this.orderid});
 
   @override
   State<CustomerOrderStatus> createState() => _CustomerOrderStatusState();
@@ -17,44 +18,68 @@ class CustomerOrderStatus extends StatefulWidget {
 class _CustomerOrderStatusState extends State<CustomerOrderStatus> {
   Order? _orderdetail;
   List<OrderItem> _orderItemList = [];
+  int? _estimatedPrepTime;
+  int? _queueLength;
   bool _isLoadingOrderItems = true;
   String? _orderItemsError;
+  Timer? _refreshTimer;
 
-  Future<void> _fetchOrderItems() async {
-    setState(() {
-      _isLoadingOrderItems = true;
-      _orderItemsError = null;
-    });
+  Future<void> _fetchOrderItems({bool showLoading = true}) async {
+    if (showLoading) {
+      setState(() {
+        _isLoadingOrderItems = true;
+        _orderItemsError = null;
+      });
+    }
 
     try {
-      final orderitems = await client.order.getOrderItems(
-        widget.orderdetail.id!,
+      final orderfromid = await client.order.getOrderById(
+        widget.orderid,
       );
       if (mounted) {
         setState(() {
-          _orderItemList = orderitems;
+          _orderItemList = orderfromid.orderItems;
+          _orderdetail = orderfromid.order;
+          _estimatedPrepTime = orderfromid.estimatedPrepTime;
+          _queueLength = orderfromid.queueLength;
           _isLoadingOrderItems = false;
+          _orderItemsError = null;
         });
       }
     } catch (e) {
       debugPrint('Failed to fetch order items: $e');
       if (mounted) {
         setState(() {
-          _orderItemsError = 'ไม่สามารถโหลดรายการอาหารได้';
-          _isLoadingOrderItems = false;
+          if (_orderdetail == null) {
+            _orderItemsError = 'ไม่สามารถโหลดรายการอาหารได้';
+            _isLoadingOrderItems = false;
+          }
         });
       }
     }
   }
 
+  void _startAutoRefresh() {
+    _refreshTimer?.cancel();
+    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      _fetchOrderItems(showLoading: false);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    _orderdetail = widget.orderdetail;
     _fetchOrderItems();
+    _startAutoRefresh();
   }
 
-  void onCancelOrder() async {
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  void _onCancelOrder() async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -67,9 +92,13 @@ class _CustomerOrderStatusState extends State<CustomerOrderStatus> {
               child: Text('ไม่'),
             ),
             TextButton(
-              onPressed: () async{
+              onPressed: () async {
                 Navigator.of(context).pop();
-                Order neworderdetail = await client.order.cancelMyOrder(_orderdetail!.id!);
+
+                Order neworderdetail = await client.order.cancelMyOrder(
+                  widget.orderid,
+                );
+                if (!mounted) return;
                 setState(() {
                   _orderdetail = neworderdetail;
                 });
@@ -84,7 +113,46 @@ class _CustomerOrderStatusState extends State<CustomerOrderStatus> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(_orderdetail!.id.toString());
+    final hasQueueOrPrepInfo =
+        _queueLength != null || _estimatedPrepTime != null;
+
+    // Show loading state while fetching data
+    if (_isLoadingOrderItems) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            "รายการออเดอร์",
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // Show error state if data fetch failed
+    if (_orderItemsError != null || _orderdetail == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            "รายการออเดอร์",
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(_orderItemsError ?? 'ไม่พบข้อมูลออเดอร์'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => _fetchOrderItems(),
+                child: const Text('ลองใหม่'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         title: Column(
@@ -123,31 +191,15 @@ class _CustomerOrderStatusState extends State<CustomerOrderStatus> {
             Expanded(
               child: Container(
                 margin: EdgeInsets.only(top: 10),
-                child: _isLoadingOrderItems
-                    ? const Center(child: CircularProgressIndicator())
-                    : _orderItemsError != null
-                    ? Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(_orderItemsError!),
-                            const SizedBox(height: 8),
-                            TextButton(
-                              onPressed: _fetchOrderItems,
-                              child: const Text('ลองใหม่'),
-                            ),
-                          ],
-                        ),
-                      )
-                    : SingleChildScrollView(
-                        child: Column(
-                          children: List.generate(_orderItemList.length, (
-                            rowIndex,
-                          ) {
-                            return OrderItemCard(item: _orderItemList[rowIndex]);
-                          }),
-                        ),
-                      ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: List.generate(_orderItemList.length, (
+                      rowIndex,
+                    ) {
+                      return OrderItemCard(item: _orderItemList[rowIndex]);
+                    }),
+                  ),
+                ),
               ),
             ),
           ],
@@ -167,23 +219,29 @@ class _CustomerOrderStatusState extends State<CustomerOrderStatus> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
+                  Row(
+                    mainAxisAlignment: hasQueueOrPrepInfo
+                        ? MainAxisAlignment.spaceBetween
+                        : MainAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      if (hasQueueOrPrepInfo)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (_queueLength != null)
+                              Text("จำนวนคิวก่อนหน้า $_queueLength คิว"),
+                            if (_estimatedPrepTime != null)
+                              Text("เวลาประมาณ $_estimatedPrepTime นาที"),
+                          ],
+                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text("จำนวนคิวก่อนหน้า x คิว"),
                           Text(
                             "ราคารวม",
                             style: TextStyle(fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center,
                           ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("เวลาประมาณ xx นาที"),
                           Text(
                             '฿${_orderdetail?.totalOrderPrice}',
                             style: TextStyle(fontWeight: FontWeight.bold),
@@ -196,7 +254,9 @@ class _CustomerOrderStatusState extends State<CustomerOrderStatus> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: onCancelOrder,
+                      onPressed: _orderdetail!.status != OrderStatus.received
+                          ? _onCancelOrder
+                          : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         shape: RoundedRectangleBorder(
