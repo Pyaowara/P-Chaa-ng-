@@ -84,7 +84,7 @@ class OrderEndpoint extends Endpoint {
     if (order.status != OrderStatus.ordered) {
       throw Exception('Only orders with status "ordered" can be confirmed');
     }
-    order.status = OrderStatus.preparing;
+    order.status = OrderStatus.confirmed;
     final newQueueNumber = await QueueUtils.newQueue(session, order.type == OrderType.I ? 'i' : 's');
     order.queueNumber = "${order.type}${newQueueNumber.toString().padLeft(3, '0')}";
     await Order.db.update(session, [order]);
@@ -95,7 +95,7 @@ class OrderEndpoint extends Endpoint {
       session: session,
       userId: order.userId,
       order: order,
-      newStatus: OrderStatus.preparing,
+      newStatus: OrderStatus.confirmed,
     );
     
     return order;
@@ -120,7 +120,8 @@ class OrderEndpoint extends Endpoint {
     
     // Validate status transitions
     switch ((order.status, newStatus)) {
-      case (OrderStatus.ordered, OrderStatus.preparing):
+      case (OrderStatus.ordered, OrderStatus.confirmed):
+      case (OrderStatus.confirmed, OrderStatus.preparing):
       case (OrderStatus.preparing, OrderStatus.finished):
       case (OrderStatus.finished, OrderStatus.received):
       case (_, OrderStatus.cancelled):
