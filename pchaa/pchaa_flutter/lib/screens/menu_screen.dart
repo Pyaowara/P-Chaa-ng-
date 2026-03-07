@@ -326,7 +326,7 @@ class _MenuScreenState extends State<MenuScreen> {
                             ],
                           ),
                           Text(
-                            "฿${_cartTotalPrice}",
+                            "฿${_cartTotalPrice.toStringAsFixed(2)}",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 20,

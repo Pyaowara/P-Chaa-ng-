@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
 import 'package:pchaa_flutter/constants/app_constants.dart';
@@ -16,14 +18,22 @@ class _OrderListScreenState extends State<OrderListScreen> {
   final OwnerOrderService _orderService = OwnerOrderService();
   OrderType? _selectedType;
   OrderStatus? _selectedStatus;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
     _loadOrders();
+    _startAutoRefresh();
   }
 
-  Future<void> _loadOrders() async {
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadOrders({bool showLoading = true}) async {
     try {
       await _orderService.fetchTodayOrders();
       if (mounted) {
@@ -31,12 +41,19 @@ class _OrderListScreenState extends State<OrderListScreen> {
       }
     } catch (e) {
       debugPrint('Error loading orders: $e');
-      if (mounted) {
+      if (mounted && showLoading) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error loading orders: $e')),
         );
       }
     }
+  }
+
+  void _startAutoRefresh() {
+    _refreshTimer?.cancel();
+    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      _loadOrders(showLoading: false);
+    });
   }
 
   Future<void> _refreshOrders() async {

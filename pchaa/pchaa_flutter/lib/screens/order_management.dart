@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
 import 'package:pchaa_flutter/constants/app_constants.dart';
@@ -27,6 +29,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
   List<OrderItem> _orderItems = [];
   bool _isLoading = true;
   bool _isUpdating = false;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
@@ -36,12 +39,21 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
       _currentOrder = widget.order!;
     }
     _loadOrderDetails();
+    _startAutoRefresh();
   }
 
-  Future<void> _loadOrderDetails() async {
-    setState(() {
-      _isLoading = true;
-    });
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadOrderDetails({bool showLoading = true}) async {
+    if (showLoading) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
     try {
       final items = await _orderService.getOrderItems(widget.orderId);
       if (mounted) {
@@ -56,11 +68,20 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
         setState(() {
           _isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading order details: $e')),
-        );
+        if (showLoading) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error loading order details: $e')),
+          );
+        }
       }
     }
+  }
+
+  void _startAutoRefresh() {
+    _refreshTimer?.cancel();
+    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      _loadOrderDetails(showLoading: false);
+    });
   }
 
   void _showConfirmationDialog(OrderStatus newStatus) {

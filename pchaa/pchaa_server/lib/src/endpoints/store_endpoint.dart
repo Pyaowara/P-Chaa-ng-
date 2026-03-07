@@ -4,7 +4,7 @@ import '../utils/auth_utils.dart';
 
 class StoreEndpoint extends Endpoint {
   Future<StoreSettings> getStoreSettings(Session session) async {
-    await AuthUtils.allowedRoles(session, [UserRole.owner]);
+    // await AuthUtils.allowedRoles(session, [UserRole.owner]);
 
     var store = await StoreSettings.db.findFirstRow(session);
     if (store == null) {

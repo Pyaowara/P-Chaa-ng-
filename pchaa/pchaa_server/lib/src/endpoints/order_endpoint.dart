@@ -161,8 +161,8 @@ class OrderEndpoint extends Endpoint {
     if (order.userId != user.id!) {
       throw Exception('Access denied: Can\'t cancel order of another user');
     }
-    if (order.status != OrderStatus.ordered) {
-      throw Exception('Only orders with status "ordered" can be cancelled');
+    if (order.status == OrderStatus.received) {
+      throw Exception('Can not cancel order when order status is received');
     }
     order.status = OrderStatus.cancelled;
     await Order.db.update(session, [order]);
