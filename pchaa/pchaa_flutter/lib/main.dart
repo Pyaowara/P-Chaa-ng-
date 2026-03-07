@@ -37,7 +37,21 @@ void main() async {
     serverClientId: dotenv.env['GOOGLE_CLIENT_ID']!,
   );
   googleAuthService = GoogleAuthService(googleSignIn);
-  isShopOpen = false;
+  try {
+    final storeSettings = await client.store.getStoreSettings();
+    settings = storeSettings;
+    isShopOpen = storeSettings.isOpen;
+    debugPrint("sdsd $isShopOpen");
+  } catch (e) {
+    debugPrint('Store settings fetch skipped: $e');
+    isShopOpen = false;
+    settings = StoreSettings(
+      isOpen: false,
+      openTime: '07:00:00',
+      closeTime: '14:00:00',
+      autoOpenClose: false,
+    );
+  }
 
   // Restore previous login if user had signed in before
   await googleAuthService.restorePreviousSignIn();
@@ -74,20 +88,7 @@ void main() async {
   if (sessionManager.signedInUser != null) {
     await notificationService.registerTokenWithServer();
   }
-  try {
-    final storeSettings = await client.store.getStoreSettings();
-    isShopOpen = storeSettings.isOpen;
-    settings = storeSettings;
-  } catch (e) {
-    debugPrint('Store settings fetch skipped: $e');
-    isShopOpen = false;
-    settings = StoreSettings(
-      isOpen: false,
-      openTime: '07:00:00',
-      closeTime: '14:00:00',
-      autoOpenClose: false,
-    );
-  }
+
   debugPrint(
     "${googleAuthService.userData != null && googleAuthService.userData?.role == UserRole.user}",
   );

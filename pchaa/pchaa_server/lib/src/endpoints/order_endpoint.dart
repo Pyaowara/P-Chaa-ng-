@@ -61,7 +61,8 @@ class OrderEndpoint extends Endpoint {
         itemName: menuItem.name, 
         selectedOptions: cart.selectedOptions, 
         quantity: cart.quantity, 
-        finalPrice: cart.totalPrice
+        finalPrice: cart.totalPrice,
+        additionalMessage: cart.additionalMessage,
       );
       await OrderItem.db.insert(session, [orderItem]);
     }
@@ -160,8 +161,8 @@ class OrderEndpoint extends Endpoint {
     if (order.userId != user.id!) {
       throw Exception('Access denied: Can\'t cancel order of another user');
     }
-    if (order.status != OrderStatus.ordered) {
-      throw Exception('Only orders with status "ordered" can be cancelled');
+    if (order.status == OrderStatus.received) {
+      throw Exception('Can not cancel order when order status is received');
     }
     order.status = OrderStatus.cancelled;
     await Order.db.update(session, [order]);
@@ -179,12 +180,15 @@ class OrderEndpoint extends Endpoint {
     session.log("[OrderEndpoint] Fetched orders for userId: ${user.id}");
     return orders;
   }
-  Future <Map<String, int>> getEstimatedQueue(Session session) async {
+  Future<EstimatedQueue> getEstimatedQueue(Session session) async {
     await AuthUtils.allowedRoles(session, [UserRole.user, UserRole.owner]);
     var result = await OrderUtils.getEstimatedTimeForNewOrder(session);
-    return result;
+    return EstimatedQueue(
+      estimatedPrepTime: result['estimatedPrepTime']!,
+      queueLength: result['queueLength']!,
+    );
   }
-  Future<Map<String, dynamic>> getOrderById(Session session, int orderId) async {
+  Future<OrderWithEstimated> getOrderById(Session session, int orderId) async {
     final user = await AuthUtils.allowedRoles(session, [UserRole.user, UserRole.owner]);
     
     final order = await Order.db.findById(session, orderId);
@@ -199,16 +203,20 @@ class OrderEndpoint extends Endpoint {
       session,
       where: (t) => t.orderId.equals(orderId),
     );
-    var result = <String, dynamic>{};
-    result['order'] = order;
-    result['orderItems'] = orderItems;
+    int? estimatedPrepTime;
+    int? queueLength;
     if (order.type == OrderType.I && order.queueNumber != null && (order.status == OrderStatus.preparing || order.status == OrderStatus.confirmed)) {
       var estimated = await OrderUtils.calculateEstimatedPrepTime(session, orderId);
-      result['estimatedPrepTime'] = estimated['estimatedPrepTime'];
-      result['queueLength'] = estimated['queueLength'];
+      estimatedPrepTime = estimated['estimatedPrepTime'];
+      queueLength = estimated['queueLength'];
     }
     session.log("[OrderEndpoint] Fetched order with id: $orderId for userId: ${user.id}");
-    return result;
+    return OrderWithEstimated(
+      order: order,
+      orderItems: orderItems,
+      estimatedPrepTime: estimatedPrepTime,
+      queueLength: queueLength,
+    );
   }
 
   Future<List<OrderItem>> getOrderItems(Session session, int orderId) async {
@@ -230,7 +238,7 @@ class OrderEndpoint extends Endpoint {
     return orderItems;
   }
 
-  Future<List<Order>> getTodayOrder(Session session) async {
+  Future<List<OrderWithUserName>> getTodayOrder(Session session) async {
     await AuthUtils.allowedRoles(session, [UserRole.owner]);
     
     final today = ThailandTimeUtils.getThailandDate();
@@ -266,42 +274,42 @@ class OrderEndpoint extends Endpoint {
     );
     orders.addAll(cancelledOrder);
 
+    // Fetch user data for each order
+    var result = <OrderWithUserName>[];
+    for (var order in orders) {
+      final user = await User.db.findById(session, order.userId);
+      result.add(OrderWithUserName(
+        order: order,
+        userName: user?.fullName ?? 'Unknown User',
+      ));
+    }
+
     session.log("[OrderEndpoint] Fetched today's order for date: $today");
-    return orders;
+    return result;
   }
 
-  Future<List<Order>> getFinishedOrders(Session session, OrderType? type) async {
-    final today = ThailandTimeUtils.getThailandDate();
-    
-    final orders = await Order.db.find(
-      session,
-      where: (t) => type != null 
-        ? t.orderDate.equals(today) & t.status.equals(OrderStatus.finished) & t.type.equals(type)
-        : t.orderDate.equals(today) & t.status.equals(OrderStatus.finished),
-      orderBy: (order) => order.queueNumber,
-    );
-    session.log("[OrderEndpoint] Fetched finished orders of type: $type");
-    return orders;
-  }
-
-  Future<List<Order>> getTodayOrderByType(Session session, OrderType type, OrderStatus? status) async {
-    await AuthUtils.allowedRoles(session, [UserRole.owner]);
+  Future<List<OrderWithUserName>> getFinishedOrder(Session session) async {
     
     final today = ThailandTimeUtils.getThailandDate();
-    final orders = await Order.db.find(
+    final finishedOrders = await Order.db.find(
       session,
-      where: (t) => status != null 
-        ? t.orderDate.equals(today) & t.status.equals(status) & t.type.equals(type)
-        : t.orderDate.equals(today) & t.type.equals(type),
+      where: (t) => t.orderDate.equals(today) & t.status.equals(OrderStatus.finished),
       orderBy: (order) => order.queueNumber,
     );
-    
-    session.log("[OrderEndpoint] Fetched today's order of status: $status for date: $today");
-    return orders;
+
+    // Fetch user data for each order
+    var result = <OrderWithUserName>[];
+    for (var order in finishedOrders) {
+      final user = await User.db.findById(session, order.userId);
+      result.add(OrderWithUserName(
+        order: order,
+        userName: user?.fullName ?? 'Unknown User',
+      ));
+    }
+
+    session.log("[OrderEndpoint] Fetched finished orders for date: $today");
+    return result;
   }
 
- 
-
-
-
+  
 }

@@ -33,7 +33,7 @@ class _MenuScreenState extends State<MenuScreen> {
       _cartItemCount = cartService.items.length;
       _cartTotalPrice = cartService.items.fold(
         0,
-        (previousValue, element) => previousValue + element.totalPrice,
+        (previousValue, element) => previousValue + element.cart.totalPrice,
       );
     });
   }
@@ -326,7 +326,7 @@ class _MenuScreenState extends State<MenuScreen> {
                             ],
                           ),
                           Text(
-                            "฿${_cartTotalPrice}",
+                            "฿${_cartTotalPrice.toStringAsFixed(2)}",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 20,

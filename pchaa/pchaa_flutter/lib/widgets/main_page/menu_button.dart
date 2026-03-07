@@ -3,21 +3,24 @@ import 'package:pchaa_flutter/constants/app_constants.dart';
 import 'package:pchaa_flutter/screens/menu_screen.dart';
 
 class MenuButton extends StatelessWidget {
-  const MenuButton({super.key});
+  final VoidCallback? onNavigate;
+
+  const MenuButton({super.key, this.onNavigate});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.maxFinite,
-      margin: const EdgeInsets.all(20),
+      margin: const EdgeInsets.only(left: 20,right: 20,top: 10),
       child: ElevatedButton.icon(
-        onPressed: () {
+        onPressed: () async {
+          
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => const MenuScreen(),
             ),
-          );
+          ).then((_){onNavigate?.call();});
         },
         icon: const Icon(Icons.menu),
         label: const Text(

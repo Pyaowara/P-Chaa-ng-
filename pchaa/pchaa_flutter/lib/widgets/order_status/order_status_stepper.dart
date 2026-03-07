@@ -1,12 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:pchaa_client/pchaa_client.dart';
 
 class OrderStatusStepper extends StatelessWidget {
-  final int currentStep;
+  final OrderStatus orderStatus;
 
   const OrderStatusStepper({
     super.key,
-    required this.currentStep,
+    required this.orderStatus,
   });
+
+  int get currentStep {
+    switch (orderStatus) {
+      case OrderStatus.confirmed:
+        return 0;
+      case OrderStatus.preparing:
+        return 1;
+      case OrderStatus.finished:
+        return 2;
+      case OrderStatus.received:
+        return 3;
+      default:
+        return 0;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +73,7 @@ class OrderStatusStepper extends StatelessWidget {
                 children: [
                   _buildStep(
                     icon: Icons.shopping_bag,
-                    label: 'รับแล้ว',
+                    label: 'รับออเดอร์แล้ว',
                     isActive: currentStep >= 0,
                     stepNumber: 0,
                   ),
@@ -75,7 +91,7 @@ class OrderStatusStepper extends StatelessWidget {
                   ),
                   _buildStep(
                     icon: Icons.check,
-                    label: 'เรียบร้อย',
+                    label: 'รับแล้ว',
                     isActive: currentStep >= 3,
                     stepNumber: 3,
                   ),

@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:pchaa_flutter/services/app_services.dart';
 
 class Queueready extends StatefulWidget {
   const Queueready({super.key});
@@ -9,15 +12,9 @@ class Queueready extends StatefulWidget {
 }
 
 class _QueuereadyState extends State<Queueready> {
-  final List<String> items = [
-    "A001",
-    "A002",
-    "A003",
-    "A004",
-    "A005",
-    "A006",
-    "A007",
-  ];
+  List<String> items = [];
+  Timer? _refreshTimer;
+  bool _isLoading = true;
 
   final int rows = 2;
   final int columns = 3;
@@ -27,7 +24,74 @@ class _QueuereadyState extends State<Queueready> {
   final double verticalGap = 10;
 
   @override
+  void initState() {
+    super.initState();
+    _fetchFinishedOrders();
+    _startAutoRefresh();
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _fetchFinishedOrders() async {
+    try {
+      final finishedOrders = await client.order.getFinishedOrder();
+      if (mounted) {
+        setState(() {
+          items = finishedOrders.reversed
+              .map((order) => order.order.queueNumber ?? 'N/A')
+              .toList();
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Failed to fetch finished orders: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          items = [];
+        });
+      }
+    }
+  }
+
+  void _startAutoRefresh() {
+    _refreshTimer?.cancel();
+    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      _fetchFinishedOrders();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_isLoading || items.isEmpty) {
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20),
+        padding: EdgeInsets.all(5),
+        width: double.infinity,
+        height: 210,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
+          color: const Color(0xFFfbdf9d),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.5),
+              blurRadius: 10,
+              offset: const Offset(5, 4),
+            ),
+          ],
+        ),
+        child: Center(
+          child: _isLoading
+              ? CircularProgressIndicator()
+              : Text('ไม่มีออเดอร์ที่พร้อมเสริฟ'),
+        ),
+      );
+    }
+
     final int itemsPerSection = rows * columns;
     final int sectionCount = (items.length / itemsPerSection).ceil();
 

@@ -996,49 +996,15 @@ class Endpoints extends _i1.EndpointDispatch {
               ) async => (endpoints['order'] as _i8.OrderEndpoint)
                   .getTodayOrder(session),
         ),
-        'getFinishedOrders': _i1.MethodConnector(
-          name: 'getFinishedOrders',
-          params: {
-            'type': _i1.ParameterDescription(
-              name: 'type',
-              type: _i1.getType<_i15.OrderType?>(),
-              nullable: true,
-            ),
-          },
+        'getFinishedOrder': _i1.MethodConnector(
+          name: 'getFinishedOrder',
+          params: {},
           call:
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['order'] as _i8.OrderEndpoint).getFinishedOrders(
-                    session,
-                    params['type'],
-                  ),
-        ),
-        'getTodayOrderByType': _i1.MethodConnector(
-          name: 'getTodayOrderByType',
-          params: {
-            'type': _i1.ParameterDescription(
-              name: 'type',
-              type: _i1.getType<_i15.OrderType>(),
-              nullable: false,
-            ),
-            'status': _i1.ParameterDescription(
-              name: 'status',
-              type: _i1.getType<_i16.OrderStatus?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['order'] as _i8.OrderEndpoint).getTodayOrderByType(
-                    session,
-                    params['type'],
-                    params['status'],
-                  ),
+              ) async => (endpoints['order'] as _i8.OrderEndpoint)
+                  .getFinishedOrder(session),
         ),
       },
     );

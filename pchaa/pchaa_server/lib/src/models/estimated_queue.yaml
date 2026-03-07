@@ -1,0 +1,4 @@
+class: EstimatedQueue
+fields:
+  estimatedPrepTime: int
+  queueLength: int

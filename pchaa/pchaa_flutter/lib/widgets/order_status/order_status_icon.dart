@@ -3,8 +3,10 @@ import 'package:pchaa_client/pchaa_client.dart';
 import 'package:pchaa_flutter/widgets/order_status/order_status_stepper.dart';
 
 class OrderStatusIcon extends StatefulWidget {
+  final OrderStatus orderStatus;
   const OrderStatusIcon({
     super.key,
+    this.orderStatus = OrderStatus.ordered
   });
 
   @override
@@ -13,7 +15,7 @@ class OrderStatusIcon extends StatefulWidget {
 
 class _OrderStatusIconState extends State<OrderStatusIcon>
     with SingleTickerProviderStateMixin {
-  OrderStatus _status = OrderStatus.received;
+  
   late AnimationController _controller;
 
   @override
@@ -41,12 +43,12 @@ class _OrderStatusIconState extends State<OrderStatusIcon>
             margin: EdgeInsets.only(top: 10),
             padding: EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: _status == OrderStatus.received
+              color: widget.orderStatus == OrderStatus.ordered
                   ? Color(0xFFFACE68)
                   : Colors.red,
               shape: BoxShape.circle,
             ),
-            child: _status == OrderStatus.received
+            child: widget.orderStatus == OrderStatus.ordered
                 ? RotationTransition(
                     turns: _controller,
                     child: Icon(
@@ -62,10 +64,10 @@ class _OrderStatusIconState extends State<OrderStatusIcon>
                   ),
           ),
           Text(
-            _status == OrderStatus.received
+            widget.orderStatus == OrderStatus.ordered
                 ? "รอรับออเดอร์"
                 : "ออเดอร์ถูกยกเลิก",
-                style: TextStyle(fontWeight: FontWeight.bold,color: _status == OrderStatus.received
+                style: TextStyle(fontWeight: FontWeight.bold,color: widget.orderStatus == OrderStatus.ordered
                   ? Color.fromARGB(255, 196, 153, 54)
                   : Colors.red,fontSize: 18),
           ),

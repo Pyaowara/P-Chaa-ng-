@@ -16,23 +16,27 @@ import 'package:serverpod_client/serverpod_client.dart' as _i2;
 import 'dart:async' as _i3;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _i4;
-import 'package:pchaa_client/src/protocol/carts.dart' as _i5;
-import 'package:pchaa_client/src/protocol/selected_option.dart' as _i6;
-import 'package:pchaa_client/src/protocol/ingredient.dart' as _i7;
-import 'package:pchaa_client/src/protocol/menu_items.dart' as _i8;
-import 'package:pchaa_client/src/protocol/customization_group.dart' as _i9;
-import 'package:pchaa_client/src/protocol/menu_item_with_url.dart' as _i10;
-import 'package:pchaa_client/src/protocol/available_menu_item.dart' as _i11;
-import 'package:pchaa_client/src/protocol/orders.dart' as _i12;
-import 'package:pchaa_client/src/protocol/order_type.dart' as _i13;
-import 'package:pchaa_client/src/protocol/order_status.dart' as _i14;
-import 'package:pchaa_client/src/protocol/order_items.dart' as _i15;
-import 'package:pchaa_client/src/protocol/store_settings.dart' as _i16;
-import 'package:pchaa_client/src/protocol/users.dart' as _i17;
-import 'package:pchaa_client/src/protocol/user_role.dart' as _i18;
-import 'package:pchaa_client/src/protocol/greetings/greeting.dart' as _i19;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i20;
-import 'protocol.dart' as _i21;
+import 'package:pchaa_client/src/protocol/cart_detail.dart' as _i5;
+import 'package:pchaa_client/src/protocol/carts.dart' as _i6;
+import 'package:pchaa_client/src/protocol/selected_option.dart' as _i7;
+import 'package:pchaa_client/src/protocol/ingredient.dart' as _i8;
+import 'package:pchaa_client/src/protocol/menu_items.dart' as _i9;
+import 'package:pchaa_client/src/protocol/customization_group.dart' as _i10;
+import 'package:pchaa_client/src/protocol/menu_item_with_url.dart' as _i11;
+import 'package:pchaa_client/src/protocol/available_menu_item.dart' as _i12;
+import 'package:pchaa_client/src/protocol/orders.dart' as _i13;
+import 'package:pchaa_client/src/protocol/order_type.dart' as _i14;
+import 'package:pchaa_client/src/protocol/order_status.dart' as _i15;
+import 'package:pchaa_client/src/protocol/estimated_queue.dart' as _i16;
+import 'package:pchaa_client/src/protocol/order_with_estimated.dart' as _i17;
+import 'package:pchaa_client/src/protocol/order_items.dart' as _i18;
+import 'package:pchaa_client/src/protocol/order_with_user_name.dart' as _i19;
+import 'package:pchaa_client/src/protocol/store_settings.dart' as _i20;
+import 'package:pchaa_client/src/protocol/users.dart' as _i21;
+import 'package:pchaa_client/src/protocol/user_role.dart' as _i22;
+import 'package:pchaa_client/src/protocol/greetings/greeting.dart' as _i23;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i24;
+import 'protocol.dart' as _i25;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -255,26 +259,26 @@ class EndpointCart extends _i2.EndpointRef {
   @override
   String get name => 'cart';
 
-  _i3.Future<Map<String, dynamic>> getMyCart() =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
+  _i3.Future<List<_i5.CartDetail>> getMyCart() =>
+      caller.callServerEndpoint<List<_i5.CartDetail>>(
         'cart',
         'getMyCart',
         {},
       );
 
-  _i3.Future<_i5.Cart> getCartById(int cartId) =>
-      caller.callServerEndpoint<_i5.Cart>(
+  _i3.Future<_i6.Cart> getCartById(int cartId) =>
+      caller.callServerEndpoint<_i6.Cart>(
         'cart',
         'getCartById',
         {'cartId': cartId},
       );
 
-  _i3.Future<_i5.Cart> createCart(
+  _i3.Future<_i6.Cart> createCart(
     int menuItemId,
-    List<_i6.SelectedOption> selectedOptions,
+    List<_i7.SelectedOption> selectedOptions,
     int quantity,
     String? additionalMessage,
-  ) => caller.callServerEndpoint<_i5.Cart>(
+  ) => caller.callServerEndpoint<_i6.Cart>(
     'cart',
     'createCart',
     {
@@ -285,12 +289,12 @@ class EndpointCart extends _i2.EndpointRef {
     },
   );
 
-  _i3.Future<_i5.Cart> updateCart(
+  _i3.Future<_i6.Cart> updateCart(
     int cartId,
-    List<_i6.SelectedOption> selectedOptions,
+    List<_i7.SelectedOption> selectedOptions,
     int quantity,
     String? additionalMessage,
-  ) => caller.callServerEndpoint<_i5.Cart>(
+  ) => caller.callServerEndpoint<_i6.Cart>(
     'cart',
     'updateCart',
     {
@@ -321,10 +325,10 @@ class EndpointIngredient extends _i2.EndpointRef {
   @override
   String get name => 'ingredient';
 
-  _i3.Future<_i7.Ingredient> createIngredient(
+  _i3.Future<_i8.Ingredient> createIngredient(
     String name,
     bool isAvailable,
-  ) => caller.callServerEndpoint<_i7.Ingredient>(
+  ) => caller.callServerEndpoint<_i8.Ingredient>(
     'ingredient',
     'createIngredient',
     {
@@ -333,25 +337,25 @@ class EndpointIngredient extends _i2.EndpointRef {
     },
   );
 
-  _i3.Future<List<_i7.Ingredient>> getAllIngredients() =>
-      caller.callServerEndpoint<List<_i7.Ingredient>>(
+  _i3.Future<List<_i8.Ingredient>> getAllIngredients() =>
+      caller.callServerEndpoint<List<_i8.Ingredient>>(
         'ingredient',
         'getAllIngredients',
         {},
       );
 
-  _i3.Future<_i7.Ingredient?> getIngredientById(int id) =>
-      caller.callServerEndpoint<_i7.Ingredient?>(
+  _i3.Future<_i8.Ingredient?> getIngredientById(int id) =>
+      caller.callServerEndpoint<_i8.Ingredient?>(
         'ingredient',
         'getIngredientById',
         {'id': id},
       );
 
-  _i3.Future<_i7.Ingredient> updateIngredient(
+  _i3.Future<_i8.Ingredient> updateIngredient(
     int id,
     String? name,
     bool? isAvailable,
-  ) => caller.callServerEndpoint<_i7.Ingredient>(
+  ) => caller.callServerEndpoint<_i8.Ingredient>(
     'ingredient',
     'updateIngredient',
     {
@@ -375,17 +379,17 @@ class EndpointMenuItem extends _i2.EndpointRef {
   @override
   String get name => 'menuItem';
 
-  _i3.Future<_i8.MenuItem> createMenuItem(
+  _i3.Future<_i9.MenuItem> createMenuItem(
     String name,
     double basePrice,
     int timeToPrepare,
-    List<_i9.CustomizationGroup> customization,
+    List<_i10.CustomizationGroup> customization,
     bool isAvailable,
     List<int>? ingredientIds,
     String? imageDataBase64,
     String? imageFileName,
     String? imageContentType,
-  ) => caller.callServerEndpoint<_i8.MenuItem>(
+  ) => caller.callServerEndpoint<_i9.MenuItem>(
     'menuItem',
     'createMenuItem',
     {
@@ -401,47 +405,47 @@ class EndpointMenuItem extends _i2.EndpointRef {
     },
   );
 
-  _i3.Future<List<_i10.MenuItemWithUrl>> getAllMenuItems() =>
-      caller.callServerEndpoint<List<_i10.MenuItemWithUrl>>(
+  _i3.Future<List<_i11.MenuItemWithUrl>> getAllMenuItems() =>
+      caller.callServerEndpoint<List<_i11.MenuItemWithUrl>>(
         'menuItem',
         'getAllMenuItems',
         {},
       );
 
-  _i3.Future<_i10.MenuItemWithUrl?> getMenuItemById(int id) =>
-      caller.callServerEndpoint<_i10.MenuItemWithUrl?>(
+  _i3.Future<_i11.MenuItemWithUrl?> getMenuItemById(int id) =>
+      caller.callServerEndpoint<_i11.MenuItemWithUrl?>(
         'menuItem',
         'getMenuItemById',
         {'id': id},
       );
 
-  _i3.Future<List<_i11.AvailableMenuItem>> getAllAvailableMenuItems() =>
-      caller.callServerEndpoint<List<_i11.AvailableMenuItem>>(
+  _i3.Future<List<_i12.AvailableMenuItem>> getAllAvailableMenuItems() =>
+      caller.callServerEndpoint<List<_i12.AvailableMenuItem>>(
         'menuItem',
         'getAllAvailableMenuItems',
         {},
       );
 
-  _i3.Future<_i11.AvailableMenuItem?> getAvailableMenuItemById(int id) =>
-      caller.callServerEndpoint<_i11.AvailableMenuItem?>(
+  _i3.Future<_i12.AvailableMenuItem?> getAvailableMenuItemById(int id) =>
+      caller.callServerEndpoint<_i12.AvailableMenuItem?>(
         'menuItem',
         'getAvailableMenuItemById',
         {'id': id},
       );
 
-  _i3.Future<_i8.MenuItem> updateMenuItem(
+  _i3.Future<_i9.MenuItem> updateMenuItem(
     int id,
     String? name,
     double? basePrice,
     int? timeToPrepare,
-    List<_i9.CustomizationGroup>? customization,
+    List<_i10.CustomizationGroup>? customization,
     bool? isAvailable,
     List<int>? ingredientIds,
     bool? removeImage,
     String? imageDataBase64,
     String? imageFileName,
     String? imageContentType,
-  ) => caller.callServerEndpoint<_i8.MenuItem>(
+  ) => caller.callServerEndpoint<_i9.MenuItem>(
     'menuItem',
     'updateMenuItem',
     {
@@ -505,10 +509,10 @@ class EndpointOrder extends _i2.EndpointRef {
   @override
   String get name => 'order';
 
-  _i3.Future<_i12.Order> createOrder(
-    _i13.OrderType orderType,
+  _i3.Future<_i13.Order> createOrder(
+    _i14.OrderType orderType,
     DateTime? pickupTime,
-  ) => caller.callServerEndpoint<_i12.Order>(
+  ) => caller.callServerEndpoint<_i13.Order>(
     'order',
     'createOrder',
     {
@@ -517,18 +521,18 @@ class EndpointOrder extends _i2.EndpointRef {
     },
   );
 
-  _i3.Future<_i12.Order> confirmOrder(int orderId) =>
-      caller.callServerEndpoint<_i12.Order>(
+  _i3.Future<_i13.Order> confirmOrder(int orderId) =>
+      caller.callServerEndpoint<_i13.Order>(
         'order',
         'confirmOrder',
         {'orderId': orderId},
       );
 
-  _i3.Future<_i12.Order> updateOrderStatus(
+  _i3.Future<_i13.Order> updateOrderStatus(
     int orderId,
-    _i14.OrderStatus newStatus,
+    _i15.OrderStatus newStatus,
     String? replymessage,
-  ) => caller.callServerEndpoint<_i12.Order>(
+  ) => caller.callServerEndpoint<_i13.Order>(
     'order',
     'updateOrderStatus',
     {
@@ -538,66 +542,54 @@ class EndpointOrder extends _i2.EndpointRef {
     },
   );
 
-  _i3.Future<_i12.Order> cancelMyOrder(int orderId) =>
-      caller.callServerEndpoint<_i12.Order>(
+  _i3.Future<_i13.Order> cancelMyOrder(int orderId) =>
+      caller.callServerEndpoint<_i13.Order>(
         'order',
         'cancelMyOrder',
         {'orderId': orderId},
       );
 
-  _i3.Future<List<_i12.Order>> getMyOrders() =>
-      caller.callServerEndpoint<List<_i12.Order>>(
+  _i3.Future<List<_i13.Order>> getMyOrders() =>
+      caller.callServerEndpoint<List<_i13.Order>>(
         'order',
         'getMyOrders',
         {},
       );
 
-  _i3.Future<Map<String, int>> getEstimatedQueue() =>
-      caller.callServerEndpoint<Map<String, int>>(
+  _i3.Future<_i16.EstimatedQueue> getEstimatedQueue() =>
+      caller.callServerEndpoint<_i16.EstimatedQueue>(
         'order',
         'getEstimatedQueue',
         {},
       );
 
-  _i3.Future<Map<String, dynamic>> getOrderById(int orderId) =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
+  _i3.Future<_i17.OrderWithEstimated> getOrderById(int orderId) =>
+      caller.callServerEndpoint<_i17.OrderWithEstimated>(
         'order',
         'getOrderById',
         {'orderId': orderId},
       );
 
-  _i3.Future<List<_i15.OrderItem>> getOrderItems(int orderId) =>
-      caller.callServerEndpoint<List<_i15.OrderItem>>(
+  _i3.Future<List<_i18.OrderItem>> getOrderItems(int orderId) =>
+      caller.callServerEndpoint<List<_i18.OrderItem>>(
         'order',
         'getOrderItems',
         {'orderId': orderId},
       );
 
-  _i3.Future<List<_i12.Order>> getTodayOrder() =>
-      caller.callServerEndpoint<List<_i12.Order>>(
+  _i3.Future<List<_i19.OrderWithUserName>> getTodayOrder() =>
+      caller.callServerEndpoint<List<_i19.OrderWithUserName>>(
         'order',
         'getTodayOrder',
         {},
       );
 
-  _i3.Future<List<_i12.Order>> getFinishedOrders(_i13.OrderType? type) =>
-      caller.callServerEndpoint<List<_i12.Order>>(
+  _i3.Future<List<_i19.OrderWithUserName>> getFinishedOrder() =>
+      caller.callServerEndpoint<List<_i19.OrderWithUserName>>(
         'order',
-        'getFinishedOrders',
-        {'type': type},
+        'getFinishedOrder',
+        {},
       );
-
-  _i3.Future<List<_i12.Order>> getTodayOrderByType(
-    _i13.OrderType type,
-    _i14.OrderStatus? status,
-  ) => caller.callServerEndpoint<List<_i12.Order>>(
-    'order',
-    'getTodayOrderByType',
-    {
-      'type': type,
-      'status': status,
-    },
-  );
 }
 
 /// {@category Endpoint}
@@ -622,8 +614,8 @@ class EndpointStore extends _i2.EndpointRef {
   @override
   String get name => 'store';
 
-  _i3.Future<_i16.StoreSettings> getStoreSettings() =>
-      caller.callServerEndpoint<_i16.StoreSettings>(
+  _i3.Future<_i20.StoreSettings> getStoreSettings() =>
+      caller.callServerEndpoint<_i20.StoreSettings>(
         'store',
         'getStoreSettings',
         {},
@@ -636,7 +628,7 @@ class EndpointStore extends _i2.EndpointRef {
         {'isOpen': isOpen},
       );
 
-  _i3.Future<void> updateStoreSettings(_i16.StoreSettings storeSettings) =>
+  _i3.Future<void> updateStoreSettings(_i20.StoreSettings storeSettings) =>
       caller.callServerEndpoint<void>(
         'store',
         'updateStoreSettings',
@@ -651,31 +643,31 @@ class EndpointUser extends _i2.EndpointRef {
   @override
   String get name => 'user';
 
-  _i3.Future<_i17.User?> registerUser({String? profilePictureUrl}) =>
-      caller.callServerEndpoint<_i17.User?>(
+  _i3.Future<_i21.User?> registerUser({String? profilePictureUrl}) =>
+      caller.callServerEndpoint<_i21.User?>(
         'user',
         'registerUser',
         {'profilePictureUrl': profilePictureUrl},
       );
 
-  _i3.Future<_i17.User?> getCurrentUser() =>
-      caller.callServerEndpoint<_i17.User?>(
+  _i3.Future<_i21.User?> getCurrentUser() =>
+      caller.callServerEndpoint<_i21.User?>(
         'user',
         'getCurrentUser',
         {},
       );
 
-  _i3.Future<List<_i17.User>?> getAllUser() =>
-      caller.callServerEndpoint<List<_i17.User>?>(
+  _i3.Future<List<_i21.User>?> getAllUser() =>
+      caller.callServerEndpoint<List<_i21.User>?>(
         'user',
         'getAllUser',
         {},
       );
 
-  _i3.Future<_i17.User> updateUserRole(
+  _i3.Future<_i21.User> updateUserRole(
     int userId,
-    _i18.UserRole newRole,
-  ) => caller.callServerEndpoint<_i17.User>(
+    _i22.UserRole newRole,
+  ) => caller.callServerEndpoint<_i21.User>(
     'user',
     'updateUserRole',
     {
@@ -695,8 +687,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i19.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i19.Greeting>(
+  _i3.Future<_i23.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i23.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -706,13 +698,13 @@ class EndpointGreeting extends _i2.EndpointRef {
 class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _i1.Caller(client);
-    auth = _i20.Caller(client);
+    auth = _i24.Caller(client);
     serverpod_auth_core = _i4.Caller(client);
   }
 
   late final _i1.Caller serverpod_auth_idp;
 
-  late final _i20.Caller auth;
+  late final _i24.Caller auth;
 
   late final _i4.Caller serverpod_auth_core;
 }
@@ -737,7 +729,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i21.Protocol(),
+         _i25.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
