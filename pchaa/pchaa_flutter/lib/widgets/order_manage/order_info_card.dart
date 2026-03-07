@@ -118,13 +118,6 @@ class OrderInfoCard extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                    Text(
-                      'ID: ${order.userId}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
-                    ),
                   ],
                 ),
               ],
