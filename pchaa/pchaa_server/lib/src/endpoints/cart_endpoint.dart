@@ -3,6 +3,7 @@ import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart';
 import '../utils/auth_utils.dart';
 import '../utils/menu_items_utils.dart';
+import '../utils/s3_utils.dart';
 
 class CartEndpoint extends Endpoint {
 
@@ -19,9 +20,14 @@ class CartEndpoint extends Endpoint {
     for (var cart in carts) {
       final menuItem = await MenuItem.db.findById(session, cart.menuItemId);
       final menuItemName = menuItem?.name ?? "Unknown Item";
+      var imageUrl = "";
+      if (menuItem?.s3Key != null) {
+        imageUrl = S3Utils.getMenuImageUrl(session, menuItem!.s3Key!);
+      }
       result.add(CartDetail(
         cart: cart,
         menuItemName: menuItemName,
+        imageUrl: imageUrl,
       ));
     }
     

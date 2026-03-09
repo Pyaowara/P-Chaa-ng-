@@ -10,7 +10,7 @@ import 'package:pchaa_flutter/widgets/main_page/main_page_header.dart';
 import 'package:pchaa_flutter/widgets/main_page/store_status_banner.dart';
 import 'package:pchaa_flutter/widgets/main_page/queue_section.dart';
 import 'package:pchaa_flutter/widgets/main_page/menu_button.dart';
-import 'package:pchaa_flutter/widgets/queueready.dart';
+import 'package:pchaa_flutter/widgets/queue/queueready.dart';
 import '../services/app_services.dart';
 
 class MainPage extends StatefulWidget {
@@ -200,7 +200,7 @@ class _MainPageState extends State<MainPage> {
                 ),
               ),
               child: Container(
-                margin: EdgeInsets.only(top: 20, left: 10, right: 10),
+                margin: EdgeInsets.only(top: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

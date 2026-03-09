@@ -93,7 +93,7 @@ class MyqueueState extends State<Myqueue> {
                       );
                     },
                     child: Padding(
-                      padding: const EdgeInsets.all(1.0),
+                      padding: const EdgeInsets.only(top: 10),
                       child: Text(
                         "See All>>>",
                         style: TextStyle(
@@ -178,7 +178,7 @@ class QueueListTile extends StatelessWidget {
             ],
           ),
           trailing: Text(
-            order.queueNumber ?? "X000",
+            order.queueNumber ?? "",
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 20,

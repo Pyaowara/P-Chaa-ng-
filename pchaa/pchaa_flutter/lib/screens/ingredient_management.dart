@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
 import 'package:pchaa_flutter/services/ingredient_services.dart';
-import 'package:pchaa_flutter/widgets/ingredient_modal.dart';
-import 'package:pchaa_flutter/widgets/ingredient_list.dart';
+import 'package:pchaa_flutter/widgets/ingredient/ingredient_modal.dart';
+import 'package:pchaa_flutter/widgets/ingredient/ingredient_list.dart';
 
 class IngredientManagementPage extends StatefulWidget {
   const IngredientManagementPage({super.key});

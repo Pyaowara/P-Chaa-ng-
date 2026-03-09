@@ -175,6 +175,7 @@ class _CartListState extends State<CartList> {
           return CartItemCard(
             cartItem: cartDetail.cart,
             menuItemName: cartDetail.menuItemName,
+            rawimageUrl: cartDetail.imageUrl!,
             onDismissed: () => _removeCartItem(cartDetail.cart.id!),
           );
         },

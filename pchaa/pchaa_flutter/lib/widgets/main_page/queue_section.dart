@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
-import 'package:pchaa_flutter/widgets/myqueue.dart';
-import 'package:pchaa_flutter/widgets/queueready.dart';
+import 'package:pchaa_flutter/widgets/queue/myqueue.dart';
+import 'package:pchaa_flutter/widgets/queue/queueready.dart';
 
 class QueueSection extends StatefulWidget {
   final bool isOpen;
@@ -45,7 +45,7 @@ class _QueueSectionState extends State<QueueSection> {
 
     return Myqueue(
       onNavigate: widget.onNavigate,
-      limit: 3,
+      limit: 2,
       queueList: widget.orders,
     );
   }
