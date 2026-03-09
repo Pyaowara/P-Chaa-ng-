@@ -142,7 +142,7 @@ class _MainPageState extends State<MainPage> {
               const SizedBox(height: 1),
 
               // Store status banner
-              StoreStatusBanner(isOpen: isOpen),
+              StoreStatusBanner(isOpen: isOpen, store: store),
 
               // Owner admin button
               if (isLoggedIn &&

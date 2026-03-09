@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_flutter/constants/app_constants.dart';
 import 'package:pchaa_flutter/services/app_services.dart';
+import 'package:pchaa_client/pchaa_client.dart';
 
 class StoreStatusBanner extends StatelessWidget {
   final bool isOpen;
+  final StoreSettings store;
 
   const StoreStatusBanner({
     super.key,
     required this.isOpen,
+    required this.store,
   });
 
   @override
@@ -43,7 +46,7 @@ class StoreStatusBanner extends StatelessWidget {
             right: 10,
             bottom: 1,
             child: Text(
-              "เปิด ${settings.openTime.substring(0, 5)} - ${settings.closeTime.substring(0, 5)}",
+              "เปิด ${store.openTime.substring(0, 5)} - ${store.closeTime.substring(0, 5)}",
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
