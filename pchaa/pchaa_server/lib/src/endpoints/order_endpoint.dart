@@ -131,10 +131,8 @@ class OrderEndpoint extends Endpoint {
     }
     
     order.status = newStatus;
-    if (newStatus == OrderStatus.cancelled) {
-      order.replyMessage = replymessage?.isNotEmpty == true 
-          ? replymessage 
-          : "Your order has been cancelled by the owner.";
+    if (newStatus == OrderStatus.cancelled && replymessage?.isNotEmpty == true) {
+      order.replyMessage = replymessage;
     }
     
     await Order.db.update(session, [order]);
@@ -249,30 +247,36 @@ class OrderEndpoint extends Endpoint {
       where: (t) => t.orderDate.equals(today) & t.status.equals(OrderStatus.ordered),
       orderBy: (order) => order.createdAt,
     );
-    orders.addAll(orderedOrder);
+    final orderConfirmed = await Order.db.find(
+      session,
+      where: (t) => t.orderDate.equals(today) & t.status.equals(OrderStatus.confirmed),
+      orderBy: (order) => order.queueNumber,
+    );
     final preparingOrder = await Order.db.find(
       session,
       where: (t) => t.orderDate.equals(today) & t.status.equals(OrderStatus.preparing),
       orderBy: (order) => order.queueNumber,
     );
-    orders.addAll(preparingOrder);
     final finishedOrder = await Order.db.find(
       session,
       where: (t) => t.orderDate.equals(today) & t.status.equals(OrderStatus.finished),
       orderBy: (order) => order.queueNumber,
     );
-    orders.addAll(finishedOrder);
     final receivedOrder = await Order.db.find(
       session,
       where: (t) => t.orderDate.equals(today) & t.status.equals(OrderStatus.received),
       orderBy: (order) => order.queueNumber,
     );
-    orders.addAll(receivedOrder);
     final cancelledOrder = await Order.db.find(
       session,
       where: (t) => t.orderDate.equals(today) & t.status.equals(OrderStatus.cancelled),
       orderBy: (order) => order.createdAt,
     );
+    orders.addAll(orderedOrder);
+    orders.addAll(orderConfirmed);
+    orders.addAll(preparingOrder);
+    orders.addAll(finishedOrder);
+    orders.addAll(receivedOrder);
     orders.addAll(cancelledOrder);
 
     // Fetch user data for each order

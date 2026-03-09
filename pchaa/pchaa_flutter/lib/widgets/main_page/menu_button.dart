@@ -11,7 +11,7 @@ class MenuButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.maxFinite,
-      margin: const EdgeInsets.only(left: 20,right: 20,top: 10),
+      margin: const EdgeInsets.only(top: 10),
       child: ElevatedButton.icon(
         onPressed: () async {
           
@@ -35,7 +35,7 @@ class MenuButton extends StatelessWidget {
           foregroundColor: Colors.black,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.medium),
+            borderRadius: BorderRadius.circular(0),
           ),
         ),
       ),

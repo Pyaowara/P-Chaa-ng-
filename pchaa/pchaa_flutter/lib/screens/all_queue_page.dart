@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
 import 'package:pchaa_flutter/services/app_services.dart';
-import 'package:pchaa_flutter/widgets/myqueue.dart';
+import 'package:pchaa_flutter/widgets/queue/myqueue.dart';
 
 class AllQueuePage extends StatefulWidget {
   const AllQueuePage({super.key});

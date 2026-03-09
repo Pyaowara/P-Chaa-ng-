@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
-import 'package:pchaa_flutter/widgets/myqueue.dart';
-import 'package:pchaa_flutter/widgets/queueready.dart';
+import 'package:pchaa_flutter/widgets/queue/myqueue.dart';
+import 'package:pchaa_flutter/widgets/queue/queueready.dart';
 
 class QueueSection extends StatefulWidget {
   final bool isOpen;

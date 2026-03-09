@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pchaa_client/pchaa_client.dart';
-import '../services/app_services.dart';
-import '../services/cart_service.dart';
+import '../../services/app_services.dart';
+import '../../services/cart_service.dart';
 
 class GoogleLoginButton extends StatefulWidget {
   final Function()? onLoginSuccess;
@@ -53,12 +53,12 @@ class _GoogleLoginButtonState extends State<GoogleLoginButton> {
       await googleAuthService.fetchUserData();
 
       // Register FCM token and send login notification
-      await notificationService.registerTokenWithServer();
-      try {
-        await client.notification.sendLoginNotification();
-      } catch (e) {
-        debugPrint('Login notification failed: $e');
-      }
+      // await notificationService.registerTokenWithServer();
+      // try {
+      //   await client.notification.sendLoginNotification();
+      // } catch (e) {
+      //   debugPrint('Login notification failed: $e');
+      // }
 
       cartService = CartService();
       if (googleAuthService.userData?.role == UserRole.user) {

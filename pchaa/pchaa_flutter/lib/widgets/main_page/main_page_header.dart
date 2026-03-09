@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_flutter/services/app_services.dart';
-import 'package:pchaa_flutter/widgets/google_login_button.dart';
+import 'package:pchaa_flutter/widgets/common/google_login_button.dart';
 
 class MainPageHeader extends StatelessWidget {
   final bool isLoggedIn;

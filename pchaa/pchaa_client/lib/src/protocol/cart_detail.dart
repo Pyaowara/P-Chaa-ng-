@@ -18,17 +18,20 @@ abstract class CartDetail implements _i1.SerializableModel {
   CartDetail._({
     required this.cart,
     required this.menuItemName,
+    required this.imageUrl,
   });
 
   factory CartDetail({
     required _i2.Cart cart,
     required String menuItemName,
+    required String imageUrl,
   }) = _CartDetailImpl;
 
   factory CartDetail.fromJson(Map<String, dynamic> jsonSerialization) {
     return CartDetail(
       cart: _i3.Protocol().deserialize<_i2.Cart>(jsonSerialization['cart']),
       menuItemName: jsonSerialization['menuItemName'] as String,
+      imageUrl: jsonSerialization['imageUrl'] as String,
     );
   }
 
@@ -36,12 +39,15 @@ abstract class CartDetail implements _i1.SerializableModel {
 
   String menuItemName;
 
+  String imageUrl;
+
   /// Returns a shallow copy of this [CartDetail]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   CartDetail copyWith({
     _i2.Cart? cart,
     String? menuItemName,
+    String? imageUrl,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -49,6 +55,7 @@ abstract class CartDetail implements _i1.SerializableModel {
       '__className__': 'CartDetail',
       'cart': cart.toJson(),
       'menuItemName': menuItemName,
+      'imageUrl': imageUrl,
     };
   }
 
@@ -62,9 +69,11 @@ class _CartDetailImpl extends CartDetail {
   _CartDetailImpl({
     required _i2.Cart cart,
     required String menuItemName,
+    required String imageUrl,
   }) : super._(
          cart: cart,
          menuItemName: menuItemName,
+         imageUrl: imageUrl,
        );
 
   /// Returns a shallow copy of this [CartDetail]
@@ -74,10 +83,12 @@ class _CartDetailImpl extends CartDetail {
   CartDetail copyWith({
     _i2.Cart? cart,
     String? menuItemName,
+    String? imageUrl,
   }) {
     return CartDetail(
       cart: cart ?? this.cart.copyWith(),
       menuItemName: menuItemName ?? this.menuItemName,
+      imageUrl: imageUrl ?? this.imageUrl,
     );
   }
 }

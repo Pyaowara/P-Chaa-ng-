@@ -6,6 +6,8 @@ import 'package:pchaa_flutter/services/app_services.dart';
 import 'package:pchaa_flutter/widgets/order_manage/index.dart';
 import 'package:pchaa_flutter/widgets/order_status/order_status_icon.dart';
 import 'package:pchaa_flutter/widgets/order_status/order_status_stepper.dart';
+import 'package:pchaa_flutter/widgets/order_status/order_status_bottom_bar.dart';
+import 'package:pchaa_flutter/widgets/order_status/order_cancellation_reason.dart';
 
 class CustomerOrderStatus extends StatefulWidget {
   final int orderid;
@@ -113,9 +115,6 @@ class _CustomerOrderStatusState extends State<CustomerOrderStatus> {
 
   @override
   Widget build(BuildContext context) {
-    final hasQueueOrPrepInfo =
-        _queueLength != null || _estimatedPrepTime != null;
-
     // Show loading state while fetching data
     if (_isLoadingOrderItems) {
       return Scaffold(
@@ -184,7 +183,9 @@ class _CustomerOrderStatusState extends State<CustomerOrderStatus> {
               height: 20,
             ),
             if (_orderdetail!.replyMessage != null)
-              Container(padding: EdgeInsets.all(10),decoration: BoxDecoration(borderRadius: BorderRadius.circular(16),color: Color.fromARGB(255, 255, 241, 133)),child: Row(spacing: 10,children: [Icon(Icons.warning,color: Colors.black.withAlpha(120)),Text("สาเหตุที่ยกเลิก: ",style: TextStyle(fontWeight: FontWeight.bold,color: Color.fromARGB(255, 208, 135, 0)),),Text(_orderdetail!.replyMessage!,style: TextStyle(color: Color.fromARGB(255, 208, 135, 0)),)],),),
+              OrderCancellationReason(
+                replyMessage: _orderdetail!.replyMessage!,
+              ),
             Text(
               "ออเดอร์ของฉัน",
               textAlign: TextAlign.left,
@@ -208,75 +209,11 @@ class _CustomerOrderStatusState extends State<CustomerOrderStatus> {
         ),
       ),
       bottomNavigationBar: _orderdetail!.status != OrderStatus.cancelled
-          ? Container(
-              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-              height: 150,
-              decoration: BoxDecoration(
-                color: Color(0xFFececec),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    mainAxisAlignment: hasQueueOrPrepInfo
-                        ? MainAxisAlignment.spaceBetween
-                        : MainAxisAlignment.start,
-                    children: [
-                      if (hasQueueOrPrepInfo)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (_queueLength != null)
-                              Text("จำนวนคิวก่อนหน้า $_queueLength คิว"),
-                            if (_estimatedPrepTime != null)
-                              Text("เวลาประมาณ $_estimatedPrepTime นาที"),
-                          ],
-                        ),
-                      Column(
-                        crossAxisAlignment: hasQueueOrPrepInfo ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "ราคารวม",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.center,
-                          ),
-                          Text(
-                            '฿${_orderdetail?.totalOrderPrice.toStringAsFixed(2)}',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _orderdetail!.status != OrderStatus.received
-                          ? _onCancelOrder
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadiusGeometry.circular(10),
-                        ),
-                      ),
-                      child: Text(
-                        "ยกเลิกออเดอร์",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+          ? OrderStatusBottomBar(
+              orderDetail: _orderdetail!,
+              queueLength: _queueLength,
+              estimatedPrepTime: _estimatedPrepTime,
+              onCancelOrder: _onCancelOrder,
             )
           : null,
     );
