@@ -125,20 +125,6 @@ Solves the complexity of variable food customizations and daily queue management
 - **Customer Side:** Real-time ordering, picking specific ingredient add-ons, scheduled pickups, and live queue tracking with Firebase Push Notifications.
 - **Owner Side:** Dynamic menu management, live order fulfillment, role-based store settings (Open/Close), and ingredient availability toggling.
 
-## 🎥 Demo Video
-[![Watch the video](https://img.youtube.com/vi/8xV_zKpgGTI/maxresdefault.jpg)](https://youtu.be/8xV_zKpgGTI)
-
-### [P-Chaa-ng Demo on YouTube](https://youtu.be/8xV_zKpgGTI)
-
-## 📸 App Screenshots
-
-### Prototypes & Sprint 1
-![home](./images/home.png)
-![menu](./images/menu.png)
-![s1_non_login](./images/s1_non_login.png)
-![s1_que](./images/s1_que.png)
-![s1_menu](./images/s1_menu.png)
-
 ## 🛠 Tech Stack
 
 - **Frontend:** Flutter (Mobile)
@@ -172,6 +158,17 @@ The system relies on a **PostgreSQL** schema optimized for data integrity and sn
 
 ---
 
-## 👨‍💻 Developed by:
+## Project Prototype
+
+![home](./images/home.png)
+![menu](./images/menu.png)
+
+## Sprint 1 Result
+
+![s1_non_login](./images/s1_non_login.png)
+![s1_que](./images/s1_que.png)
+![s1_menu](./images/s1_menu.png)
+
+## 📊 Developed by:
 
 **66070092** | **66070148** | **66070245**
