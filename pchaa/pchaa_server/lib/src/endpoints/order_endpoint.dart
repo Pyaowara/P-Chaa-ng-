@@ -131,10 +131,8 @@ class OrderEndpoint extends Endpoint {
     }
     
     order.status = newStatus;
-    if (newStatus == OrderStatus.cancelled) {
-      order.replyMessage = replymessage?.isNotEmpty == true 
-          ? replymessage 
-          : "Your order has been cancelled by the owner.";
+    if (newStatus == OrderStatus.cancelled && replymessage?.isNotEmpty == true) {
+      order.replyMessage = replymessage;
     }
     
     await Order.db.update(session, [order]);

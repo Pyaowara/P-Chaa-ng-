@@ -15,6 +15,7 @@ class OrderCancellationReason extends StatelessWidget {
       ),
       child: Row(
         spacing: 10,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.warning, color: Colors.black.withAlpha(120)),
           const Text(
@@ -24,9 +25,13 @@ class OrderCancellationReason extends StatelessWidget {
               color: Color.fromARGB(255, 208, 135, 0),
             ),
           ),
-          Text(
-            replyMessage,
-            style: const TextStyle(color: Color.fromARGB(255, 208, 135, 0)),
+          Expanded(
+            child: Text(
+              replyMessage,
+              style: const TextStyle(color: Color.fromARGB(255, 208, 135, 0)),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
           ),
         ],
       ),
