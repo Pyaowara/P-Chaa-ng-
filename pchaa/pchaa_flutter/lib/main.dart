@@ -37,6 +37,18 @@ void main() async {
     serverClientId: dotenv.env['GOOGLE_CLIENT_ID']!,
   );
   googleAuthService = GoogleAuthService(googleSignIn);
+  // Restore previous login if user had signed in before
+  await googleAuthService.restorePreviousSignIn();
+
+  keyManager = FlutterAuthenticationKeyManager(
+    runMode: 'development',
+  );
+
+  client = Client(
+    dotenv.env['SERVER_URL']!,
+    authenticationKeyManager: keyManager,
+  )..connectivityMonitor = FlutterConnectivityMonitor();
+
   try {
     final storeSettings = await client.store.getStoreSettings();
     settings = storeSettings;
@@ -52,18 +64,6 @@ void main() async {
       autoOpenClose: false,
     );
   }
-
-  // Restore previous login if user had signed in before
-  await googleAuthService.restorePreviousSignIn();
-
-  keyManager = FlutterAuthenticationKeyManager(
-    runMode: 'development',
-  );
-
-  client = Client(
-    dotenv.env['SERVER_URL']!,
-    authenticationKeyManager: keyManager,
-  )..connectivityMonitor = FlutterConnectivityMonitor();
 
   sessionManager = SessionManager(
     caller: client.modules.auth,

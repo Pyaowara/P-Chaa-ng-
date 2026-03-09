@@ -53,12 +53,12 @@ class _GoogleLoginButtonState extends State<GoogleLoginButton> {
       await googleAuthService.fetchUserData();
 
       // Register FCM token and send login notification
-      await notificationService.registerTokenWithServer();
-      try {
-        await client.notification.sendLoginNotification();
-      } catch (e) {
-        debugPrint('Login notification failed: $e');
-      }
+      // await notificationService.registerTokenWithServer();
+      // try {
+      //   await client.notification.sendLoginNotification();
+      // } catch (e) {
+      //   debugPrint('Login notification failed: $e');
+      // }
 
       cartService = CartService();
       if (googleAuthService.userData?.role == UserRole.user) {

@@ -8,7 +8,10 @@ import 'package:pchaa_flutter/services/app_services.dart';
 import 'package:pchaa_flutter/widgets/common/app_button.dart';
 import 'package:pchaa_flutter/widgets/owner_page/owner_page_header.dart';
 import 'package:pchaa_flutter/widgets/owner_page/store_toggle.dart';
+import 'dart:async';
 import 'package:pchaa_flutter/widgets/owner_page/store_time_pickers.dart';
+import 'package:pchaa_flutter/services/owner_order_services.dart';
+import 'package:pchaa_flutter/widgets/owner_page/active_orders_list.dart';
 
 class OwnerMainPage extends StatefulWidget {
   const OwnerMainPage({super.key});
@@ -24,6 +27,9 @@ class _OwnerMainPageState extends State<OwnerMainPage> {
   TimeOfDay _openTime = _parseTime(settings.openTime);
   TimeOfDay _closeTime = _parseTime(settings.closeTime);
 
+  final OwnerOrderService _orderService = OwnerOrderService();
+  Timer? _refreshTimer;
+
   static TimeOfDay _parseTime(String timeStr) {
     final parts = timeStr.split(':');
     return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
@@ -37,6 +43,32 @@ class _OwnerMainPageState extends State<OwnerMainPage> {
   void initState() {
     super.initState();
     _fetchStoreStatus();
+    _loadOrders();
+    _startAutoRefresh();
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadOrders() async {
+    try {
+      await _orderService.fetchTodayOrders();
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      debugPrint('Error loading orders: $e');
+    }
+  }
+
+  void _startAutoRefresh() {
+    _refreshTimer?.cancel();
+    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      _loadOrders();
+    });
   }
 
   Future<void> _fetchStoreStatus() async {
@@ -168,7 +200,7 @@ class _OwnerMainPageState extends State<OwnerMainPage> {
                   topRight: Radius.circular(AppRadius.extraLarge),
                 ),
               ),
-              child: SingleChildScrollView(
+              child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,8 +219,7 @@ class _OwnerMainPageState extends State<OwnerMainPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                const MenuManagementPage(),
+                            builder: (context) => const MenuManagementPage(),
                           ),
                         );
                       },
@@ -203,34 +234,63 @@ class _OwnerMainPageState extends State<OwnerMainPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                const OrderListScreen(),
+                            builder: (context) => const OrderListScreen(),
                           ),
                         );
                       },
                     ),
                     const SizedBox(height: 24),
 
-                    // Switch to Main Page button
-                    AppButton(
-                      icon: Icons.storefront,
-                      label: 'ไปหน้าหลัก',
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const MainPage(),
-                          ),
-                        );
-                      },
+                    const Text(
+                      'ออเดอร์ใหม่',
+                      style: AppTextStyles.sectionTitle,
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: ActiveOrdersList(
+                        isLoading: _orderService.isLoading,
+                        todayOrders: _orderService.todayOrders,
+                        getUserNameForOrder: _orderService.getUserNameForOrder,
+                        onOrderManaged: _loadOrders,
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MainPage()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF5B8FA3),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                'ไปหน้าหลัก',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pchaa_client/pchaa_client.dart';
+import 'package:pchaa_flutter/services/app_services.dart';
 
 class MenuScreenBottomBar extends StatelessWidget {
   final bool isLoggedIn;
@@ -18,6 +20,10 @@ class MenuScreenBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (googleAuthService.userData?.role == UserRole.owner) {
+      return const SizedBox.shrink();
+    }
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -65,7 +71,7 @@ class MenuScreenBottomBar extends StatelessWidget {
                               width: 5,
                             ),
                             Text(
-                              "ออร์เดอร์ของฉัน",
+                              "ออเดอร์ของฉัน",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,

@@ -72,7 +72,7 @@ class _CheckoutModalState extends State<CheckoutModal> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            e.toString().replaceFirst('Exception: ', ''),
+            "เวลาต้องมากกว่าปัจจุบัน",
           ),
         ),
       );

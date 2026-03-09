@@ -45,7 +45,7 @@ class _QueueSectionState extends State<QueueSection> {
 
     return Myqueue(
       onNavigate: widget.onNavigate,
-      limit: 2,
+      limit: 3,
       queueList: widget.orders,
     );
   }

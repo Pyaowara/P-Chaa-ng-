@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
 import 'package:pchaa_flutter/services/app_services.dart';
 import 'package:pchaa_flutter/widgets/cart/cart_bottom_bar.dart';
-import 'package:pchaa_flutter/widgets/cart/cart_empty_state.dart';
-import 'package:pchaa_flutter/widgets/cart/cart_item_card.dart';
+import 'package:pchaa_flutter/widgets/cart/cart_list_body.dart';
 import 'package:pchaa_flutter/widgets/cart/checkout_modal.dart';
 
 class CartList extends StatefulWidget {
@@ -38,7 +37,10 @@ class _CartListState extends State<CartList> {
       if (!mounted) return;
       setState(() {
         _cartItems = items;
-        _totalPrice = items.fold(0.0, (sum, item) => sum + item.cart.totalPrice);
+        _totalPrice = items.fold(
+          0.0,
+          (sum, item) => sum + item.cart.totalPrice,
+        );
         _isLoading = false;
       });
     } catch (e) {
@@ -128,58 +130,19 @@ class _CartListState extends State<CartList> {
             ),
         ],
       ),
-      body: _buildBody(),
+      body: CartListBody(
+        isLoading: _isLoading,
+        error: _error,
+        cartItems: _cartItems,
+        onRefresh: _loadCart,
+        onRemoveItem: _removeCartItem,
+      ),
       bottomNavigationBar: _cartItems.isNotEmpty
           ? CartBottomBar(
               totalPrice: _totalPrice,
               onCheckout: _onCheckout,
             )
           : null,
-    );
-  }
-
-  Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.red),
-            const SizedBox(height: 16),
-            Text('Error: $_error'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadCart,
-              child: const Text('ลองใหม่'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (_cartItems.isEmpty) {
-      return const CartEmptyState();
-    }
-
-    return RefreshIndicator(
-      onRefresh: _loadCart,
-      child: ListView.builder(
-        padding: const EdgeInsets.only(top: 8, bottom: 100),
-        itemCount: _cartItems.length,
-        itemBuilder: (context, index) {
-          final cartDetail = _cartItems[index];
-          return CartItemCard(
-            cartItem: cartDetail.cart,
-            menuItemName: cartDetail.menuItemName,
-            rawimageUrl: cartDetail.imageUrl!,
-            onDismissed: () => _removeCartItem(cartDetail.cart.id!),
-          );
-        },
-      ),
     );
   }
 }

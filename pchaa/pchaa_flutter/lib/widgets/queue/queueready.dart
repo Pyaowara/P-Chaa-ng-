@@ -5,7 +5,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:pchaa_flutter/services/app_services.dart';
 
 class Queueready extends StatefulWidget {
-  const Queueready({super.key});
+  final bool isExpanded;
+  const Queueready({super.key, this.isExpanded = false});
 
   @override
   State<Queueready> createState() => _QueuereadyState();
@@ -95,7 +96,7 @@ class _QueuereadyState extends State<Queueready> {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: EdgeInsets.all(5),
       width: double.infinity,
-      height: 210,
+      height: widget.isExpanded ? null : 210,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30),
         color: const Color(0xFFfbdf9d),
@@ -121,81 +122,31 @@ class _QueuereadyState extends State<Queueready> {
             ),
             SizedBox(height: 10),
 
-            CarouselSlider.builder(
-              itemCount: sectionCount,
-              options: CarouselOptions(
-                height: 120,
-                scrollDirection: Axis.horizontal,
-                enableInfiniteScroll: false,
-                pageSnapping: true,
-                viewportFraction: 1,
-                padEnds: false,
-                autoPlay: true,
-                autoPlayInterval: const Duration(seconds: 10),
-                autoPlayAnimationDuration: const Duration(milliseconds: 800),
-                // autoPlayCurve: Curves.easeInOut,
-                pauseAutoPlayOnTouch: true,
-                scrollPhysics: const BouncingScrollPhysics(),
-              ),
-              itemBuilder: (context, sectionIndex, realIndex) {
-                final start = sectionIndex * itemsPerSection;
-                final sectionItems = items
-                    .skip(start)
-                    .take(itemsPerSection)
-                    .toList();
+            widget.isExpanded
+                ? Expanded(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final availableHeight = constraints.maxHeight;
+                        final int dynamicRows = (availableHeight / 60)
+                            .floor()
+                            .clamp(1, 20);
+                        final int dynItemsPerSection = dynamicRows * columns;
+                        final int dynSectionCount = items.isEmpty
+                            ? 0
+                            : (items.length / dynItemsPerSection).ceil();
 
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(rows, (rowIndex) {
-                    return Padding(
-                      // 👇 vertical gap between rows
-                      padding: EdgeInsets.only(
-                        bottom: rowIndex == rows - 1 ? 0 : verticalGap,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: List.generate(columns, (colIndex) {
-                          final itemIndex = rowIndex * columns + colIndex;
+                        return _buildCarousel(
+                          dynSectionCount,
+                          dynItemsPerSection,
+                          dynamicRows,
+                          availableHeight,
+                        );
+                      },
+                    ),
+                  )
+                : _buildCarousel(sectionCount, itemsPerSection, rows, 120),
 
-                          if (itemIndex >= sectionItems.length) {
-                            return SizedBox(
-                              width: 80 + horizontalGap,
-                              height: 50,
-                            );
-                          }
-
-                          return Padding(
-                            // 👇 horizontal gap between columns
-                            padding: EdgeInsets.only(
-                              right: colIndex == columns - 1
-                                  ? 0
-                                  : horizontalGap,
-                            ),
-                            child: Container(
-                              width: 80,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                sectionItems[itemIndex],
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          );
-                        }),
-                      ),
-                    );
-                  }),
-                );
-              },
-            ),
-            if (!_isLoading && items.length > 6)
+            if (!_isLoading && items.length > (widget.isExpanded ? 12 : 6))
               Padding(
                 padding: const EdgeInsets.only(right: 10.0),
                 child: Align(
@@ -206,6 +157,81 @@ class _QueuereadyState extends State<Queueready> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildCarousel(
+    int sections,
+    int itemsPerSec,
+    int currentRows,
+    double height,
+  ) {
+    return CarouselSlider.builder(
+      itemCount: sections,
+      options: CarouselOptions(
+        height: height,
+        scrollDirection: Axis.horizontal,
+        enableInfiniteScroll: false,
+        pageSnapping: true,
+        viewportFraction: 1,
+        padEnds: false,
+        autoPlay: true,
+        autoPlayInterval: const Duration(seconds: 10),
+        autoPlayAnimationDuration: const Duration(milliseconds: 800),
+        // autoPlayCurve: Curves.easeInOut,
+        pauseAutoPlayOnTouch: true,
+        scrollPhysics: const BouncingScrollPhysics(),
+      ),
+      itemBuilder: (context, sectionIndex, realIndex) {
+        final start = sectionIndex * itemsPerSec;
+        final sectionItems = items.skip(start).take(itemsPerSec).toList();
+
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: List.generate(currentRows, (rowIndex) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: rowIndex == currentRows - 1 ? 0 : verticalGap,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(columns, (colIndex) {
+                  final itemIndex = rowIndex * columns + colIndex;
+
+                  if (itemIndex >= sectionItems.length) {
+                    return SizedBox(
+                      width: 80 + horizontalGap,
+                      height: 50,
+                    );
+                  }
+
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      right: colIndex == columns - 1 ? 0 : horizontalGap,
+                    ),
+                    child: Container(
+                      width: 80,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        sectionItems[itemIndex],
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            );
+          }),
+        );
+      },
     );
   }
 }

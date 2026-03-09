@@ -6,6 +6,7 @@ import 'package:pchaa_flutter/constants/app_constants.dart';
 import 'package:pchaa_flutter/screens/order_management.dart';
 import 'package:pchaa_flutter/services/owner_order_services.dart';
 import 'package:pchaa_flutter/widgets/order_manage/index.dart';
+import 'package:pchaa_flutter/widgets/order_list/order_list_filters.dart';
 
 class OrderListScreen extends StatefulWidget {
   const OrderListScreen({super.key});
@@ -84,190 +85,98 @@ class _OrderListScreenState extends State<OrderListScreen> {
                 ),
               )
             : _orderService.todayOrders.isEmpty
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.shopping_cart_outlined,
-                            size: 64,
-                            color: Colors.grey.shade300,
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'ไม่มีรายการสั่งซื้อวันนี้',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.shopping_cart_outlined,
+                        size: 64,
+                        color: Colors.grey.shade300,
                       ),
-                    ),
-                  )
-                : SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        // Filters in one row
-                        Row(
-                          children: [
-                            // Filter by type
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'ประเภท',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  DropdownButton<OrderType?>(
-                                    value: _selectedType,
-                                    isExpanded: true,
-                                    underline: Container(
-                                      height: 2,
-                                      color: AppColors.primary,
-                                    ),
-                                    items: [
-                                      DropdownMenuItem(
-                                        value: null,
-                                        child: const Text('ทั้งหมด', style: TextStyle(fontSize: 13)),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: OrderType.I,
-                                        child: const Text('สั่งทันที', style: TextStyle(fontSize: 13)),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: OrderType.S,
-                                        child: const Text('สั่งกำหนด', style: TextStyle(fontSize: 13)),
-                                      ),
-                                    ],
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedType = value;
-                                      });
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            // Filter by status
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'สถานะ',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  DropdownButton<OrderStatus?>(
-                                    value: _selectedStatus,
-                                    isExpanded: true,
-                                    underline: Container(
-                                      height: 2,
-                                      color: AppColors.primary,
-                                    ),
-                                    items: [
-                                      DropdownMenuItem(
-                                        value: null,
-                                        child: const Text('ทั้งหมด', style: TextStyle(fontSize: 13)),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: OrderStatus.ordered,
-                                        child: const Text('สั่งแล้ว', style: TextStyle(fontSize: 13)),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: OrderStatus.confirmed,
-                                        child: const Text('ยืนยัน', style: TextStyle(fontSize: 13)),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: OrderStatus.preparing,
-                                        child: const Text('เตรียม', style: TextStyle(fontSize: 13)),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: OrderStatus.finished,
-                                        child: const Text('เสร็จ', style: TextStyle(fontSize: 13)),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: OrderStatus.received,
-                                        child: const Text('รับแล้ว', style: TextStyle(fontSize: 13)),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: OrderStatus.cancelled,
-                                        child: const Text('ยกเลิก', style: TextStyle(fontSize: 13)),
-                                      ),
-                                    ],
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedStatus = value;
-                                      });
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                      const SizedBox(height: 16),
+                      const Text(
+                        'ไม่มีรายการสั่งซื้อวันนี้',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w500,
                         ),
-                        const SizedBox(height: 24),
-
-                        // Orders list
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: _orderService.todayOrders.length,
-                          itemBuilder: (context, index) {
-                            final order = _orderService.todayOrders[index];
-
-                            // Filter by type if selected
-                            if (_selectedType != null &&
-                                order.type != _selectedType) {
-                              return const SizedBox.shrink();
-                            }
-
-                            // Filter by status if selected
-                            if (_selectedStatus != null &&
-                                order.status != _selectedStatus) {
-                              return const SizedBox.shrink();
-                            }
-
-                            return OrderCard(
-                              order: order,
-                              userName: _orderService.getUserNameForOrder(order.id!),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        OrderManagementPage(
-                                      orderId: order.id!,
-                                      order: order,
-                                      userName: _orderService.getUserNameForOrder(order.id!),
-                                    ),
-                                  ),
-                                ).then((_) {
-                                  _refreshOrders();
-                                });
-                              },
-                            );
-                          },
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
+                ),
+              )
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    // Filters in one row
+                    OrderListFilters(
+                      selectedType: _selectedType,
+                      selectedStatus: _selectedStatus,
+                      onTypeChanged: (value) {
+                        setState(() {
+                          _selectedType = value;
+                        });
+                      },
+                      onStatusChanged: (value) {
+                        setState(() {
+                          _selectedStatus = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Orders list
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _orderService.todayOrders.length,
+                      itemBuilder: (context, index) {
+                        final order = _orderService.todayOrders[index];
+
+                        // Filter by type if selected
+                        if (_selectedType != null &&
+                            order.type != _selectedType) {
+                          return const SizedBox.shrink();
+                        }
+
+                        // Filter by status if selected
+                        if (_selectedStatus != null &&
+                            order.status != _selectedStatus) {
+                          return const SizedBox.shrink();
+                        }
+
+                        return OrderCard(
+                          order: order,
+                          userName: _orderService.getUserNameForOrder(
+                            order.id!,
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => OrderManagementPage(
+                                  orderId: order.id!,
+                                  order: order,
+                                  userName: _orderService.getUserNameForOrder(
+                                    order.id!,
+                                  ),
+                                ),
+                              ),
+                            ).then((_) {
+                              _refreshOrders();
+                            });
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
       ),
     );
   }

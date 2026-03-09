@@ -70,6 +70,7 @@ class MyqueueState extends State<Myqueue> {
             "My Queue",
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
+          SizedBox(height: 20),
           Center(
             child: Column(
               // Build tiles from `queueList`

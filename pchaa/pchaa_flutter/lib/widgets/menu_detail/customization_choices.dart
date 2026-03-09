@@ -32,24 +32,27 @@ class CustomizationChoices extends StatelessWidget {
             style: TextStyle(fontSize: 12),
           ),
           if (customizationGroup.pickOne)
-            _buildSingleCheckboxGroup(customizationGroup.choices)
+            _buildSingleCheckboxGroup(context, customizationGroup.choices)
           else
-            _buildCheckboxGroup(customizationGroup.choices),
+            _buildCheckboxGroup(context, customizationGroup.choices),
         ],
       ),
     );
   }
 
-  Widget _buildSingleCheckboxGroup(List<AvailableAddOnOption> choices) {
+  Widget _buildSingleCheckboxGroup(
+    BuildContext context,
+    List<AvailableAddOnOption> choices,
+  ) {
     return Column(
       children: choices.map((choice) {
         final isChecked = selectedValue == choice.name;
         final hasSelection = selectedValue != null && selectedValue!.isNotEmpty;
-        final isUnavailable = !choice.isAvailable;
+        final isUnavailable = !choice.isAvailable || !choice.forSale;
         final isDisabled = isUnavailable || (hasSelection && !isChecked);
 
         return Theme(
-          data: ThemeData(
+          data: Theme.of(context).copyWith(
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
             hoverColor: Colors.transparent,
@@ -67,12 +70,14 @@ class CustomizationChoices extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    choice.name,
+                    choice.name + (choice.forSale ? "" : " (หมด)"),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                SizedBox(width: 20,),
+                SizedBox(
+                  width: 20,
+                ),
                 Text("฿${choice.price.toString()}"),
               ],
             ),
@@ -92,14 +97,17 @@ class CustomizationChoices extends StatelessWidget {
     );
   }
 
-  Widget _buildCheckboxGroup(List<AvailableAddOnOption> choices) {
+  Widget _buildCheckboxGroup(
+    BuildContext context,
+    List<AvailableAddOnOption> choices,
+  ) {
     return Column(
       children: choices.map((choice) {
         final isChecked = selectedValues.contains(choice.name);
-        final isUnavailable = !choice.isAvailable;
+        final isUnavailable = !choice.isAvailable || !choice.forSale;
 
         return Theme(
-          data: ThemeData(
+          data: Theme.of(context).copyWith(
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
             hoverColor: Colors.transparent,
@@ -107,7 +115,7 @@ class CustomizationChoices extends StatelessWidget {
           child: CheckboxListTile(
             activeColor: Color(0xFF5A9CB5),
             checkboxShape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6), // 👈 increase this
+              borderRadius: BorderRadius.circular(6),
             ),
             contentPadding: EdgeInsets.zero,
             controlAffinity: ListTileControlAffinity.leading,
@@ -118,7 +126,7 @@ class CustomizationChoices extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    choice.name,
+                    choice.name + (choice.forSale ? "" : " (หมด)"),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

@@ -46,8 +46,8 @@ class _MainPageState extends State<MainPage> {
   void _startOrdersAutoRefresh() {
     _ordersRefreshTimer?.cancel();
     _ordersRefreshTimer = Timer.periodic(const Duration(seconds: 5), (_) {
-      if (isLoggedIn) {
-
+      _fetchStoreStatus();
+      if (isLoggedIn && googleAuthService.userData?.role != UserRole.owner) {
         _fetchMyOrders();
       }
     });
@@ -55,8 +55,7 @@ class _MainPageState extends State<MainPage> {
 
   Future<void> _initializePage() async {
     await _fetchStoreStatus();
-    if (isLoggedIn) {
-
+    if (isLoggedIn && googleAuthService.userData?.role != UserRole.owner) {
       await _fetchMyOrders();
     }
 
@@ -79,8 +78,6 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
-  
-
   Future<void> _fetchMyOrders() async {
     try {
       final orders = await client.order.getMyOrders();
@@ -92,8 +89,6 @@ class _MainPageState extends State<MainPage> {
       debugPrint('Error fetching orders: $e');
     }
   }
-
-
 
   Future<void> _fetchStoreStatus() async {
     try {
@@ -175,36 +170,78 @@ class _MainPageState extends State<MainPage> {
             ],
           ),
 
-          // Queue ready section (for logged-in non-owner users)
-          if (isLoggedIn &&
-              isOpen &&
-              googleAuthService.userData?.role != UserRole.owner)
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 10,
-                right: 10,
-                bottom: 15,
-              ),
-              child: Queueready(),
-            ),
+          // Queue ready section
+          if (isLoggedIn && isOpen)
+            (googleAuthService.userData?.role == UserRole.owner)
+                ? Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        left: 10,
+                        right: 10,
+                        bottom: 15,
+                      ),
+                      child: Queueready(isExpanded: true),
+                    ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.only(
+                      left: 10,
+                      right: 10,
+                      bottom: 15,
+                    ),
+                    child: Queueready(),
+                  ),
 
           // Bottom content area
-          Expanded(
-            child: Container(
-              width: double.maxFinite,
-              decoration: BoxDecoration(
-                color: AppColors.background,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(AppRadius.extraLarge),
-                  topRight: Radius.circular(AppRadius.extraLarge),
+          if (!isOpen)
+            Expanded(
+              child: Container(
+                width: double.maxFinite,
+                padding: const EdgeInsets.only(
+                  top: 15,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(AppRadius.extraLarge),
+                    topRight: Radius.circular(AppRadius.extraLarge),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: const Center(
+                        child: Text(
+                          "ร้านปิด",
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                    MenuButton(onNavigate: _fetchMyOrders),
+                  ],
                 ),
               ),
+            )
+          else if (googleAuthService.userData?.role != UserRole.owner)
+            Expanded(
               child: Container(
-                margin: EdgeInsets.only(top: 20),
+                width: double.maxFinite,
+                padding: const EdgeInsets.only(
+                  top: 15,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(AppRadius.extraLarge),
+                    topRight: Radius.circular(AppRadius.extraLarge),
+                  ),
+                ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Queue section
                     QueueSection(
                       isOpen: isOpen,
                       isLoggedIn: isLoggedIn,
@@ -213,15 +250,14 @@ class _MainPageState extends State<MainPage> {
                         _fetchMyOrders();
                       },
                     ),
-                    if (isOpen) Expanded(child: SizedBox()),
-
-                    // Menu button
-                    MenuButton(onNavigate: _fetchMyOrders)
+                    Expanded(child: SizedBox()),
+                    MenuButton(onNavigate: _fetchMyOrders),
                   ],
                 ),
               ),
-            ),
-          ),
+            )
+          else
+            MenuButton(onNavigate: _fetchMyOrders),
         ],
       ),
     );

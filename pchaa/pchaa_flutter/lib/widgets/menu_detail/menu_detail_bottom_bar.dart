@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
+import 'package:pchaa_flutter/services/app_services.dart';
 
 class MenuDetailBottomBar extends StatelessWidget {
   final int quantity;
@@ -27,6 +28,9 @@ class MenuDetailBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (googleAuthService.userData?.role == UserRole.owner) {
+      return const SizedBox.shrink();
+    }
     final total = (basePrice + addOnTotal) * quantity;
     return Container(
       decoration: BoxDecoration(
