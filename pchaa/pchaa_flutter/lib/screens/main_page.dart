@@ -1,17 +1,22 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
 import 'package:pchaa_flutter/constants/app_constants.dart';
-import 'package:pchaa_flutter/screens/available_menu_items_screen.dart';
-import 'package:pchaa_flutter/screens/menu_screen.dart';
+import 'package:pchaa_flutter/screens/customer_order_status.dart';
 import 'package:pchaa_flutter/screens/owner_main_page.dart';
 import 'package:pchaa_flutter/widgets/common/app_button.dart';
-import 'package:pchaa_flutter/widgets/myqueue.dart';
-import 'package:pchaa_flutter/widgets/queueready.dart';
+import 'package:pchaa_flutter/widgets/main_page/main_page_header.dart';
+import 'package:pchaa_flutter/widgets/main_page/store_status_banner.dart';
+import 'package:pchaa_flutter/widgets/main_page/queue_section.dart';
+import 'package:pchaa_flutter/widgets/main_page/menu_button.dart';
+import 'package:pchaa_flutter/widgets/queue/queueready.dart';
 import '../services/app_services.dart';
-import '../widgets/google_login_button.dart';
 
 class MainPage extends StatefulWidget {
-  const MainPage({super.key});
+  final Order? orderToOpen;
+
+  const MainPage({super.key, this.orderToOpen});
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -20,14 +25,87 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   bool isLoggedIn = googleAuthService.isLoggedIn;
   bool isOpen = isShopOpen;
+  List<Order> myOrders = [];
+  StoreSettings store = settings;
+  bool _didOpenInitialOrder = false;
+  Timer? _ordersRefreshTimer;
 
   @override
   void initState() {
     super.initState();
+    _initializePage();
+    _startOrdersAutoRefresh();
+  }
+
+  @override
+  void dispose() {
+    _ordersRefreshTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startOrdersAutoRefresh() {
+    _ordersRefreshTimer?.cancel();
+    _ordersRefreshTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      _fetchStoreStatus();
+      if (isLoggedIn && googleAuthService.userData?.role != UserRole.owner) {
+        _fetchMyOrders();
+      }
+    });
+  }
+
+  Future<void> _initializePage() async {
+    await _fetchStoreStatus();
+    if (isLoggedIn && googleAuthService.userData?.role != UserRole.owner) {
+      await _fetchMyOrders();
+    }
+
+    if (!mounted || _didOpenInitialOrder || widget.orderToOpen == null) {
+      return;
+    }
+
+    _didOpenInitialOrder = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Navigator.of(context)
+          .push(
+            MaterialPageRoute(
+              builder: (_) => CustomerOrderStatus(
+                orderid: widget.orderToOpen!.id!,
+              ),
+            ),
+          )
+          .then((_) => _fetchMyOrders());
+    });
+  }
+
+  Future<void> _fetchMyOrders() async {
+    try {
+      final orders = await client.order.getMyOrders();
+      if (!mounted) return;
+      setState(() {
+        myOrders = orders.reversed.toList();
+      });
+    } catch (e) {
+      debugPrint('Error fetching orders: $e');
+    }
+  }
+
+  Future<void> _fetchStoreStatus() async {
+    try {
+      final storeSettings = await client.store.getStoreSettings();
+      if (mounted) {
+        setState(() {
+          isOpen = storeSettings.isOpen;
+          isShopOpen = storeSettings.isOpen;
+          store = storeSettings;
+        });
+      }
+    } catch (e) {
+      debugPrint('Failed to fetch store status: $e');
+    }
   }
 
   void _updateLoginStatus() {
-    debugPrint("⚡ _updateLoginStatus called");
     setState(() {
       isLoggedIn = googleAuthService.isLoggedIn;
     });
@@ -39,13 +117,9 @@ class _MainPageState extends State<MainPage> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const OwnerMainPage()),
       );
+    } else {
+      _fetchMyOrders();
     }
-  }
-
-  @override
-  void dispose() {
-    // googleAuthService.removeListener(_updateLoginStatus);
-    super.dispose();
   }
 
   @override
@@ -54,177 +128,23 @@ class _MainPageState extends State<MainPage> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
+          // Header section
           Column(
             children: [
-              // Header with food image and restaurant info
-              Stack(
-                children: [
-                  // Background food image (hidden if logged in)
-                  if (!isLoggedIn)
-                    Container(
-                      height: 300,
-                      decoration: const BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage("assets/images/food.jpg"),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-
-                  // Gradient / overlay container
-                  Container(
-                    height: isLoggedIn ? 150 : 300,
-                    decoration: BoxDecoration(
-                      gradient: isLoggedIn
-                          ? null
-                          : LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.black.withOpacity(0.3),
-                                Colors.black.withOpacity(0.5),
-                              ],
-                            ),
-                      color: Colors.white,
-                    ),
-                  ),
-
-                  // Positioned welcome text and button
-                  Positioned(
-                    bottom: 20,
-                    left: isLoggedIn ? 30 : 20,
-                    right: 20,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Flexible(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (isLoggedIn)
-                                const Text(
-                                  'ยินดีต้อนรับ',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 30,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              Text(
-                                isLoggedIn
-                                    ? (googleAuthService.name ?? "")
-                                    : 'ร้านพี่ช้าง',
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: TextStyle(
-                                  color: isLoggedIn
-                                      ? Colors.black
-                                      : Colors.white,
-                                  fontSize: isLoggedIn ? 20 : 30,
-                                  fontWeight: isLoggedIn
-                                      ? FontWeight.normal
-                                      : FontWeight.bold,
-                                  shadows: isLoggedIn
-                                      ? null
-                                      : [
-                                          Shadow(
-                                            offset: Offset(2, 1),
-                                            blurRadius: 10,
-                                            color: Colors.grey,
-                                          ),
-                                        ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        GoogleLoginButton(
-                          onLoginSuccess: () {
-                            _handleLoginSuccess();
-                          },
-                          onLogoutSuccess: () {
-                            setState(() {
-                              _updateLoginStatus();
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+              MainPageHeader(
+                isLoggedIn: isLoggedIn,
+                onLoginSuccess: _handleLoginSuccess,
+                onLogoutSuccess: () {
+                  _updateLoginStatus();
+                },
               ),
 
-              const SizedBox(height: 5),
-              if (isLoggedIn)
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      isShopOpen = !isShopOpen;
-                      isOpen = !isOpen;
-                    });
-                  },
-                  child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 30),
-                    padding: EdgeInsets.all(12),
-                    width: double.maxFinite,
-                    decoration: BoxDecoration(
-                      color: AppColors.background,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      isOpen ? "ร้านเปิด" : "ร้านปิด",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                )
-              else
-                Container(
-                  width: double.maxFinite,
-                  height: 70,
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: isOpen ? AppColors.success : AppColors.error,
-                    borderRadius: BorderRadius.circular(AppRadius.large),
-                  ),
-                  margin: const EdgeInsets.only(
-                    left: 30,
-                    right: 30,
-                    top: 20,
-                  ),
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        left: 10,
-                        top: 7,
-                        child: Text(
-                          isOpen ? "Opened" : "Closed",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 25,
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        right: 10,
-                        bottom: 1,
-                        child: Text(
-                          isOpen ? "ร้านเปิด" : "ร้านปิด",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              const SizedBox(height: 1),
 
+              // Store status banner
+              StoreStatusBanner(isOpen: isOpen, store: store),
+
+              // Owner admin button
               if (isLoggedIn &&
                   googleAuthService.userData?.role == UserRole.owner)
                 Padding(
@@ -249,126 +169,95 @@ class _MainPageState extends State<MainPage> {
               const SizedBox(height: 10),
             ],
           ),
-          if (isLoggedIn &&
-              isOpen &&
-              googleAuthService.userData?.role != UserRole.owner)
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 10,
-                right: 10,
-                bottom: 15,
-              ),
-              child: Queueready(),
-            ),
 
-          // Queue status and Menu button with green background
-          Expanded(
-            child: Container(
-              width: double.maxFinite,
-              decoration: BoxDecoration(
-                color: AppColors.background,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(AppRadius.extraLarge),
-                  topRight: Radius.circular(AppRadius.extraLarge),
-                ),
-              ),
+          // Queue ready section
+          if (isLoggedIn && isOpen)
+            (googleAuthService.userData?.role == UserRole.owner)
+                ? Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        left: 10,
+                        right: 10,
+                        bottom: 15,
+                      ),
+                      child: Queueready(isExpanded: true),
+                    ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.only(
+                      left: 10,
+                      right: 10,
+                      bottom: 15,
+                    ),
+                    child: Queueready(),
+                  ),
+
+          // Bottom content area
+          if (!isOpen)
+            Expanded(
               child: Container(
-                margin: EdgeInsets.only(top: 20, left: 10, right: 10),
+                width: double.maxFinite,
+                padding: const EdgeInsets.only(
+                  top: 15,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(AppRadius.extraLarge),
+                    topRight: Radius.circular(AppRadius.extraLarge),
+                  ),
+                ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    (isOpen
-                        ? (isLoggedIn
-                              ? Myqueue(
-                                  limit: 3,
-                                  queueList: [
-                                    Order(
-                                      userId: 1,
-                                      status: OrderStatus.preparing,
-                                      type: OrderType.I,
-                                      totalOrderPrice: 30,
-                                      orderDate: DateTime.now(),
-                                      queueNumber: "I001",
-                                    ),
-                                    Order(
-                                      userId: 1,
-                                      status: OrderStatus.preparing,
-                                      type: OrderType.I,
-                                      totalOrderPrice: 30,
-                                      orderDate: DateTime.now(),
-                                      queueNumber: "I001",
-                                    ),
-                                    Order(
-                                      userId: 1,
-                                      status: OrderStatus.preparing,
-                                      type: OrderType.I,
-                                      totalOrderPrice: 30,
-                                      orderDate: DateTime.now(),
-                                      queueNumber: "I001",
-                                    ),
-                                    Order(
-                                      userId: 1,
-                                      status: OrderStatus.preparing,
-                                      type: OrderType.I,
-                                      totalOrderPrice: 30,
-                                      orderDate: DateTime.now(),
-                                      queueNumber: "I001",
-                                    ),
-                                  ],
-                                )
-                              : Queueready())
-                        : Expanded(
-                            child: Center(
-                              child: Text(
-                                'Queue Not\nAvailable',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                          )),
-                    if (isOpen) Expanded(child: SizedBox()),
-                    // Menu button
-                    Container(
-                      width: double.maxFinite,
-                      margin: const EdgeInsets.all(20),
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const MenuScreen(),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.menu),
-                        label: const Text(
-                          'MENU เมนูอาหาร',
+                    Expanded(
+                      child: const Center(
+                        child: Text(
+                          "ร้านปิด",
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 32,
                             fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              AppRadius.medium,
-                            ),
+                            color: Colors.black,
                           ),
                         ),
                       ),
                     ),
+                    MenuButton(onNavigate: _fetchMyOrders),
                   ],
                 ),
               ),
-            ),
-          ),
+            )
+          else if (googleAuthService.userData?.role != UserRole.owner)
+            Expanded(
+              child: Container(
+                width: double.maxFinite,
+                padding: const EdgeInsets.only(
+                  top: 15,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(AppRadius.extraLarge),
+                    topRight: Radius.circular(AppRadius.extraLarge),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    QueueSection(
+                      isOpen: isOpen,
+                      isLoggedIn: isLoggedIn,
+                      orders: myOrders,
+                      onNavigate: () {
+                        _fetchMyOrders();
+                      },
+                    ),
+                    Expanded(child: SizedBox()),
+                    MenuButton(onNavigate: _fetchMyOrders),
+                  ],
+                ),
+              ),
+            )
+          else
+            MenuButton(onNavigate: _fetchMyOrders),
         ],
       ),
     );

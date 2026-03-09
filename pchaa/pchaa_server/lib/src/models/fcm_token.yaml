@@ -1,0 +1,8 @@
+class: FcmToken
+table: fcm_tokens
+fields:
+  userId: int
+  token: String
+  deviceInfo: String?
+  createdAt: DateTime
+  updatedAt: DateTime

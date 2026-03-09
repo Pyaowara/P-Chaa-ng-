@@ -1,0 +1,5 @@
+class: CartDetail
+fields:
+  cart: Cart
+  menuItemName: String
+  imageUrl: String

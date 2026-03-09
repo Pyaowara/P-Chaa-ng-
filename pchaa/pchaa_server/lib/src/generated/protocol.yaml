@@ -29,6 +29,10 @@ menuItem:
   - getAvailableMenuItemById:
   - updateMenuItem:
   - deleteMenuItem:
+notification:
+  - registerToken:
+  - removeToken:
+  - sendLoginNotification:
 order:
   - createOrder:
   - confirmOrder:
@@ -39,10 +43,13 @@ order:
   - getOrderById:
   - getOrderItems:
   - getTodayOrder:
-  - getFinishedOrders:
-  - getTodayOrderByType:
+  - getFinishedOrder:
 queue:
   - getQueueCounters:
+store:
+  - getStoreSettings:
+  - updateStoreStatus:
+  - updateStoreSettings:
 user:
   - registerUser:
   - getCurrentUser:

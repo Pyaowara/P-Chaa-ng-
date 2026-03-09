@@ -5,19 +5,22 @@ import 'package:pchaa_flutter/utils/url_utils.dart';
 /// A card widget displaying a single cart item with its details.
 class CartItemCard extends StatelessWidget {
   final Cart cartItem;
-  final MenuItemWithUrl? menuItem;
+  final String rawimageUrl;
+  final String? menuItemName;
   final VoidCallback onDismissed;
 
   const CartItemCard({
     super.key,
     required this.cartItem,
-    this.menuItem,
+    required this.rawimageUrl,
+    this.menuItemName,
     required this.onDismissed,
   });
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = UrlUtils.getDisplayableImageUrl(menuItem?.imageUrl);
+    final imageUrl = UrlUtils.getDisplayableImageUrl(rawimageUrl);
+    print(imageUrl);
 
     return Dismissible(
       key: Key('cart_${cartItem.id}'),
@@ -81,7 +84,7 @@ class CartItemCard extends StatelessWidget {
       children: [
         // Menu name
         Text(
-          menuItem?.name ?? 'Menu Item #${cartItem.menuItemId}',
+          menuItemName ?? 'Menu Item #${cartItem.menuItemId}',
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,

@@ -171,13 +171,34 @@ class _MenuItemFormState extends State<MenuItemForm> {
     );
   }
 
+  List<CustomizationGroup> _filterEmptyOptions() {
+    return _customizationGroups
+        .map((group) {
+          // Filter out options with empty names (unfilled select options)
+          final filteredChoices = group.choices
+              .where((option) => option.name.trim().isNotEmpty)
+              .toList();
+          
+          return CustomizationGroup(
+            title: group.title,
+            pickOne: group.pickOne,
+            choices: filteredChoices,
+          );
+        })
+        // Filter out customization groups with empty titles
+        .where((group) => group.title.trim().isNotEmpty)
+        .toList();
+  }
+
   void _handleSubmit() {
     if (_formKey.currentState?.validate() ?? false) {
+      final cleanedCustomization = _filterEmptyOptions();
+      
       widget.onSubmit(
         name: _nameController.text.trim(),
         basePrice: double.tryParse(_priceController.text) ?? 0,
         timeToPrepare: int.tryParse(_timeController.text) ?? 0,
-        customization: _customizationGroups,
+        customization: cleanedCustomization,
         isAvailable: _isAvailable,
         ingredientIds: _selectedIngredientIds.isEmpty
             ? null

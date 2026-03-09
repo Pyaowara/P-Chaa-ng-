@@ -3,8 +3,10 @@ import 'package:pchaa_client/pchaa_client.dart';
 import 'package:pchaa_flutter/screens/cart_list.dart';
 import 'package:pchaa_flutter/screens/menu_detail_screen.dart';
 import 'package:pchaa_flutter/services/app_services.dart';
-import 'package:pchaa_flutter/utils/url_utils.dart';
-import 'package:pchaa_flutter/widgets/menu_card.dart';
+import 'package:pchaa_flutter/widgets/menu_screen/menu_grid.dart';
+import 'package:pchaa_flutter/widgets/menu_screen/menu_screen_bottom_bar.dart';
+import 'package:pchaa_flutter/widgets/menu_screen/menu_screen_header.dart';
+import 'package:pchaa_flutter/widgets/menu_screen/menu_search_bar.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -33,7 +35,7 @@ class _MenuScreenState extends State<MenuScreen> {
       _cartItemCount = cartService.items.length;
       _cartTotalPrice = cartService.items.fold(
         0,
-        (previousValue, element) => previousValue + element.totalPrice,
+        (previousValue, element) => previousValue + element.cart.totalPrice,
       );
     });
   }
@@ -87,264 +89,107 @@ class _MenuScreenState extends State<MenuScreen> {
           ),
           child: Column(
             children: [
-              Stack(
-                children: [
-                  // Background food image (hidden if logged in)
-                  Container(
-                    height: 300,
-                    decoration: const BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage("assets/images/food.jpg"),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+              MenuScreenHeader(
+                onBack: () {
+                  Navigator.pop(context);
+                },
+              ),
+              if (_isLoading)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: CircularProgressIndicator(),
                   ),
-
-                  // Gradient / overlay container
-                  Container(
-                    height: 300,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.black.withValues(alpha: 0.3),
-                          Colors.black.withValues(alpha: 0.5),
-                        ],
-                      ),
-                      color: Colors.white,
-                    ),
-                  ),
-                  Positioned(
-                    top: 30,
-                    left: 10,
-                    child: IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: Icon(
-                        Icons.chevron_left,
-                        color: Colors.black,
-                        size: 30,
-                      ),
-                    ),
-                  ),
-
-                  // Positioned welcome text and button
-                  Positioned(
-                    bottom: 10,
-                    left: 30,
-                    right: 20,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                )
+              else if (_errorMessage != null)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Flexible(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "MENU",
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 30,
-                                  fontWeight: FontWeight.bold,
-                                  shadows: [
-                                    Shadow(
-                                      offset: Offset(2, 1),
-                                      blurRadius: 10,
-                                      color: Colors.grey,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                        Icon(Icons.error_outline, size: 48, color: Colors.red),
+                        SizedBox(height: 16),
+                        Text(
+                          'Error loading menu',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          _errorMessage!,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                        SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _loadMenuItems,
+                          child: Text('Retry'),
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
-              if (_menuItems == null || _menuItems!.isEmpty)
+                )
+              else if (_menuItems == null || _menuItems!.isEmpty)
                 Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.restaurant_menu, size: 48, color: Colors.grey),
-                      SizedBox(height: 16),
-                      Text('No menu items found'),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.restaurant_menu, size: 48, color: Colors.grey),
+                        SizedBox(height: 16),
+                        Text('No menu items found'),
+                      ],
+                    ),
                   ),
                 ),
 
-              Container(
-                margin: const EdgeInsets.only(top: 10, left: 20, right: 20),
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                height: 44,
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(87, 104, 159, 180),
-                  borderRadius: BorderRadius.circular(12),
+              if (!_isLoading && _errorMessage == null)
+                MenuSearchBar(
+                  controller: searchController,
+                  onChanged: _filterItems,
                 ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.search, color: Colors.grey),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        controller: searchController,
-                        onChanged: (value) {
-                          _filterItems(value);
-                        },
-                        decoration: const InputDecoration(
-                          hintText: 'Search',
-                          border: InputBorder.none,
+              if (!_isLoading && _errorMessage == null)
+                MenuGrid(
+                  filteredItems: _filteredItems,
+                  isShopOpen: isShopOpen,
+                  onAdd: (item) async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MenuDetailScreen(
+                          menuId: item.id!,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2, // 👈 2 columns
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    // Make tiles taller to avoid content overflow
-                    childAspectRatio: 0.95,
-                  ),
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _filteredItems?.length ?? 0,
-                  itemBuilder: (context, index) {
-                    return MenuCard(
-                      imagePath: UrlUtils.getDisplayableImageUrl(
-                        _filteredItems![index].imageUrl,
-                      ),
-                      name: _filteredItems![index].name,
-                      price: _filteredItems![index].basePrice,
-                      isDisabled: !_filteredItems![index].forSale,
-                      onAdd: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => MenuDetailScreen(
-                              menuId: _filteredItems![index].id!,
-                            ),
-                          ),
-                        );
-                        setState(() {
-                          _loadCart();
-                        });
-                      },
                     );
+                    setState(() {
+                      _loadCart();
+                    });
                   },
                 ),
-              ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: (isLoggedIn && isShopOpen)
-                  ? () async {
-                      // ScaffoldMessenger.of(context).showSnackBar(
-                      //   const SnackBar(
-                      //     content: Text(
-                      //       'Add to cart functionality coming soon!',
-                      //     ),
-                      //   ),
-                      // );
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CartList(),
-                        ),
-                      );
-                      setState(() {
-                        _loadCart();
-                      });
-                    }
-                  : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5B8FA3),
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: (isLoggedIn && isShopOpen)
-                    ? Row(
-                        // crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            // crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              if (_cartItemCount != 0)
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: 5,
-                                    horizontal: 10,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.rectangle,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Text(
-                                    _cartItemCount.toString(),
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF5B8FA3),
-                                    ),
-                                  ),
-                                ),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              Text(
-                                "ออร์เดอร์ของฉัน",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Text(
-                            "฿${_cartTotalPrice}",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                            ),
-                          ),
-                        ],
-                      )
-                    : Text(
-                        (isShopOpen ? "ต้อง Login ก่อน" : "ร้านยังไม่เปิด"),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
-                      ),
-              ),
+      bottomNavigationBar: MenuScreenBottomBar(
+        isLoggedIn: isLoggedIn,
+        isShopOpen: isShopOpen,
+        cartItemCount: _cartItemCount,
+        cartTotalPrice: _cartTotalPrice,
+        onTap: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CartList(),
             ),
-          ),
-        ),
+          );
+          setState(() {
+            _loadCart();
+          });
+        },
       ),
     );
   }

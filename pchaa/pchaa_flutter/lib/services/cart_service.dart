@@ -4,11 +4,11 @@ import 'package:pchaa_flutter/services/app_services.dart';
 
 /// CartService manages the user's cart locally and syncs with the server.
 class CartService extends ChangeNotifier {
-  List<Cart> _items = [];
+  List<CartDetail> _items = [];
   bool _loading = false;
   String? _error;
 
-  List<Cart> get items => _items;
+  List<CartDetail> get items => _items;
   bool get isLoading => _loading;
   String? get error => _error;
 
@@ -42,7 +42,8 @@ class CartService extends ChangeNotifier {
       quantity,
       message,
     );
-    _items.add(created);
+    // Refresh to get menuItemName from server
+    await refresh();
     notifyListeners();
     await _onCartUpdated(created);
     return created;
@@ -61,12 +62,8 @@ class CartService extends ChangeNotifier {
       quantity,
       message,
     );
-    final idx = _items.indexWhere((c) => c.id == cartId);
-    if (idx != -1) {
-      _items[idx] = updated;
-    } else {
-      _items.add(updated);
-    }
+    // Refresh to get updated data
+    await refresh();
     notifyListeners();
     await _onCartUpdated(updated);
     return updated;
@@ -75,7 +72,7 @@ class CartService extends ChangeNotifier {
   /// Remove a cart line from server and locally
   Future<void> remove(int cartId) async {
     await client.cart.deleteCart(cartId);
-    _items.removeWhere((c) => c.id == cartId);
+    _items.removeWhere((c) => c.cart.id == cartId);
     notifyListeners();
     await _onCartUpdated();
   }

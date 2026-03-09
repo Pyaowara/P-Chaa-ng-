@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
 import 'package:pchaa_flutter/constants/app_constants.dart';
-import 'package:pchaa_flutter/screens/add_menu_page.dart';
-import 'package:pchaa_flutter/screens/edit_menu_page.dart';
-import 'package:pchaa_flutter/screens/ingredient_management.dart';
 import 'package:pchaa_flutter/screens/main_page.dart';
+import 'package:pchaa_flutter/screens/menu_management.dart';
+import 'package:pchaa_flutter/screens/order_list_screen.dart';
 import 'package:pchaa_flutter/services/app_services.dart';
-import 'package:pchaa_flutter/services/menu_item_service.dart';
-import 'package:pchaa_flutter/utils/url_utils.dart';
 import 'package:pchaa_flutter/widgets/common/app_button.dart';
-import 'package:pchaa_flutter/widgets/google_login_button.dart';
+import 'package:pchaa_flutter/widgets/owner_page/owner_page_header.dart';
+import 'package:pchaa_flutter/widgets/owner_page/store_toggle.dart';
+import 'dart:async';
+import 'package:pchaa_flutter/widgets/owner_page/store_time_pickers.dart';
+import 'package:pchaa_flutter/services/owner_order_services.dart';
+import 'package:pchaa_flutter/widgets/owner_page/active_orders_list.dart';
 
 class OwnerMainPage extends StatefulWidget {
   const OwnerMainPage({super.key});
@@ -20,27 +22,128 @@ class OwnerMainPage extends StatefulWidget {
 
 class _OwnerMainPageState extends State<OwnerMainPage> {
   bool isLoggedIn = googleAuthService.isLoggedIn;
-  final MenuItemService _menuItemService = MenuItemService();
-  bool _isLoadingMenuItems = true;
+  bool _isOpen = isShopOpen;
+  bool _isTogglingStore = false;
+  TimeOfDay _openTime = _parseTime(settings.openTime);
+  TimeOfDay _closeTime = _parseTime(settings.closeTime);
+
+  final OwnerOrderService _orderService = OwnerOrderService();
+  Timer? _refreshTimer;
+
+  static TimeOfDay _parseTime(String timeStr) {
+    final parts = timeStr.split(':');
+    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+  }
+
+  static String _formatTime(TimeOfDay t) {
+    return '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}:00';
+  }
 
   @override
   void initState() {
     super.initState();
-    _loadMenuItems();
+    _fetchStoreStatus();
+    _loadOrders();
+    _startAutoRefresh();
   }
 
-  Future<void> _loadMenuItems() async {
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadOrders() async {
+    try {
+      await _orderService.fetchTodayOrders();
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      debugPrint('Error loading orders: $e');
+    }
+  }
+
+  void _startAutoRefresh() {
+    _refreshTimer?.cancel();
+    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      _loadOrders();
+    });
+  }
+
+  Future<void> _fetchStoreStatus() async {
+    try {
+      final storeSettings = await client.store.getStoreSettings();
+      if (mounted) {
+        setState(() {
+          _isOpen = storeSettings.isOpen;
+          isShopOpen = storeSettings.isOpen;
+          _openTime = _parseTime(storeSettings.openTime);
+          _closeTime = _parseTime(storeSettings.closeTime);
+        });
+      }
+    } catch (e) {
+      debugPrint('Failed to fetch store status: $e');
+    }
+  }
+
+  Future<void> _pickTime({required bool isOpenTime}) async {
+    final initial = isOpenTime ? _openTime : _closeTime;
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: initial,
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
+    );
+    if (picked == null || !mounted) return;
+
     setState(() {
-      _isLoadingMenuItems = true;
+      if (isOpenTime) {
+        _openTime = picked;
+      } else {
+        _closeTime = picked;
+      }
+    });
+
+    try {
+      await client.store.updateStoreSettings(
+        StoreSettings(
+          isOpen: _isOpen,
+          openTime: _formatTime(_openTime),
+          closeTime: _formatTime(_closeTime),
+          autoOpenClose: settings.autoOpenClose,
+        ),
+      );
+      settings = settings.copyWith(
+        openTime: _formatTime(_openTime),
+        closeTime: _formatTime(_closeTime),
+      );
+    } catch (e) {
+      debugPrint('Failed to update store times: $e');
+    }
+  }
+
+  Future<void> _toggleStoreStatus() async {
+    setState(() {
+      _isTogglingStore = true;
     });
     try {
-      await _menuItemService.fetchAllMenuItems();
+      final newStatus = !_isOpen;
+      await client.store.updateStoreStatus(newStatus);
+      setState(() {
+        _isOpen = newStatus;
+        isShopOpen = newStatus;
+      });
     } catch (e) {
-      debugPrint('Error loading menu items: $e');
+      debugPrint('Failed to toggle store status: $e');
     } finally {
       if (mounted) {
         setState(() {
-          _isLoadingMenuItems = false;
+          _isTogglingStore = false;
         });
       }
     }
@@ -52,95 +155,36 @@ class _OwnerMainPageState extends State<OwnerMainPage> {
     });
   }
 
-  Future<void> _navigateToEditMenu(MenuItemWithUrl menuItem) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EditMenuPage(menuItem: menuItem),
-      ),
-    );
-    if (result == true) {
-      _loadMenuItems();
-    }
-  }
-
-  Future<void> _navigateToAddMenu() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const AddMenuPage(),
-      ),
-    );
-    if (result == true) {
-      _loadMenuItems();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          // Header styled like main_page
-          Stack(
-            children: [
-              Container(
-                height: 150,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                ),
-              ),
-              Positioned(
-                bottom: 20,
-                left: 30,
-                right: 20,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Flexible(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'ยินดีต้อนรับ',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            googleAuthService.name ?? "เจ้าของร้าน",
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 20,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    GoogleLoginButton(
-                      onLoginSuccess: () {
-                        _updateLoginStatus();
-                      },
-                      onLogoutSuccess: () {
-                        _updateLoginStatus();
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (_) => const MainPage(),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          // Header
+          OwnerPageHeader(
+            onLoginSuccess: _updateLoginStatus,
+            onLogoutSuccess: () {
+              _updateLoginStatus();
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const MainPage()),
+              );
+            },
+          ),
+
+          // Store toggle
+          StoreToggle(
+            isOpen: _isOpen,
+            isToggling: _isTogglingStore,
+            onToggle: _toggleStoreStatus,
+          ),
+
+          // Time pickers
+          StoreTimePickers(
+            openTime: _openTime,
+            closeTime: _closeTime,
+            onPickOpenTime: () => _pickTime(isOpenTime: true),
+            onPickCloseTime: () => _pickTime(isOpenTime: false),
           ),
 
           const SizedBox(height: 10),
@@ -156,7 +200,7 @@ class _OwnerMainPageState extends State<OwnerMainPage> {
                   topRight: Radius.circular(AppRadius.extraLarge),
                 ),
               ),
-              child: SingleChildScrollView(
+              child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,81 +214,46 @@ class _OwnerMainPageState extends State<OwnerMainPage> {
                     // Add Menu button
                     AppButton(
                       icon: Icons.restaurant_menu,
-                      label: 'เพิ่มเมนู',
-                      onPressed: _navigateToAddMenu,
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Ingredient Management button
-                    AppButton(
-                      icon: Icons.inventory_2,
-                      label: 'จัดการวัตถุดิบ',
+                      label: 'จัดการเมนู',
                       onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                const IngredientManagementPage(),
+                            builder: (context) => const MenuManagementPage(),
                           ),
                         );
                       },
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Menu items section
-                    const Text(
-                      'รายการเมนูทั้งหมด',
-                      style: AppTextStyles.sectionTitle,
                     ),
                     const SizedBox(height: 12),
 
-                    if (_isLoadingMenuItems)
-                      const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(20),
-                          child: CircularProgressIndicator(),
-                        ),
-                      )
-                    else if (_menuItemService.menuItems.isEmpty)
-                      const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(20),
-                          child: Text(
-                            'ยังไม่มีเมนู',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      )
-                    else
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _menuItemService.menuItems.length,
-                        itemBuilder: (context, index) {
-                          final item = _menuItemService.menuItems[index];
-                          return _buildMenuItemCard(item);
-                        },
-                      ),
-
-                    const SizedBox(height: 24),
-
-                    // Switch to Main Page button
+                    // Order Management button
                     AppButton(
-                      icon: Icons.storefront,
-                      label: 'ไปหน้าหลัก',
+                      icon: Icons.assignment,
+                      label: 'รายการสั่งซื้อ',
                       onPressed: () {
-                        Navigator.pushReplacement(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const MainPage(),
+                            builder: (context) => const OrderListScreen(),
                           ),
                         );
                       },
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
+
+                    const Text(
+                      'ออเดอร์ใหม่',
+                      style: AppTextStyles.sectionTitle,
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: ActiveOrdersList(
+                        isLoading: _orderService.isLoading,
+                        todayOrders: _orderService.todayOrders,
+                        getUserNameForOrder: _orderService.getUserNameForOrder,
+                        onOrderManaged: _loadOrders,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -252,99 +261,34 @@ class _OwnerMainPageState extends State<OwnerMainPage> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildMenuItemCard(MenuItemWithUrl item) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadius.medium),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadius.medium),
-        onTap: () => _navigateToEditMenu(item),
+      bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              // Menu image
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: UrlUtils.getDisplayableImageUrl(item.imageUrl).isNotEmpty
-                    ? Image.network(
-                        UrlUtils.getDisplayableImageUrl(item.imageUrl),
-                        width: 60,
-                        height: 60,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          width: 60,
-                          height: 60,
-                          color: Colors.grey.shade300,
-                          child: const Icon(
-                            Icons.restaurant_menu,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      )
-                    : Container(
-                        width: 60,
-                        height: 60,
-                        color: Colors.grey.shade300,
-                        child: const Icon(
-                          Icons.restaurant_menu,
-                          color: Colors.grey,
-                        ),
-                      ),
-              ),
-              const SizedBox(width: 12),
-              // Menu details
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '฿${item.basePrice.toStringAsFixed(0)}',
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
+          padding: const EdgeInsets.all(16),
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MainPage()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF5B8FA3),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              // Availability status
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: item.isAvailable
-                      ? Colors.green.withOpacity(0.1)
-                      : Colors.red.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  item.isAvailable ? 'พร้อมขาย' : 'ไม่พร้อม',
-                  style: TextStyle(
-                    color: item.isAvailable ? Colors.green : Colors.red,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
+              child: const Text(
+                'ไปหน้าหลัก',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
                 ),
               ),
-              const SizedBox(width: 8),
-              const Icon(Icons.chevron_right, color: Colors.grey),
-            ],
+            ),
           ),
         ),
       ),

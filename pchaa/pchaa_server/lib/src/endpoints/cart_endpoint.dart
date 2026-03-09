@@ -3,10 +3,11 @@ import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart';
 import '../utils/auth_utils.dart';
 import '../utils/menu_items_utils.dart';
+import '../utils/s3_utils.dart';
 
 class CartEndpoint extends Endpoint {
 
-  Future<List<Cart>> getMyCart(Session session) async {
+  Future<List<CartDetail>> getMyCart(Session session) async {
     final user =await AuthUtils.allowedRoles(session, [UserRole.user]);
     
     final carts = await Cart.db.find(
@@ -14,7 +15,23 @@ class CartEndpoint extends Endpoint {
       where: (t) => t.userId.equals(user.id!),
     );
     session.log("[CartEndpoint] Fetched cart for userId: ${user.id}");
-    return carts;
+    
+    var result = <CartDetail>[];
+    for (var cart in carts) {
+      final menuItem = await MenuItem.db.findById(session, cart.menuItemId);
+      final menuItemName = menuItem?.name ?? "Unknown Item";
+      var imageUrl = "";
+      if (menuItem?.s3Key != null) {
+        imageUrl = S3Utils.getMenuImageUrl(session, menuItem!.s3Key!);
+      }
+      result.add(CartDetail(
+        cart: cart,
+        menuItemName: menuItemName,
+        imageUrl: imageUrl,
+      ));
+    }
+    
+    return result;
   }
 
   Future<Cart> getCartById(Session session, int cartId) async {
