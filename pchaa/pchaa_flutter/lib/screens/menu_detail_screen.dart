@@ -163,6 +163,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
             child: _buildContent(_menuDetail),
           ),
           bottomNavigationBar: BottomBar(
+            isLogin: googleAuthService.isLoggedIn,
             isShopOpened: _isShopOpen,
             quantity: _quantity,
             onQuantityChanged: (value) {
@@ -329,6 +330,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
 
 class BottomBar extends StatelessWidget {
   final int quantity;
+  final bool isLogin;
   final AvailableMenuItem? menuDetail;
   final bool isShopOpened;
   final ValueChanged<int> onQuantityChanged;
@@ -338,6 +340,7 @@ class BottomBar extends StatelessWidget {
   final Color primaryColor;
   const BottomBar({
     super.key,
+    required this.isLogin,
     required this.isShopOpened,
     required this.quantity,
     required this.menuDetail,
@@ -368,7 +371,7 @@ class BottomBar extends StatelessWidget {
           Row(
             children: [
               IconButton(
-                onPressed: quantity > 1
+                onPressed: quantity > 1 && isLogin
                     ? () => onQuantityChanged(quantity - 1)
                     : null,
                 icon: const Icon(Icons.remove),
@@ -379,7 +382,7 @@ class BottomBar extends StatelessWidget {
                 style: const TextStyle(fontSize: 20),
               ),
               IconButton(
-                onPressed: () => onQuantityChanged(quantity + 1),
+                onPressed: isLogin ? () => onQuantityChanged(quantity + 1) : null,
                 icon: const Icon(Icons.add),
                 style: const ButtonStyle(),
               ),
@@ -387,7 +390,7 @@ class BottomBar extends StatelessWidget {
           ),
           Expanded(
             child: ElevatedButton(
-              onPressed: isShopOpened && quantity > 0 && menuDetail?.forSale == true ? onAddToCart : null,
+              onPressed: isShopOpened && quantity > 0 && menuDetail?.forSale == true && isLogin ? onAddToCart : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
                 foregroundColor: Colors.black,

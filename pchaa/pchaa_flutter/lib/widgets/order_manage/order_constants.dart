@@ -20,8 +20,6 @@ class OrderConstants {
         return 'ลูกค้ารับแล้ว';
       case OrderStatus.cancelled:
         return 'ยกเลิก';
-      default:
-        return status.toString();
     }
   }
 
@@ -31,8 +29,6 @@ class OrderConstants {
         return 'สั่งทันที';
       case OrderType.S:
         return 'สั่งกำหนดเวลา';
-      default:
-        return type.toString();
     }
   }
 
@@ -50,8 +46,6 @@ class OrderConstants {
         return Colors.green;
       case OrderStatus.cancelled:
         return AppColors.error;
-      default:
-        return Colors.grey;
     }
   }
 }

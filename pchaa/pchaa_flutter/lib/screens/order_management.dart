@@ -174,8 +174,6 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
         return [];
       case OrderStatus.cancelled:
         return [];
-      default:
-        return [];
     }
   }
 

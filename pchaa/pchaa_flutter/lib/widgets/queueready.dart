@@ -67,7 +67,7 @@ class _QueuereadyState extends State<Queueready> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading || items.isEmpty) {
+    if (_isLoading) {
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 20),
         padding: EdgeInsets.all(5),
@@ -84,11 +84,7 @@ class _QueuereadyState extends State<Queueready> {
             ),
           ],
         ),
-        child: Center(
-          child: _isLoading
-              ? CircularProgressIndicator()
-              : Text('ไม่มีออเดอร์ที่พร้อมเสริฟ'),
-        ),
+        child: Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -199,13 +195,14 @@ class _QueuereadyState extends State<Queueready> {
                 );
               },
             ),
-            Padding(
-              padding: const EdgeInsets.only(right: 10.0),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Text("เลื่อนเพื่อดูคิวเพิ่ม"),
+            if (!_isLoading && items.length > 6)
+              Padding(
+                padding: const EdgeInsets.only(right: 10.0),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Text("เลื่อนเพื่อดูคิวเพิ่ม"),
+                ),
               ),
-            ),
           ],
         ),
       ),

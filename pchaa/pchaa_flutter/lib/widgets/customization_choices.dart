@@ -27,6 +27,10 @@ class CustomizationChoices extends StatelessWidget {
             customizationGroup.title,
             style: TextStyle(fontSize: 18),
           ),
+          Text(
+            'Pick ${customizationGroup.pickOne ? "One" : "Any"}',
+            style: TextStyle(fontSize: 12),
+          ),
           if (customizationGroup.pickOne)
             _buildSingleCheckboxGroup(customizationGroup.choices)
           else

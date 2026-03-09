@@ -135,7 +135,7 @@ class MenuCard extends StatelessWidget {
 
                   // Add button
                   GestureDetector(
-                    onTap: onAdd,
+                    onTap: isDisabled ? null : onAdd,
                     child: Container(
                       width: 30,
                       height: 30,

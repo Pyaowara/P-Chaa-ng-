@@ -183,6 +183,8 @@ class _CustomerOrderStatusState extends State<CustomerOrderStatus> {
             SizedBox(
               height: 20,
             ),
+            if (_orderdetail!.replyMessage != null)
+              Container(padding: EdgeInsets.all(10),decoration: BoxDecoration(borderRadius: BorderRadius.circular(16),color: Color.fromARGB(255, 255, 241, 133)),child: Row(spacing: 10,children: [Icon(Icons.warning,color: Colors.black.withAlpha(120)),Text("สาเหตุที่ยกเลิก: ",style: TextStyle(fontWeight: FontWeight.bold,color: Color.fromARGB(255, 208, 135, 0)),),Text(_orderdetail!.replyMessage!,style: TextStyle(color: Color.fromARGB(255, 208, 135, 0)),)],),),
             Text(
               "ออเดอร์ของฉัน",
               textAlign: TextAlign.left,
@@ -235,7 +237,7 @@ class _CustomerOrderStatusState extends State<CustomerOrderStatus> {
                           ],
                         ),
                       Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                        crossAxisAlignment: hasQueueOrPrepInfo ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                         children: [
                           Text(
                             "ราคารวม",
@@ -243,7 +245,7 @@ class _CustomerOrderStatusState extends State<CustomerOrderStatus> {
                             textAlign: TextAlign.center,
                           ),
                           Text(
-                            '฿${_orderdetail?.totalOrderPrice}',
+                            '฿${_orderdetail?.totalOrderPrice.toStringAsFixed(2)}',
                             style: TextStyle(fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center,
                           ),

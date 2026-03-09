@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
-import 'package:pchaa_flutter/widgets/order_status/order_status_stepper.dart';
-
 class OrderStatusIcon extends StatefulWidget {
   final OrderStatus orderStatus;
   const OrderStatusIcon({

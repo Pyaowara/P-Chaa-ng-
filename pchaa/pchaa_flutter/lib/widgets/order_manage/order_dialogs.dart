@@ -124,7 +124,7 @@ class OrderDialogs {
                         Expanded(
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
+                              backgroundColor: Colors.red,
                             ),
                             onPressed: () {
                               Navigator.pop(context);
@@ -136,7 +136,7 @@ class OrderDialogs {
                             },
                             child: const Text(
                               'ปฎิเสธ',
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),
