@@ -46,13 +46,19 @@ class _MainPageState extends State<MainPage> {
   void _startOrdersAutoRefresh() {
     _ordersRefreshTimer?.cancel();
     _ordersRefreshTimer = Timer.periodic(const Duration(seconds: 5), (_) {
-      _fetchMyOrders();
+      if (isLoggedIn) {
+
+        _fetchMyOrders();
+      }
     });
   }
 
   Future<void> _initializePage() async {
     await _fetchStoreStatus();
-    await _fetchMyOrders();
+    if (isLoggedIn) {
+
+      await _fetchMyOrders();
+    }
 
     if (!mounted || _didOpenInitialOrder || widget.orderToOpen == null) {
       return;

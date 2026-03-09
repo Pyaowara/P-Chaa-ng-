@@ -168,46 +168,89 @@ class _MenuScreenState extends State<MenuScreen> {
                   ),
                 ],
               ),
-              if (_menuItems == null || _menuItems!.isEmpty)
+              if (_isLoading)
                 Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.restaurant_menu, size: 48, color: Colors.grey),
-                      SizedBox(height: 16),
-                      Text('No menu items found'),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              else if (_errorMessage != null)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error_outline, size: 48, color: Colors.red),
+                        SizedBox(height: 16),
+                        Text(
+                          'Error loading menu',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          _errorMessage!,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                        SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _loadMenuItems,
+                          child: Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else if (_menuItems == null || _menuItems!.isEmpty)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.restaurant_menu, size: 48, color: Colors.grey),
+                        SizedBox(height: 16),
+                        Text('No menu items found'),
+                      ],
+                    ),
                   ),
                 ),
 
-              Container(
-                margin: const EdgeInsets.only(top: 10, left: 20, right: 20),
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                height: 44,
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(87, 104, 159, 180),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.search, color: Colors.grey),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        controller: searchController,
-                        onChanged: (value) {
-                          _filterItems(value);
-                        },
-                        decoration: const InputDecoration(
-                          hintText: 'Search',
-                          border: InputBorder.none,
+              if (!_isLoading && _errorMessage == null)
+                Container(
+                  margin: const EdgeInsets.only(top: 10, left: 20, right: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(87, 104, 159, 180),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.search, color: Colors.grey),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextField(
+                          controller: searchController,
+                          onChanged: (value) {
+                            _filterItems(value);
+                          },
+                          decoration: const InputDecoration(
+                            hintText: 'Search',
+                            border: InputBorder.none,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Container(
+              if (!_isLoading && _errorMessage == null)
+                Container(
                 margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                 child: GridView.builder(
                   shrinkWrap: true,
@@ -227,7 +270,7 @@ class _MenuScreenState extends State<MenuScreen> {
                       ),
                       name: _filteredItems![index].name,
                       price: _filteredItems![index].basePrice,
-                      isDisabled: !_filteredItems![index].forSale,
+                      isDisabled: !_filteredItems![index].forSale || !isShopOpen,
                       onAdd: () async {
                         await Navigator.push(
                           context,
@@ -257,13 +300,6 @@ class _MenuScreenState extends State<MenuScreen> {
             child: ElevatedButton(
               onPressed: (isLoggedIn && isShopOpen)
                   ? () async {
-                      // ScaffoldMessenger.of(context).showSnackBar(
-                      //   const SnackBar(
-                      //     content: Text(
-                      //       'Add to cart functionality coming soon!',
-                      //     ),
-                      //   ),
-                      // );
                       await Navigator.push(
                         context,
                         MaterialPageRoute(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pchaa_client/pchaa_client.dart';
-import 'package:pchaa_flutter/services/app_services.dart';
 import 'package:pchaa_flutter/widgets/myqueue.dart';
 import 'package:pchaa_flutter/widgets/queueready.dart';
 

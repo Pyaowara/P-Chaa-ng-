@@ -31,7 +31,7 @@ class OwnerOrderService extends ChangeNotifier {
         final order = item.order;
         final userName = item.userName;
         _todayOrders.add(order);
-        if (order.id != null && userName != null) {
+        if (order.id != null) {
           _orderUserNames[order.id!] = userName;
         }
       }
